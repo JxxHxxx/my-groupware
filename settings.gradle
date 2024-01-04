@@ -1,0 +1,6 @@
+rootProject.name = 'app'
+
+include('vacation-core')
+include('vacation-api')
+include('vacation-messaging')
+include('vacation-batch')
