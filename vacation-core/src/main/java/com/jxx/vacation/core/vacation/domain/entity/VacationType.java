@@ -1,8 +1,11 @@
-package com.jxx.vacation.core.vacation.domain;
+package com.jxx.vacation.core.vacation.domain.entity;
+
+import lombok.Getter;
 
 /**
  * 추후 버전에서는 회사마다 휴가 체계가
  */
+@Getter
 public enum VacationType {
     MORE_DAY("1일 이상의 연차"),
     HALF_MORNING("반차-오전"),
@@ -12,5 +15,9 @@ public enum VacationType {
 
     VacationType(String description) {
         this.description = description;
+    }
+
+    boolean isDeductedFromLeave() {
+        return !this.equals(NOT_DEDUCTED);
     }
 }

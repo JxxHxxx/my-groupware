@@ -2,7 +2,7 @@ package com.jxx.vacation.core.company.domain;
 
 import org.junit.jupiter.api.Test;
 
-class MemberVacationTest {
+class MemberLeaveTest {
 
     @Test
     void test() {

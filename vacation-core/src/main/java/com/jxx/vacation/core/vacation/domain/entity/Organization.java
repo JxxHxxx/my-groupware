@@ -1,8 +1,10 @@
-package com.jxx.vacation.core.company.domain;
+package com.jxx.vacation.core.vacation.domain.entity;
 
 
+import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -40,5 +42,20 @@ public class Organization {
     @Column(name = "NAME", nullable = false)
     @Comment(value = "부서 명")
     private String name;
+
+    @Builder
+    public Organization(String companyId, String companyName, String organizationId, String name) {
+        this.isActive = true;
+        this.companyId = companyId;
+        this.companyName = companyName;
+        this.organizationId = organizationId;
+        this.name = name;
+    }
+
+    public void checkActive() throws InactiveException {
+        if (!isActive) {
+            throw new InactiveException("활성화 되어있지 않은 조직입니다.");
+        }
+    }
 
 }

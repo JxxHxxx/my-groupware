@@ -1,4 +1,4 @@
-package com.jxx.vacation.core.vacation.domain;
+package com.jxx.vacation.core.vacation.domain.entity;
 
 import lombok.Getter;
 
@@ -9,7 +9,9 @@ public enum VacationStatus {
     APPROVAL("결재 요청"),
     REJECT("결재 반려"),
     APPROVED("결재 승인"),
-    CANCELED("연차 취소");
+    CANCELED("연차 취소"),
+    COMPLETED("연차 소진 완료"),
+    FAIL("신청 실패");
 
     private final String description;
 

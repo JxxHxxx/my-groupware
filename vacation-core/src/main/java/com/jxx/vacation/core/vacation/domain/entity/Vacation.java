@@ -1,4 +1,4 @@
-package com.jxx.vacation.core.vacation.domain;
+package com.jxx.vacation.core.vacation.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.envers.Audited;
+
+import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Getter
 @Entity
@@ -24,16 +26,18 @@ public class Vacation {
     @Comment(value = "연차 신청자 ID")
     private String requesterId;
 
-    // 기간
     @Embedded
     private VacationDuration vacationDuration;
 
+    @Column(name = "iS_DEDUCTED_FROM_LEAVE", nullable = false)
     @Comment(value = "연차에서 차감되는 휴가 여부")
     private boolean isDeductedFromLeave;
 
     @Column(name = "VACATION_STATUS", nullable = false)
     @Comment(value = "연차 상태")
+    @Enumerated(value = EnumType.STRING)
     private VacationStatus vacationStatus;
+
 
     @Builder
     public Vacation(String requesterId, VacationDuration vacationDuration, boolean isDeductedFromLeave, VacationStatus vacationStatus) {
@@ -41,5 +45,32 @@ public class Vacation {
         this.vacationDuration = vacationDuration;
         this.isDeductedFromLeave = isDeductedFromLeave;
         this.vacationStatus = vacationStatus;
+    }
+
+    public static Vacation requestVacation(String requesterId, VacationDuration vacationDuration) {
+        return new Vacation(requesterId, vacationDuration, true, REQUEST);
+    }
+
+    public boolean validateDeductedLeave() {
+        VacationType vacationType = this.vacationDuration.getVacationType();
+        this.isDeductedFromLeave = vacationType.isDeductedFromLeave();
+        return this.isDeductedFromLeave;
+    }
+
+    public void changeVacationStatus(VacationStatus vacationStatus) {
+        this.vacationStatus = vacationStatus;
+    }
+
+    public boolean isFailVacationStatus() {
+        return FAIL.equals(this.vacationStatus);
+    }
+
+    public VacationType vacationType() {
+        return this.getVacationDuration().getVacationType();
+    }
+
+    public boolean isMoreThanDayVacation(){
+        VacationType vacationType = vacationType();
+        return vacationType.equals(VacationType.MORE_DAY);
     }
 }

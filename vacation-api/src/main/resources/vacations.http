@@ -1,0 +1,22 @@
+### 휴가 신청 POST
+
+POST http://localhost:8080/vacations
+Content-Type: application/json
+
+{
+  "requestId": "U00001",
+  "vacationDuration": {
+    "vacationType": "MORE_DAY",
+    "startDateTime": "2024-01-08T00:00",
+    "endDateTime": "2024-01-10T00:00"
+  }
+}
+###
+
+POST http://localhost:8080/members
+
+
+###
+
+POST http://localhost:8080/vacations/{vacation-id}/approval
+Content-Type: application/json
