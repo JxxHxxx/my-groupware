@@ -5,14 +5,17 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.time.LocalDate;
 
 @Getter
 @Entity
+@Audited
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "VACATION_MEMBER_MASTER")
-public class Member {
+@Table(name = "JXX_MEMBER_VACATION_MASTER")
+public class MemberVacation {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MEMBER_PK")
@@ -42,6 +45,7 @@ public class Member {
 
 
     // 겸직 사용자를 위해 ManyToOne
+    @NotAudited
     @ManyToOne
     @JoinColumns(value = {
             @JoinColumn(referencedColumnName = "COMPANY_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)),

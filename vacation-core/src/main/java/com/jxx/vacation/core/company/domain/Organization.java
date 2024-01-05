@@ -6,11 +6,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.envers.Audited;
+
+import static org.hibernate.envers.RelationTargetAuditMode.*;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "VACATION_ORGANIZATION_MASTER")
+@Table(name = "JXX_ORGANIZATION_MASTER")
 public class Organization {
 
     @Id

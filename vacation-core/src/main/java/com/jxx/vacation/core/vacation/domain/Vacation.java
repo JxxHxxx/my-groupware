@@ -2,6 +2,7 @@ package com.jxx.vacation.core.vacation.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -34,5 +35,11 @@ public class Vacation {
     @Comment(value = "연차 상태")
     private VacationStatus vacationStatus;
 
-
+    @Builder
+    public Vacation(String requesterId, VacationDuration vacationDuration, boolean isDeductedFromLeave, VacationStatus vacationStatus) {
+        this.requesterId = requesterId;
+        this.vacationDuration = vacationDuration;
+        this.isDeductedFromLeave = isDeductedFromLeave;
+        this.vacationStatus = vacationStatus;
+    }
 }
