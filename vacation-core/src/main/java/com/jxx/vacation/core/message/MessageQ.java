@@ -1,6 +1,5 @@
 package com.jxx.vacation.core.message;
 
-import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -8,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.descriptor.jdbc.JsonJdbcType;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -34,9 +31,13 @@ public class MessageQ {
     private MessageDestination messageDestination;
 
     @Type(JsonType.class)
-    @Column(name = "PAYLOAD", columnDefinition = "json")
+    @Column(name = "BODY", columnDefinition = "json")
     @Comment(value = "메시지 본문")
-    private Map<String, Object> payload = new HashMap<>();
+    private Map<String, Object> body = new HashMap<>();
+
+    @Column(name = "MESSAGE_PROCESS_STATUS", nullable = false)
+    @Comment(value = "메시지 처리 상태")
+    private MessageProcessStatus messageProcessStatus;
 
     @Column(name = "EVENT_TIME", nullable = false)
     @Comment(value = "메시지 생성 시간")
@@ -47,9 +48,10 @@ public class MessageQ {
     private LocalDateTime processTime;
 
     @Builder
-    public MessageQ(MessageDestination messageDestination, Map<String, Object> payload) {
+    public MessageQ(MessageDestination messageDestination, MessageProcessStatus messageProcessStatus, Map<String, Object> body) {
         this.messageDestination = messageDestination;
-        this.payload = payload;
+        this.messageProcessStatus = messageProcessStatus;
+        this.body = body;
         this.processTime = null;
         this.eventTime = LocalDateTime.now();
     }

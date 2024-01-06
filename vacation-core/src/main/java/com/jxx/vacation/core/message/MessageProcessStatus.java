@@ -1,6 +1,6 @@
 package com.jxx.vacation.core.message;
 
-public enum MessageStatus {
+public enum MessageProcessStatus {
 
     SENT("전송 완료"),
     PROCESS("처리 중"),
@@ -9,7 +9,7 @@ public enum MessageStatus {
 
     private final String description;
 
-    MessageStatus(String description) {
+    MessageProcessStatus(String description) {
         this.description = description;
     }
 }
