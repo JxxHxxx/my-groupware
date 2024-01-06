@@ -9,7 +9,7 @@ public class LeaveManager {
 
     private final static float HALF_VACATION_DEDUCTED_VALE = 0.5F;
 
-    public static float calculateDeductionDateBecauseOf(Vacation vacation) {
+    public static float calculateDurationOf(Vacation vacation) {
         if (vacation.isDeductedFromLeave() && isMoreOneDay(vacation)) {
             return vacation.getVacationDuration().calculateDate();
         }

@@ -34,7 +34,7 @@ public class Vacation {
     private boolean isDeductedFromLeave;
 
     @Column(name = "VACATION_STATUS", nullable = false)
-    @Comment(value = "연차 상태")
+    @Comment(value = "휴가 신청 상태")
     @Enumerated(value = EnumType.STRING)
     private VacationStatus vacationStatus;
 
@@ -47,8 +47,8 @@ public class Vacation {
         this.vacationStatus = vacationStatus;
     }
 
-    public static Vacation requestVacation(String requesterId, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, vacationDuration, true, REQUEST);
+    public static Vacation createVacation(String requesterId, VacationDuration vacationDuration) {
+        return new Vacation(requesterId, vacationDuration, true, CREATE);
     }
 
     public boolean validateDeductedLeave() {

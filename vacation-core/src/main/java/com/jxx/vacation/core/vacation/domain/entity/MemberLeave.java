@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Entity
 @Audited
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MEMBER_LEAVE_MASTER")
+@Table(name = "JXX_MEMBER_LEAVE_MASTER", indexes = @Index(name = "IDX_MEMBER_LEAVE_MEMBER_ID", columnList = "MEMBER_ID"))
 public class MemberLeave {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,8 +50,8 @@ public class MemberLeave {
     @NotAudited
     @ManyToOne
     @JoinColumns(value = {
-            @JoinColumn(referencedColumnName = "COMPANY_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)),
-            @JoinColumn(referencedColumnName = "ORGANIZATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))})
+            @JoinColumn(name = "COMPANY_ID", referencedColumnName = "COMPANY_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)),
+            @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "DEPARTMENT_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))})
     private Organization organization;
 
 

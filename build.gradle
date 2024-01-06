@@ -85,12 +85,17 @@ project(':vacation-core') {
 
     dependencies {
         //database
-//        runtimeOnly 'com.mysql:mysql-connector-j'
+        runtimeOnly 'com.mysql:mysql-connector-j'
         // company
-        runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+//        runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
         testImplementation 'com.h2database:h2'
 
         implementation 'org.springframework.data:spring-data-envers'
+
+        // json 타입 컬럼을 사용하기 위한 프로젝트 START
+        implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.7.0'
+        implementation 'com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations'
+        // json 타입 컬럼을 사용하기 위한 프로젝트 START END
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }

@@ -8,14 +8,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.hibernate.envers.Audited;
-
-import static org.hibernate.envers.RelationTargetAuditMode.*;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_ORGANIZATION_MASTER")
+@Table(name = "JXX_ORGANIZATION_MASTER", indexes = @Index(name = "IDX_COMPANY_ORG", columnList = "COMPANY_ID, DEPARTMENT_ID"))
 public class Organization {
 
     @Id
@@ -36,20 +33,21 @@ public class Organization {
     @Comment(value = "회사 명")
     private String companyName;
 
-    @Column(name = "ORGANIZATION_ID", nullable = false)
+    @Column(name = "DEPARTMENT_ID", nullable = false)
     @Comment(value = "부서 식별자")
-    private String organizationId;
-    @Column(name = "NAME", nullable = false)
+    private String departmentId;
+
+    @Column(name = "DEPARTMENT_NAME", nullable = false)
     @Comment(value = "부서 명")
-    private String name;
+    private String departmentName;
 
     @Builder
-    public Organization(String companyId, String companyName, String organizationId, String name) {
+    public Organization(String companyId, String companyName, String departmentId, String departmentName) {
         this.isActive = true;
         this.companyId = companyId;
         this.companyName = companyName;
-        this.organizationId = organizationId;
-        this.name = name;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
     }
 
     public void checkActive() throws InactiveException {
