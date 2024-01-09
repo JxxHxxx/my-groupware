@@ -25,7 +25,9 @@ public class MessagingConfiguration {
     @Bean
     public JpaExecutor jpaExecutor() {
         JpaExecutor executor = new JpaExecutor(entityManagerFactory);
-        executor.setNativeQuery("SELECT * FROM JXX_MESSAGE_Q LIMIT 1");
+        executor.setNativeQuery("SELECT * FROM JXX_MESSAGE_Q " +
+                "WHERE MESSAGE_PROCESS_STATUS = 'SENT'" +
+                "LIMIT 1");
         return executor;
     }
 }

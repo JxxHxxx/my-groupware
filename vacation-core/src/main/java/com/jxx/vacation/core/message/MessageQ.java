@@ -37,22 +37,28 @@ public class MessageQ {
 
     @Column(name = "MESSAGE_PROCESS_STATUS", nullable = false)
     @Comment(value = "메시지 처리 상태")
+    @Enumerated(EnumType.STRING)
     private MessageProcessStatus messageProcessStatus;
 
     @Column(name = "EVENT_TIME", nullable = false)
     @Comment(value = "메시지 생성 시간")
     private LocalDateTime eventTime;
 
-    @Column(name = "PROCESS_TIME", nullable = true)
-    @Comment(value = "메시지 처리 시간")
-    private LocalDateTime processTime;
+    @Column(name = "PROCESS_START_TIME", nullable = true)
+    @Comment(value = "메시지 처리 시간 시간")
+    private LocalDateTime processStartTime;
 
     @Builder
     public MessageQ(MessageDestination messageDestination, MessageProcessStatus messageProcessStatus, Map<String, Object> body) {
         this.messageDestination = messageDestination;
         this.messageProcessStatus = messageProcessStatus;
         this.body = body;
-        this.processTime = null;
+        this.processStartTime = null;
         this.eventTime = LocalDateTime.now();
+    }
+
+    public void startProduce() {
+        this.processStartTime = LocalDateTime.now();
+        this.messageProcessStatus = MessageProcessStatus.PROCESS;
     }
 }

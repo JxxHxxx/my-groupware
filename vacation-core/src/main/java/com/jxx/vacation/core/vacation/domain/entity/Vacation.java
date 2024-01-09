@@ -29,9 +29,9 @@ public class Vacation {
     @Embedded
     private VacationDuration vacationDuration;
 
-    @Column(name = "iS_DEDUCTED_FROM_LEAVE", nullable = false)
-    @Comment(value = "연차에서 차감되는 휴가 여부")
-    private boolean isDeductedFromLeave;
+    @Column(name = "DEDUCTED", nullable = false)
+    @Comment(value = "연차에서 차감 여부")
+    private boolean deducted;
 
     @Column(name = "VACATION_STATUS", nullable = false)
     @Comment(value = "휴가 신청 상태")
@@ -40,10 +40,10 @@ public class Vacation {
 
 
     @Builder
-    public Vacation(String requesterId, VacationDuration vacationDuration, boolean isDeductedFromLeave, VacationStatus vacationStatus) {
+    public Vacation(String requesterId, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
         this.requesterId = requesterId;
         this.vacationDuration = vacationDuration;
-        this.isDeductedFromLeave = isDeductedFromLeave;
+        this.deducted = deducted;
         this.vacationStatus = vacationStatus;
     }
 
@@ -53,8 +53,8 @@ public class Vacation {
 
     public boolean validateDeductedLeave() {
         VacationType vacationType = this.vacationDuration.getVacationType();
-        this.isDeductedFromLeave = vacationType.isDeductedFromLeave();
-        return this.isDeductedFromLeave;
+        this.deducted = vacationType.isDeductedFromLeave();
+        return this.deducted;
     }
 
     public void changeVacationStatus(VacationStatus vacationStatus) {

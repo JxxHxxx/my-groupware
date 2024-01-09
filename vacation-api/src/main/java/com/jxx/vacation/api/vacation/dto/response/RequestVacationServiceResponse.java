@@ -4,6 +4,7 @@ import com.jxx.vacation.core.vacation.domain.entity.VacationDuration;
 import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 
 public record RequestVacationServiceResponse(
+        Long vacationId,
         String requesterId,
         String requesterName,
         VacationDuration vacationDuration,

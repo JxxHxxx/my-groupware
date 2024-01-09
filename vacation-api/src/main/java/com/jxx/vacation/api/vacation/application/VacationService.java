@@ -3,20 +3,25 @@ package com.jxx.vacation.api.vacation.application;
 import com.jxx.vacation.api.vacation.dto.ApprovalServiceResponse;
 import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.RequestVacationServiceResponse;
-import com.jxx.vacation.core.domain.MessageQ;
-import com.jxx.vacation.core.domain.MessageQRepository;
+import com.jxx.vacation.core.message.*;
+import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.domain.entity.Vacation;
+import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.UnableToApplyVacationException;
-import com.jxx.vacation.core.vacation.domain.service.LeaveManager;
+import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
@@ -31,71 +36,80 @@ public class VacationService {
 
     // create
     @Transactional
-    public RequestVacationServiceResponse requestVacation(RequestVacationForm form) {
-        log.info("type{} date {}", form.vacationDuration().getVacationType(), form.vacationDuration().getEndDateTime());
-        Vacation requestVacation = Vacation.requestVacation(form.requestId(), form.vacationDuration());
+    public RequestVacationServiceResponse createVacation(RequestVacationForm form) {
+        log.info("type {} date {}", form.vacationDuration().getVacationType(), form.vacationDuration().getEndDateTime());
+        Vacation vacation = Vacation.createVacation(form.requestId(), form.vacationDuration());
 
-        final String requesterId = requestVacation.getRequesterId();
+        String requesterId = vacation.getRequesterId();
         //사용자 및 조직 활성화 여부 검증
-        MemberLeave findMemberLeave = validateActiveMemberLeave(requestVacation, requesterId);
-        validateActiveOrganization(requestVacation, findMemberLeave);
+        MemberLeave findMemberLeave = validateActiveMemberLeave(vacation, requesterId);
+        Organization organization = validateActiveOrganization(vacation, findMemberLeave);
 
-        requestVacation.validateDeductedLeave(); // 신청한 휴가가 연차에서 차감해야 하는 휴가인지 체크 및 차감 플래그 설정
+        vacation.validateDeductedLeave(); // 신청한 휴가가 연차에서 차감해야 하는 휴가인지 체크 및 차감 플래그 설정
 
-         // 차감해야하는 연차 일수 계산
-        checkRemainingLeaveIsBiggerThan(requestVacation, findMemberLeave);
+        // 차감해야하는 연차 일수 계산
+        float vacationDate = checkRemainingLeaveIsBiggerThan(vacation, findMemberLeave);
 
-        final Vacation savedVacation = vacationRepository.save(requestVacation);// 저장
+        final Vacation savedVacation = vacationRepository.save(vacation);// 저장
 
-        if (requestVacation.isFailVacationStatus()) {
-            return createRequestVacationServiceResponse(savedVacation, requesterId, findMemberLeave);
+        if (vacation.isFailVacationStatus()) {
+            return createVacationServiceResponse(savedVacation, requesterId, findMemberLeave);
         }
+        // 메시지 로직 시작 - 리팩터링 대상
+        VacationApprovalForm vacationApprovalForm = VacationApprovalForm.create(
+                requesterId, organization.getCompanyId(), organization.getDepartmentId(), vacationDate, vacation.getId());
+        Map<String, Object> messageBody = MessageBodyBuilder.createVacationApprovalBody(vacationApprovalForm);
 
-        return createRequestVacationServiceResponse(savedVacation, requesterId, findMemberLeave);
+        MessageQ messageQ = MessageQ.builder()
+                .messageDestination(MessageDestination.APPROVAL)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .body(messageBody)
+                .build();
+
+        messageQRepository.save(messageQ);
+        // 메시지 로직 끝 - 리팩터링 대상
+
+        return createVacationServiceResponse(savedVacation, requesterId, findMemberLeave);
     }
 
-    private static RequestVacationServiceResponse createRequestVacationServiceResponse(Vacation requestVacation, String requesterId, MemberLeave findMemberLeave) {
+    private static RequestVacationServiceResponse createVacationServiceResponse(Vacation savedVacation, String requesterId, MemberLeave findMemberLeave) {
         return new RequestVacationServiceResponse(
+                savedVacation.getId(),
                 requesterId,
                 findMemberLeave.getName(),
-                requestVacation.getVacationDuration(),
-                requestVacation.getVacationStatus());
+                savedVacation.getVacationDuration(),
+                savedVacation.getVacationStatus());
     }
 
-    /**
-     *
-     * @param requestVacation
-     * @param findMemberLeave
-     * @return : 연차 신청 일
-     */
-    private static float checkRemainingLeaveIsBiggerThan(Vacation requestVacation, MemberLeave findMemberLeave) {
-        float deductionDate = 0F;
+    private static float checkRemainingLeaveIsBiggerThan(Vacation createVacation, MemberLeave findMemberLeave) {
+        float vacationDuration = 0F;
         try {
-            deductionDate = LeaveManager.calculateDeductionDateBecauseOf(requestVacation);
-            findMemberLeave.checkRemainingLeaveIsBiggerThan(deductionDate); // 잔여 연차가 차감되는 연차보다 큰지 검증
+            vacationDuration = VacationCalculator.getVacationDuration(createVacation);
+            findMemberLeave.checkRemainingLeaveIsBiggerThan(vacationDuration); // 잔여 연차가 차감되는 연차보다 큰지 검증
         } catch (UnableToApplyVacationException e) {
             log.warn("MESSAGE : {}", e.getMessage(), e);
-            requestVacation.changeVacationStatus(FAIL);
+            createVacation.changeVacationStatus(FAIL);
         }
 
-        return deductionDate;
+        return vacationDuration;
     }
 
-    private void validateActiveOrganization(Vacation requestVacation, MemberLeave findMemberLeave) {
+    private Organization validateActiveOrganization(Vacation requestVacation, MemberLeave findMemberLeave) {
         Organization organization = findMemberLeave.getOrganization();
 
         try {
             organization.checkActive();
         } catch (InactiveException e) {
-            log.info("COMPANY ID : {} ORG ID L {} MESSAGE : {}", organization.getCompanyId(), organization.getOrganizationId(),
+            log.info("COMPANY ID : {} ORG ID {} MESSAGE : {}", organization.getCompanyId(), organization.getDepartmentId(),
                     e.getMessage(), e);
             requestVacation.changeVacationStatus(FAIL);
         }
+        return organization;
     }
 
     private MemberLeave validateActiveMemberLeave(Vacation requestVacation, String requesterId) {
         MemberLeave findMemberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
 
         try {
             findMemberLeave.checkActive();
@@ -106,31 +120,41 @@ public class VacationService {
         return findMemberLeave;
     }
 
-    // 결재 요청 API
-
     @Transactional
-    public ApprovalServiceResponse approval(Long vacationId) {
+    public ApprovalServiceResponse raiseVacation(Long vacationId) {
+        //유효성 검증
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
 
-        String memberId = vacation.getRequesterId();
-        MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException());
+        MemberLeave findMemberLeave = validateActiveMemberLeave(vacation, vacation.getRequesterId());
+        validateActiveOrganization(vacation, findMemberLeave);
 
-        float deductedVacation = checkRemainingLeaveIsBiggerThan(vacation, memberLeave);
+        checkRemainingLeaveIsBiggerThan(vacation, findMemberLeave);
+        //유효성 검증
 
-        MessageQ messageQ = MessageQ.builder()
-                .requesterId(vacation.getRequesterId())
-                .processTime(null)
-                .requestVacationDate(deductedVacation)
-                .vacationStatus(vacation.getVacationStatus())
-                .build();
+        //메시지 payload 생성
+        VacationStatus vacationStatus = vacation.getVacationStatus();
+        if (!(CREATE.equals(vacationStatus) || REJECT.equals(vacationStatus))) {
+            throw new IllegalArgumentException("이미 결재가 올라갔거나 종료된 휴가입니다.");
+        }
 
-        MessageQ savedMessageQ = messageQRepository.save(messageQ);
+        // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
+        RestTemplate restTemplate = new RestTemplate();
 
-        return new ApprovalServiceResponse(
-                savedMessageQ.getPk(),
-                savedMessageQ.getMessageStatus(),
-                savedMessageQ.getMessageStatus().name());
+        Map<String, Object> requestBody = new HashMap<>();
+
+        requestBody.put("approvalId", "P00010");
+        requestBody.put("requesterId", "123");
+
+        String confirmDocumentId = "VAC" + vacation.getId();
+        String confirmDocument = restTemplate.postForObject(
+                "http://localhost:8010/api/confirm-documents/{confirm-document-id}/raise", requestBody, String.class, confirmDocumentId);
+        log.info("confirmDocument {}", confirmDocument);
+        // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
+
+        // 정상 응답 시, 아래 코드 반영, 아닐 시 철회
+//        vacation.changeVacationStatus(APPROVAL);
+
+        return null;
     }
 }

@@ -14,16 +14,18 @@ public class VacationApprovalForm {
     private final String companyId;
     private final String departmentId;
     private final float vacationDate;
+    private final Long vacationId;
 
-    private VacationApprovalForm(ApprovalStatus approvalStatus, String requesterId, String companyId, String departmentId, float vacationDate) {
+    private VacationApprovalForm(ApprovalStatus approvalStatus, String requesterId, String companyId, String departmentId, float vacationDate, Long vacationId) {
         this.approvalStatus = approvalStatus;
         this.requesterId = requesterId;
         this.companyId = companyId;
         this.departmentId = departmentId;
         this.vacationDate = vacationDate;
+        this.vacationId = vacationId;
     }
 
-    public static VacationApprovalForm create(String requesterId, String companyId, String departmentId, float vacationDate) {
-        return new VacationApprovalForm(ApprovalStatus.CREATE, requesterId, companyId, departmentId, vacationDate);
+    public static VacationApprovalForm create(String requesterId, String companyId, String departmentId, float vacationDate, Long vacationId) {
+        return new VacationApprovalForm(ApprovalStatus.CREATE, requesterId, companyId, departmentId, vacationDate, vacationId);
     }
 }

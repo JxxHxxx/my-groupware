@@ -1,11 +1,9 @@
 package com.jxx.vacation.api.vacation.dto;
 
-import com.jxx.vacation.core.domain.MessageStatus;
+import java.time.LocalDateTime;
 
 public record ApprovalServiceResponse(
         Long messagePk,
-        MessageStatus messageStatus,
-        String messageDescription
-
+        LocalDateTime eventTime
 ) {
 }

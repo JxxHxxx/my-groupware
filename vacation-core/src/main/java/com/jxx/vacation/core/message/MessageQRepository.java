@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface MessageQRepository extends JpaRepository<MessageQ, Long> {
 
-    @Query(value = "SELECT * from JXX_MESSAGE_Q LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * from JXX_MESSAGE_Q " +
+            "WHERE MESSAGE_PROCESS_STATUS = 'SENT' " +
+            "LIMIT 1", nativeQuery = true)
     Optional<MessageQ> selectOnlyOne();
 }

@@ -15,11 +15,13 @@ public class VacationConfirmForm {
     private String confirmStatus;
     private String documentType;
     private String approvalId;
+    private String confirmDocumentId;
 
-    public VacationConfirmForm(String companyId, String departmentId, String confirmStatus) {
+    public VacationConfirmForm(String companyId, String departmentId, String confirmStatus, String confirmDocumentId) {
         this.companyId = companyId;
         this.departmentId = departmentId;
         this.confirmStatus = confirmStatus;
+        this.confirmDocumentId = confirmDocumentId;
         this.createSystem = "JXX-MESSAGING";
         this.documentType = "VACATION";
         this.approvalId = null;

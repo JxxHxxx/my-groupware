@@ -5,20 +5,36 @@ import com.jxx.vacation.core.vacation.domain.entity.VacationType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class LeaveManager {
+public class VacationCalculator {
 
     private final static float HALF_VACATION_DEDUCTED_VALE = 0.5F;
 
-    public static float calculateDurationOf(Vacation vacation) {
-        if (vacation.isDeductedFromLeave() && isMoreOneDay(vacation)) {
+    public static float getVacationDuration(Vacation vacation) {
+        if (vacation.isDeducted() && isMoreOneDay(vacation)) {
             return vacation.getVacationDuration().calculateDate();
         }
 
-        if (vacation.isDeductedFromLeave() && isHalfDay(vacation)) {
+        if (vacation.isDeducted() && isHalfDay(vacation)) {
             return HALF_VACATION_DEDUCTED_VALE;
         }
 
-        if (!vacation.isDeductedFromLeave() || isNotDeducted(vacation)) {
+        if (!vacation.isDeducted() || isNotDeducted(vacation)) {
+            log.warn("차감 연차가 아닙니다. 차감을 하지 않습니다.");
+        }
+
+        return 0F;
+    }
+
+    public float getVacationDays(Vacation vacation) {
+        if (vacation.isDeducted() && isMoreOneDay(vacation)) {
+            return vacation.getVacationDuration().calculateDate();
+        }
+
+        if (vacation.isDeducted() && isHalfDay(vacation)) {
+            return HALF_VACATION_DEDUCTED_VALE;
+        }
+
+        if (!vacation.isDeducted() || isNotDeducted(vacation)) {
             log.warn("차감 연차가 아닙니다. 차감을 하지 않습니다.");
         }
 
