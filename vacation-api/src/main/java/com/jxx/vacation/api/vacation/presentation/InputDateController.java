@@ -28,7 +28,7 @@ public class InputDateController {
         Organization organization = new Organization("JXX", "제이주식회사", "J00001", "마케팅팀");
         organizationRepository.save(organization);
 
-        MemberLeave memberLeave = MemberLeave.builder()
+        MemberLeave memberLeave1 = MemberLeave.builder()
                 .name("이재헌")
                 .memberId("U00001")
                 .remainingLeave(15F)
@@ -36,9 +36,17 @@ public class InputDateController {
                 .experienceYears(1)
                 .organization(organization)
                 .build();
-        memberLeaveRepository.save(memberLeave);
+        memberLeaveRepository.save(memberLeave1);
+
+        MemberLeave memberLeave2 = MemberLeave.builder()
+                .name("하니")
+                .memberId("U00002")
+                .remainingLeave(15F)
+                .enteredDate(LocalDate.of(2023, 1, 5))
+                .experienceYears(1)
+                .organization(organization)
+                .build();
+        memberLeaveRepository.save(memberLeave2);
         log.info("저장 완료");
-
-
     }
 }

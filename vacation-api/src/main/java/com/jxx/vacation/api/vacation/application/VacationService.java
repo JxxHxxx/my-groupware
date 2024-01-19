@@ -1,7 +1,7 @@
 package com.jxx.vacation.api.vacation.application;
 
-import com.jxx.vacation.api.vacation.dto.ApprovalServiceResponse;
 import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
+import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.RequestVacationServiceResponse;
 import com.jxx.vacation.core.message.*;
 import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
@@ -121,7 +120,7 @@ public class VacationService {
     }
 
     @Transactional
-    public ApprovalServiceResponse raiseVacation(Long vacationId) {
+    public ConfirmDocumentRaiseResponse raiseVacation(Long vacationId) {
         //유효성 검증
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
@@ -141,20 +140,21 @@ public class VacationService {
         // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
         RestTemplate restTemplate = new RestTemplate();
 
-        Map<String, Object> requestBody = new HashMap<>();
-
-        requestBody.put("approvalId", "P00010");
-        requestBody.put("requesterId", "123");
-
         String confirmDocumentId = "VAC" + vacation.getId();
-        String confirmDocument = restTemplate.postForObject(
-                "http://localhost:8010/api/confirm-documents/{confirm-document-id}/raise", requestBody, String.class, confirmDocumentId);
-        log.info("confirmDocument {}", confirmDocument);
+        ConfirmDocumentRaiseResponse response = restTemplate.postForObject(
+                "http://localhost:8010/api/confirm-documents/raise?cdid=" + confirmDocumentId, null, ConfirmDocumentRaiseResponse.class);
+        log.info("confirmDocument {}", response);
         // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
 
         // 정상 응답 시, 아래 코드 반영, 아닐 시 철회
-//        vacation.changeVacationStatus(APPROVAL);
+        if ("RAISE".equals(response.confirmStatus())) {
+            vacation.changeVacationStatus(REQUEST);
+        }
+        else {
+            throw new IllegalArgumentException("결재 서버와 통신이 실패하였습니다. 혹은 결재 요청이 진행되지 않았습니다.");
+        }
 
-        return null;
+        return response;
+
     }
 }

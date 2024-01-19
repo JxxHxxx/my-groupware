@@ -1,7 +1,7 @@
-### DB CLEAR 시 아래 API 호출하여 테스트 조직, 사용자생성
+### 애플리케이션 실행 시 아래부터 하나씩 호출하면 테스트 데이터 완성
 POST http://localhost:8080/members
 
-### 휴가 신청 POST
+### 휴가 신청 POST 1
 
 POST http://localhost:8080/api/vacations
 Content-Type: application/json
@@ -10,12 +10,26 @@ Content-Type: application/json
   "requestId": "U00001",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-01-08T00:00",
-    "endDateTime": "2024-01-10T00:00"
+    "startDateTime": "2024-01-11T00:00",
+    "endDateTime": "2024-01-11T00:00"
+  }
+}
+
+### 휴가 신청 POST 2
+
+POST http://localhost:8080/api/vacations
+Content-Type: application/json
+
+{
+  "requestId": "U00002",
+  "vacationDuration": {
+    "vacationType": "MORE_DAY",
+    "startDateTime": "2024-01-21T00:00",
+    "endDateTime": "2024-01-25T00:00"
   }
 }
 
 ###
 
-POST http://localhost:8080/api/vacations/4/raise
+POST http://localhost:8080/api/vacations/1/raise
 Content-Type: application/json

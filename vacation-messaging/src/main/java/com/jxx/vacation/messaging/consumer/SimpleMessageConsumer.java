@@ -36,8 +36,9 @@ public class SimpleMessageConsumer {
         String departmentId = (String) body.get("department_id");
         String approvalStatus = (String) body.get("approval_status");
         String confirmDocumentId = String.valueOf(body.get("confirm_document_id"));
+        String requesterId = (String) body.get("requester_id");
 
-        VacationConfirmForm vacationConfirmForm = new VacationConfirmForm(companyId, departmentId, approvalStatus, confirmDocumentId);
+        VacationConfirmForm vacationConfirmForm = new VacationConfirmForm(companyId, departmentId, approvalStatus, confirmDocumentId, requesterId);
         approvalRepository.insert(vacationConfirmForm);
         // 리팩터링 대상 - 메시치 처리 결과 이력 남기기 테이블
         messageQRepository.deleteById(messageQ.getPk());

@@ -1,8 +1,8 @@
 package com.jxx.vacation.api.vacation.presentation;
 
 import com.jxx.vacation.api.vacation.application.VacationService;
-import com.jxx.vacation.api.vacation.dto.ApprovalServiceResponse;
 import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
+import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.RequestVacationServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +33,7 @@ public class VacationApiController {
 
     @PostMapping(value = "/api/vacations/{vacation-id}/raise")
     public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) {
-        ApprovalServiceResponse response = vacationService.raiseVacation(vacationId);
+        ConfirmDocumentRaiseResponse response = vacationService.raiseVacation(vacationId);
 
         return ResponseEntity.ok(response);
     }
