@@ -4,24 +4,25 @@ import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
-
+// SimpleMessageConsumer 같이 리팩토링하면 변경 포인트 하나 줄일 수 있어보임
 public class MessageBodyBuilder {
 
-    private static final String VACATION_APPROVAL_ID_PREFIX = "VAC";
-
     public static Map<String, Object> createVacationApprovalBody(VacationApprovalForm form) {
-        String confirmDocumentId = VACATION_APPROVAL_ID_PREFIX + form.getVacationId();
+        String confirmDocumentId = UUID.randomUUID().toString();
 
         Map<String, Object> payload = new HashMap<>();
 
-        payload.put("approval_status", form.getApprovalStatus());
+        payload.put("confirm_status", form.getConfirmStatus());
         payload.put("requester_id", form.getRequesterId());
         payload.put("vacation_date", form.getVacationDate());
+        payload.put("create_system", form.getCreateSystem());
+        payload.put("document_type", form.getDocumentType());
         payload.put("company_id", form.getCompanyId());
         payload.put("department_id", form.getDepartmentId());
         payload.put("confirm_document_id", confirmDocumentId);
+        payload.put("create_time", form.getCreateTime());
         return payload;
     }
-
 }

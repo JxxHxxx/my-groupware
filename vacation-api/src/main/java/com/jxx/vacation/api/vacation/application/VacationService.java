@@ -4,6 +4,7 @@ import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.RequestVacationServiceResponse;
 import com.jxx.vacation.core.message.*;
+import com.jxx.vacation.core.message.payload.approval.DocumentType;
 import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+import static com.jxx.vacation.core.message.payload.approval.DocumentType.*;
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Slf4j
@@ -56,7 +58,9 @@ public class VacationService {
         }
         // 메시지 로직 시작 - 리팩터링 대상
         VacationApprovalForm vacationApprovalForm = VacationApprovalForm.create(
-                requesterId, organization.getCompanyId(), organization.getDepartmentId(), vacationDate, vacation.getId());
+                requesterId, organization.getCompanyId(), organization.getDepartmentId(),
+                "3rd-vacations", VAC, vacationDate, vacation.getId());
+
         Map<String, Object> messageBody = MessageBodyBuilder.createVacationApprovalBody(vacationApprovalForm);
 
         MessageQ messageQ = MessageQ.builder()
