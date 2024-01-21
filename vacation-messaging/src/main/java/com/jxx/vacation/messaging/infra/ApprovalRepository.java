@@ -13,11 +13,11 @@ public class ApprovalRepository {
     @Qualifier(value = "approvalNamedParameterJdbcTemplate")
     private final NamedParameterJdbcTemplate approvalJdbcTemplate;
 
-    public void insert(VacationConfirmForm form) {
+    public void insert(VacationConfirmModel form) {
         BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(form);
-        String sql = "INSERT INTO JXX_CONFIRM_DOCUMENT_MASTER " +
-                "(COMPANY_ID, CONFIRM_DOCUMENT_ID, CONFIRM_STATUS, CREATE_SYSTEM, DEPARTMENT_ID, DOCUMENT_TYPE, REQUESTER_ID) VALUES " +
-                "(:companyId, :confirmDocumentId,  :confirmStatus, :createSystem, :departmentId, :documentType, :requesterId) ";
+        String sql = "INSERT INTO JXX_CONFIRM_DOCUMENT_MASTER" +
+                "(CONFIRM_STATUS, CREATE_SYSTEM, CREATE_TIME, CONFIRM_DOCUMENT_ID, DOCUMENT_TYPE, COMPANY_ID, DEPARTMENT_ID, REQUESTER_ID) VALUES " +
+                "(:confirmStatus, :createSystem, :createTime, :confirmDocumentId, :documentType, :companyId, :departmentId, :requesterId)";
 
         approvalJdbcTemplate.update(sql, source);
     }
