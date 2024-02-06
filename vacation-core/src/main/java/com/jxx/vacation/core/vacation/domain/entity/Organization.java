@@ -41,6 +41,14 @@ public class Organization {
     @Comment(value = "부서 명")
     private String departmentName;
 
+    @Column(name = "PARENET_DEPARTMENT_ID", nullable = false)
+    @Comment(value = "상위 부서 식별자")
+    private String parentDepartmentId;
+
+    @Column(name = "PARENET_DEPARTMENT_NAME", nullable = false)
+    @Comment(value = "상위 부서 명")
+    private String parentDepartmentName;
+
     @Builder
     public Organization(String companyId, String companyName, String departmentId, String departmentName) {
         this.isActive = true;
@@ -48,6 +56,17 @@ public class Organization {
         this.companyName = companyName;
         this.departmentId = departmentId;
         this.departmentName = departmentName;
+    }
+    @Builder
+    public Organization(String companyId, String companyName, String departmentId, String departmentName,
+                        String parentDepartmentId, String parentDepartmentName) {
+        this.isActive = true;
+        this.companyId = companyId;
+        this.companyName = companyName;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
+        this.parentDepartmentId = parentDepartmentId;
+        this.parentDepartmentName = parentDepartmentName;
     }
 
     public void checkActive() throws InactiveException {

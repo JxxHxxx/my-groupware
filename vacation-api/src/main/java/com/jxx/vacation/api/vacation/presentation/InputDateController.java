@@ -24,8 +24,10 @@ public class InputDateController {
     @Transactional
     @PostMapping("/members")
     public void save() {
-
-        Organization organization = new Organization("JXX", "제이주식회사", "J00001", "마케팅팀");
+        Organization organization = new Organization(
+                "JXX", "제이주식회사",
+                "J01001", "마케팅팀",
+                "J01000", "경영지원본부");
         organizationRepository.save(organization);
 
         MemberLeave memberLeave1 = MemberLeave.builder()

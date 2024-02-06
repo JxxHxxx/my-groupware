@@ -86,8 +86,6 @@ project(':vacation-core') {
     dependencies {
         //database
         runtimeOnly 'com.mysql:mysql-connector-j'
-        // company
-//        runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
         testImplementation 'com.h2database:h2'
 
         implementation 'org.springframework.data:spring-data-envers'
