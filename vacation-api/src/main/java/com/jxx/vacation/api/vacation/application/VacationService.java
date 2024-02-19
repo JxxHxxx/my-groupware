@@ -26,6 +26,8 @@ import java.util.Map;
 import static com.jxx.vacation.core.message.payload.approval.DocumentType.*;
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
+// TODO 비즈니스 로직, 엔티티 혹은 도메인 서비스 클래스로 이동 예정
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -145,6 +147,8 @@ public class VacationService {
         RestTemplate restTemplate = new RestTemplate();
 
         String confirmDocumentId = "VAC" + vacation.getId();
+
+        // TODO 결재 상신 REST API 변경 되었음
         ConfirmDocumentRaiseResponse response = restTemplate.postForObject(
                 "http://localhost:8010/api/confirm-documents/raise?cdid=" + confirmDocumentId, null, ConfirmDocumentRaiseResponse.class);
         log.info("confirmDocument {}", response);
