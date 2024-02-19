@@ -25,7 +25,7 @@ public class Organization {
     @Comment(value = "부서 활성화 여부")
     private boolean isActive;
 
-    @Column(name = "COMPANY_ID", unique = true, nullable = false)
+    @Column(name = "COMPANY_ID", nullable = false)
     @Comment(value = "회사 식별자")
     private String companyId;
 

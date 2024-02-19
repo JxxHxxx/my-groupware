@@ -2,11 +2,9 @@ package com.jxx.vacation.api.messaging.presentation;
 
 import com.jxx.vacation.api.messaging.application.MessageService;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponse;
-import com.jxx.vacation.core.message.MessageQResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
