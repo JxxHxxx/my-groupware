@@ -20,6 +20,7 @@ import java.util.Map;
 @ToString
 public class MessageQ {
 
+    public static final Long ERROR_ORIGINAL_MESSAGE_PK = Long.MIN_VALUE;
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MESSAGE_Q_PK", nullable = false)
     @Comment(value = "메시지Q PK")
@@ -47,9 +48,13 @@ public class MessageQ {
     @Column(name = "PROCESS_START_TIME", nullable = true)
     @Comment(value = "메시지 처리 시간 시간")
     private LocalDateTime processStartTime;
+    @Column(name = "RETRY_ID", nullable = true)
+    @Comment(value = "재시도 할 MESSAGEQ PK")
+    private Long retryId; // 재시도를 위한 키
 
     @Builder
-    public MessageQ(MessageDestination messageDestination, MessageProcessStatus messageProcessStatus, Map<String, Object> body) {
+    public MessageQ(Long retryId, MessageDestination messageDestination, MessageProcessStatus messageProcessStatus, Map<String, Object> body) {
+        this.retryId = retryId;
         this.messageDestination = messageDestination;
         this.messageProcessStatus = messageProcessStatus;
         this.body = body;

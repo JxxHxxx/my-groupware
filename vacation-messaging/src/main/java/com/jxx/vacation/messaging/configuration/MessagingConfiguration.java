@@ -15,8 +15,15 @@ public class MessagingConfiguration {
 
     private final EntityManagerFactory entityManagerFactory;
 
-    @Bean(name = "queueChannel")
+    @Bean(name = "sentQueueChannel")
     public QueueChannel queueChannel() {
+        QueueChannel queueChannel = new QueueChannel(10);
+        queueChannel.afterPropertiesSet();
+        return queueChannel;
+    }
+
+    @Bean(name = "retryQueueChannel")
+    public QueueChannel retryQueueChannel() {
         QueueChannel queueChannel = new QueueChannel(10);
         queueChannel.afterPropertiesSet();
         return queueChannel;

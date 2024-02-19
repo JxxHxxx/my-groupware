@@ -10,8 +10,8 @@ Content-Type: application/json
   "requestId": "U00001",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-01-11T00:00",
-    "endDateTime": "2024-01-11T00:00"
+    "startDateTime": "2024-02-25T00:00",
+    "endDateTime": "2024-02-27T00:00"
   }
 }
 
@@ -24,12 +24,17 @@ Content-Type: application/json
   "requestId": "U00002",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-01-21T00:00",
-    "endDateTime": "2024-01-25T00:00"
+    "startDateTime": "2024-03-02T00:00",
+    "endDateTime": "2024-03-05T00:00"
   }
 }
 
 ###
 
 POST http://localhost:8080/api/vacations/1/raise
+Content-Type: application/json
+
+
+###
+PATCH http://localhost:8080/message-q-results/2/retry
 Content-Type: application/json
