@@ -38,3 +38,7 @@ Content-Type: application/json
 ###
 PATCH http://localhost:8080/message-q-results/2/retry
 Content-Type: application/json
+
+###
+GET http://localhost:8080/message-q-results/fail?page=0&size=3
+Content-Type: application/json
