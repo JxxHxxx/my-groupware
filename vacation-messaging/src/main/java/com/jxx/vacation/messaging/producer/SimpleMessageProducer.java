@@ -58,8 +58,36 @@ public class SimpleMessageProducer {
     }
 
     @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel", poller = @Poller(fixedDelay = "${poller.interval.sent}"))
-    public Message<MessageQ> produce() {
+    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}"))
+    public Message<MessageQ> produce1() {
+        return process();
+    }
+
+    @Transactional
+    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}"))
+    public Message<MessageQ> produce2() {
+        return process();
+    }
+
+    @Transactional
+    @InboundChannelAdapter(channel = "sentQueueChannel3", poller = @Poller(fixedDelay = "${poller.interval.sent}"))
+    public Message<MessageQ> produce3() {
+        return process();
+    }
+
+    @Transactional
+    @InboundChannelAdapter(channel = "sentQueueChannel4", poller = @Poller(fixedDelay = "${poller.interval.sent}"))
+    public Message<MessageQ> produce4() {
+        return process();
+    }
+
+    @Transactional
+    @InboundChannelAdapter(channel = "sentQueueChannel5", poller = @Poller(fixedDelay = "${poller.interval.sent}"))
+    public Message<MessageQ> produce5() {
+        return process();
+    }
+
+    private Message<MessageQ> process() {
         Optional<MessageQ> messageQOptional = messageQRepository.selectSentOne();
         if (messageQOptional.isEmpty()) {
             return null;
@@ -73,43 +101,6 @@ public class SimpleMessageProducer {
                 .withPayload(messageQ)
                 .build();
     }
-
-//    @Transactional
-//    @InboundChannelAdapter(channel = "queueChannel", poller = @Poller(fixedDelay = "${poller.interval}"))
-//    public Message<MessageQ> produce() {
-//        Optional<MessageQ> messageQOptional = messageQRepository.selectOnlyOne();
-//        if (messageQOptional.isEmpty()) {
-//            return null;
-//        }
-//        MessageQ messageQ = messageQOptional.get();
-//        // 재시도
-//        if (RETRY.equals(messageQ.getMessageProcessStatus())) {
-//            Long originalMessageQPk = messageQ.getRetryId();
-//            log.info("[RETRY][original message pk={}]", originalMessageQPk);
-//
-//            boolean alreadySuccess = messageQResultRepository.findByOriginalMessagePk(originalMessageQPk)
-//                    .stream()
-//                    .anyMatch(mqr -> SUCCESS.equals(mqr.getMessageProcessStatus()));
-//            if (alreadySuccess) {
-//                log.warn("[ALREADY][original message pk={}]", originalMessageQPk);
-//
-//                messageQRepository.deleteById(messageQ.getPk());
-//                messageQResultRepository.save(createAlreadySuccessMessageQResult(messageQ, originalMessageQPk));
-//                return null;
-//            }
-//            messageQ.startProduce(); // dirty checking
-//            return MessageBuilder
-//                    .withPayload(messageQ)
-//                    .setHeader(RETRY_HEADER, originalMessageQPk)
-//                    .build();
-//        }
-//        // 최초
-//        log.info("[SENT][message pk={}]", messageQ.getPk());
-//        messageQ.startProduce(); // dirty checking
-//        return MessageBuilder
-//                .withPayload(messageQ)
-//                .build();
-//    }
 
     private static MessageQResult createAlreadySuccessMessageQResult(MessageQ messageQ, Long originalMessageQPk) {
         return MessageQResult.builder()

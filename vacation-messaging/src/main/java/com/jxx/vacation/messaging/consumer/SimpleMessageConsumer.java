@@ -30,8 +30,36 @@ public class SimpleMessageConsumer {
     private final MessageQResultRepository messageQResultRepository;
 
     @Transactional
-    @ServiceActivator(inputChannel = "sentQueueChannel")
-    public void consumeSentMessage(Message<MessageQ> message) {
+    @ServiceActivator(inputChannel = "sentQueueChannel1")
+    public void consumeSentMessage1(Message<MessageQ> message) {
+        process(message);
+    }
+
+    @Transactional
+    @ServiceActivator(inputChannel = "sentQueueChannel2")
+    public void consumeSentMessage2(Message<MessageQ> message) {
+        process(message);
+    }
+
+    @Transactional
+    @ServiceActivator(inputChannel = "sentQueueChannel3")
+    public void consumeSentMessage3(Message<MessageQ> message) {
+        process(message);
+    }
+
+    @Transactional
+    @ServiceActivator(inputChannel = "sentQueueChannel4")
+    public void consumeSentMessage4(Message<MessageQ> message) {
+        process(message);
+    }
+
+    @Transactional
+    @ServiceActivator(inputChannel = "sentQueueChannel5")
+    public void consumeSentMessage5(Message<MessageQ> message) {
+        process(message);
+    }
+
+    private void process(Message<MessageQ> message) {
         log.info("=================START====================\n" +
                 "Channel:sentQueueChannel\n" +
                 "Message:{}", message);
