@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.jxx.vacation.core.message.payload.approval.DocumentType.*;
@@ -62,6 +63,13 @@ public class VacationService {
 
         messageQRepository.save(messageQ);
         return createVacationServiceResponse(savedVacation, requesterId, memberLeave);
+    }
+
+    @Transactional
+    public void createVacations(List<RequestVacationForm> requestVacationForms) {
+        for (RequestVacationForm requestVacationForm : requestVacationForms) {
+            createVacation(requestVacationForm);
+        }
     }
 
     private static RequestVacationServiceResponse createVacationServiceResponse(Vacation savedVacation, String requesterId, MemberLeave findMemberLeave) {

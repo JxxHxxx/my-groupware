@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class VacationApiController {
@@ -27,6 +29,14 @@ public class VacationApiController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/api/vacations/all")
+    public ResponseEntity<?> createVacations(@RequestBody @Validated List<RequestVacationForm> form) {
+        vacationService.createVacations(form);
+
+        return ResponseEntity.ok("!");
+    }
+
 
     /**
      * 휴가 신청 API, 결재 시스템 UI에 결재 문서가 생성되어 결재자가 볼 수 있도록 함
