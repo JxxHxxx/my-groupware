@@ -1,5 +1,6 @@
 package com.jxx.vacation.api.vacation.presentation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.vacation.api.vacation.application.VacationService;
 import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
@@ -32,7 +33,7 @@ public class VacationApiController {
      */
 
     @PostMapping(value = "/api/vacations/{vacation-id}/raise")
-    public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) {
+    public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) throws JsonProcessingException {
         ConfirmDocumentRaiseResponse response = vacationService.raiseVacation(vacationId);
 
         return ResponseEntity.ok(response);

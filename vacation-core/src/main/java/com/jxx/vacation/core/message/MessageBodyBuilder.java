@@ -1,5 +1,6 @@
 package com.jxx.vacation.core.message;
 
+import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
 
 import java.util.HashMap;
@@ -10,8 +11,7 @@ import java.util.UUID;
 public class MessageBodyBuilder {
 
     public static Map<String, Object> createVacationApprovalBody(VacationApprovalForm form) {
-        String confirmDocumentId = UUID.randomUUID().toString();
-
+        String vacationConfirmDocumentId = ConfirmDocumentIdGenerator.execute(form.getCompanyId(), form.getVacationId());
         Map<String, Object> payload = new HashMap<>();
 
         payload.put("confirm_status", form.getConfirmStatus());
@@ -21,7 +21,7 @@ public class MessageBodyBuilder {
         payload.put("document_type", form.getDocumentType());
         payload.put("company_id", form.getCompanyId());
         payload.put("department_id", form.getDepartmentId());
-        payload.put("confirm_document_id", confirmDocumentId);
+        payload.put("confirm_document_id", vacationConfirmDocumentId);
         payload.put("create_time", form.getCreateTime());
         return payload;
     }

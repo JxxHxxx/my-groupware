@@ -7,13 +7,17 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requestId": "U00001",
+  "requesterId": "U00127",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-02-25T00:00",
-    "endDateTime": "2024-02-27T00:00"
+    "startDateTime": "2024-03-07T00:00",
+    "endDateTime": "2024-03-09T00:00"
   }
 }
+
+### 휴가 상신
+POST http://localhost:8080/api/vacations/24/raise
+Content-Type: application/json
 
 ### 휴가 신청 POST 2
 
@@ -21,7 +25,7 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requestId": "U00002",
+  "requesterId": "U00002",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
     "startDateTime": "2024-03-02T00:00",
@@ -30,8 +34,7 @@ Content-Type: application/json
 }
 
 ###
-
-POST http://localhost:8080/api/vacations/1/raise
+POST http://localhost:8080/api/vacations/9/raise
 Content-Type: application/json
 
 

@@ -17,6 +17,8 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 @Audited
 public class Vacation {
 
+    private final static boolean DEDUCTED_DEFAULT_VALUE = true;
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VACATION_ID")
     @Comment(value = "연차 식별자")
@@ -48,20 +50,21 @@ public class Vacation {
     }
 
     public static Vacation createVacation(String requesterId, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, vacationDuration, true, CREATE);
+        return new Vacation(requesterId, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
     }
 
-    public boolean validateDeductedLeave() {
-        VacationType vacationType = this.vacationDuration.getVacationType();
-        this.deducted = vacationType.isDeductedFromLeave();
-        return this.deducted;
+    public Vacation adjustDeducted() {
+        VacationType vacationType = vacationDuration.getVacationType();
+        deducted = vacationType.isDeductedLeave();
+
+        return this;
     }
 
     public void changeVacationStatus(VacationStatus vacationStatus) {
         this.vacationStatus = vacationStatus;
     }
 
-    public boolean isFailVacationStatus() {
+    public boolean isFailRequest() {
         return FAIL.equals(this.vacationStatus);
     }
 

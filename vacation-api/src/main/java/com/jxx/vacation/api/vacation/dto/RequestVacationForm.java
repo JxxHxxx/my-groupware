@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record RequestVacationForm(
         @NotNull
-        String requestId,
-
+        String requesterId,
         VacationDuration vacationDuration
 
 ) {

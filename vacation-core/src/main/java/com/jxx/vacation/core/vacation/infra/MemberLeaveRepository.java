@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface MemberLeaveRepository extends JpaRepository<MemberLeave, Long> {
 
     Optional<MemberLeave> findMemberLeaveByMemberId(String memberId);
+    Optional<MemberLeave> findByMemberId(String memberId);
+
 }

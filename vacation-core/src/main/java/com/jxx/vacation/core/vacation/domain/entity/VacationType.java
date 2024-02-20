@@ -17,7 +17,7 @@ public enum VacationType {
         this.description = description;
     }
 
-    boolean isDeductedFromLeave() {
+    boolean isDeductedLeave() {
         return !this.equals(NOT_DEDUCTED);
     }
 }
