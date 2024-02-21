@@ -7,6 +7,7 @@ import com.jxx.vacation.core.message.MessageQResult;
 import com.jxx.vacation.core.message.MessageQResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.InboundChannelAdapter;
 import org.springframework.integration.annotation.Poller;
 import org.springframework.messaging.Message;
@@ -31,6 +32,90 @@ public class SimpleMessageProducerV2 {
 
     private final MessageQRepository messageQRepository;
     private final MessageQResultRepository messageQResultRepository;
+
+    @Value("${messaging.produce.limit-size}")
+    private int limitSize;
+
+    private List<Message<MessageQ>> processes() {
+        List<MessageQ> messageQs = messageQRepository.findWithLimit(limitSize);
+        if (messageQs.isEmpty()) {
+            return null;
+        }
+
+        List<Message<MessageQ>> messageContainer = new ArrayList<>();
+
+        for (MessageQ messageQ : messageQs) {
+            messageQ.startProduce();
+
+            Message<MessageQ> qMessage = MessageBuilder
+                    .withPayload(messageQ)
+                    .build();
+            messageContainer.add(qMessage);
+        }
+        List<Long> messagePks = messageQs.stream().map(MessageQ::getPk).toList();
+        log.info("[SENT][messages pk:{}]", messagePks);
+        return messageContainer;
+    }
+
+    @Transactional
+    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+    public List<Message<MessageQ>> produce1_1() {
+        return processes();
+    }
+
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce1_2() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce1_3() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce1_4() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce1_5() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce2_1() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce2_2() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce2_3() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce2_4() {
+//        return processes();
+//    }
+//
+//    @Transactional
+//    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "20"))
+//    public List<Message<MessageQ>> produce2_5() {
+//        return processes();
+//    }
 
     @Transactional
     @InboundChannelAdapter(channel = "retryQueueChannel", poller = @Poller(fixedDelay = "${poller.interval.retry}"))
@@ -58,103 +143,6 @@ public class SimpleMessageProducerV2 {
         return MessageBuilder
                 .withPayload(messageQ)
                 .setHeader(RETRY_HEADER, originalMessageQPk)
-                .build();
-
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce1_1() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce1_2() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce1_3() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce1_4() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel1", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce1_5() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce2_1() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce2_2() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce2_3() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce2_4() {
-        return processes();
-    }
-
-    @Transactional
-    @InboundChannelAdapter(channel = "sentQueueChannel2", poller = @Poller(fixedDelay = "${poller.interval.sent}", maxMessagesPerPoll = "10"))
-    public List<Message<MessageQ>> produce2_5() {
-        return processes();
-    }
-
-    private List<Message<MessageQ>> processes() {
-        List<MessageQ> messageQs = messageQRepository.selectLimit(20);
-        if (messageQs.isEmpty()) {
-            return null;
-        }
-
-        List<Message<MessageQ>> container = new ArrayList<>();
-
-        for (MessageQ messageQ : messageQs) {
-            messageQ.startProduce();
-            log.info("[SENT][message pk={}]", messageQ.getPk());
-            Message<MessageQ> qMessage = MessageBuilder
-                    .withPayload(messageQ)
-                    .build();
-            container.add(qMessage);
-        }
-        return container;
-
-
-    }
-
-    private Message<MessageQ> process() {
-        Optional<MessageQ> messageQOptional = messageQRepository.selectSentOne();
-        if (messageQOptional.isEmpty()) {
-            return null;
-        }
-        MessageQ messageQ = messageQOptional.get();
-
-        // 최초
-        log.info("[SENT][message pk={}]", messageQ.getPk());
-        messageQ.startProduce(); // dirty checking
-        return MessageBuilder
-                .withPayload(messageQ)
                 .build();
     }
 

@@ -35,6 +35,7 @@ public class MessagingConfigurationV2 {
         executor.setCorePoolSize(100); // 스레드 풀의 최소 스레드 수
         executor.setMaxPoolSize(200); // 스레드 풀의 최대 스레드 수
         executor.setQueueCapacity(400); // 큐의 최대 용량
+        executor.setThreadNamePrefix("consumer-1-");
         return executor;
     }
 
@@ -44,14 +45,8 @@ public class MessagingConfigurationV2 {
         executor.setCorePoolSize(100); // 스레드 풀의 최소 스레드 수
         executor.setMaxPoolSize(200); // 스레드 풀의 최대 스레드 수
         executor.setQueueCapacity(400); // 큐의 최대 용량
+        executor.setThreadNamePrefix("consumer-2-");
         return executor;
-    }
-
-    @Bean(name = "inputChannel")
-    public QueueChannel inputChannel() {
-        QueueChannel queueChannel = new QueueChannel(100);
-        queueChannel.afterPropertiesSet();
-        return queueChannel;
     }
 
     @Bean(name = "retryQueueChannel")
@@ -59,14 +54,5 @@ public class MessagingConfigurationV2 {
         QueueChannel queueChannel = new QueueChannel(10);
         queueChannel.afterPropertiesSet();
         return queueChannel;
-    }
-
-    @Bean
-    public JpaExecutor jpaExecutor() {
-        JpaExecutor executor = new JpaExecutor(entityManagerFactory);
-        executor.setNativeQuery("SELECT * FROM JXX_MESSAGE_Q " +
-                "WHERE MESSAGE_PROCESS_STATUS = 'SENT'" +
-                "LIMIT 1");
-        return executor;
     }
 }

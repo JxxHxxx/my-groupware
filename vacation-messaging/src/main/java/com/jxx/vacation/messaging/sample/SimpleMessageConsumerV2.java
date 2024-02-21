@@ -57,8 +57,6 @@ public class SimpleMessageConsumerV2 {
     @Transactional
     @ServiceActivator(inputChannel = "sentQueueChannel1", async = "true")
     public void consumeSentMessage1_10(List<Message<MessageQ>> message) {processes(message, "1_10");}
-
-
     @Transactional
     @ServiceActivator(inputChannel = "sentQueueChannel2", async = "true")
     public void consumeSentMessage2_1(List<Message<MessageQ>> message) {processes(message, "2_1");}
@@ -89,9 +87,6 @@ public class SimpleMessageConsumerV2 {
 
     private void processes(List<Message<MessageQ>> messages, String channelNum) {
         for (Message<MessageQ> message : messages) {
-            log.info("=================START====================\n" +
-                    "Channel:sentQueueChannel{}\n" +
-                    "Message:{}", channelNum, message);
             MessageQ messageQ = message.getPayload();
             MessageProcessStatus sentMessageProcessStatus = null;
             try {
@@ -106,7 +101,10 @@ public class SimpleMessageConsumerV2 {
                 MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
                 messageQResultRepository.save(messageQResult);
             }
-            log.info("================= END ====================");
+//            log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HISTORY START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//            log.info("Channel:sentQueueChannel{}", channelNum);
+//            log.info("Message:{}", message);
+//            log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HISTORY  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         }
     }
 

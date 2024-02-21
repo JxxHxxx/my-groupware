@@ -22,5 +22,5 @@ public interface MessageQRepository extends JpaRepository<MessageQ, Long> {
     @Query(value = "SELECT * from JXX_MESSAGE_Q " +
             "WHERE MESSAGE_PROCESS_STATUS = 'SENT' " +
             "LIMIT :limit", nativeQuery = true)
-    List<MessageQ> selectLimit(@Param("limit") int limit);
+    List<MessageQ> findWithLimit(@Param("limit") int limit);
 }
