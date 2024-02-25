@@ -13,7 +13,7 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_VACATION_MASTER")
+@Table(name = "JXX_VACATION_MASTER", indexes = @Index(name = "IDX_REQUESTER_ID", columnList = "REQUESTER_ID"))
 @Audited
 public class Vacation {
 

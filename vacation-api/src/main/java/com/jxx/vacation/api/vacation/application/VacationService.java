@@ -5,7 +5,7 @@ import com.jxx.vacation.api.common.web.SimpleRestClient;
 import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.ConfirmRaiseRequest;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
-import com.jxx.vacation.api.vacation.dto.response.RequestVacationServiceResponse;
+import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.message.*;
@@ -32,9 +32,38 @@ public class VacationService {
     private final MemberLeaveRepository memberLeaveRepository;
     private final MessageQRepository messageQRepository;
 
+    public VacationServiceResponse readOne(String requesterId, Long vacationId) {
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
+        Vacation findVacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
+
+        return new VacationServiceResponse(
+                findVacation.getId(),
+                findVacation.getRequesterId(),
+                memberLeave.getName(),
+                findVacation.getVacationDuration(),
+                findVacation.getVacationStatus());
+    }
+
+    public List<VacationServiceResponse> readByRequesterId(String requesterId) {
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
+        List<Vacation> oneRequesterVacations = vacationRepository.findAllByRequesterId(requesterId);
+
+        return oneRequesterVacations.stream()
+                .map(vacation -> new VacationServiceResponse(
+                        vacation.getId(),
+                        vacation.getRequesterId(),
+                        memberLeave.getName(),
+                        vacation.getVacationDuration(),
+                        vacation.getVacationStatus()
+                )).toList();
+    }
+
     // create
     @Transactional
-    public RequestVacationServiceResponse createVacation(RequestVacationForm vacationForm) {
+    public VacationServiceResponse createVacation(RequestVacationForm vacationForm) {
         String requesterId = vacationForm.requesterId();
         MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
@@ -72,8 +101,8 @@ public class VacationService {
         }
     }
 
-    private static RequestVacationServiceResponse createVacationServiceResponse(Vacation savedVacation, String requesterId, MemberLeave findMemberLeave) {
-        return new RequestVacationServiceResponse(
+    private static VacationServiceResponse createVacationServiceResponse(Vacation savedVacation, String requesterId, MemberLeave findMemberLeave) {
+        return new VacationServiceResponse(
                 savedVacation.getId(),
                 requesterId,
                 findMemberLeave.getName(),
@@ -99,6 +128,7 @@ public class VacationService {
         return response;
 
     }
+
     private ConfirmDocumentRaiseResponse requestVacationRaiseApi(Vacation vacation, MemberLeave memberLeave) throws JsonProcessingException {
         // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
         SimpleRestClient simpleRestClient = new SimpleRestClient();

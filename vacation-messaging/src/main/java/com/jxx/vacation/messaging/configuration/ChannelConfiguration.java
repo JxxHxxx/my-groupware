@@ -17,13 +17,11 @@ public class ChannelConfiguration {
     @Bean(name = "sentQueueChannel1")
     public ExecutorChannel sentQueueChannel1() {
         ExecutorChannel executorChannel = new ExecutorChannel(sentQueueTaskExecutor1());
-        executorChannel.afterPropertiesSet();
         return executorChannel;
     }
     @Bean(name = "sentQueueChannel2")
     public ExecutorChannel sentQueueChannel2() {
         ExecutorChannel executorChannel = new ExecutorChannel(sentQueueTaskExecutor2());
-        executorChannel.afterPropertiesSet();
         return executorChannel;
     }
 

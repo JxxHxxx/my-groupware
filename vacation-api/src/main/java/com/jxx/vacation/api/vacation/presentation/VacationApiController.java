@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.vacation.api.vacation.application.VacationService;
 import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
-import com.jxx.vacation.api.vacation.dto.response.RequestVacationServiceResponse;
+import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +25,7 @@ public class VacationApiController {
 
     @PostMapping("/api/vacations")
     public ResponseEntity<?> createVacation(@RequestBody @Validated RequestVacationForm form) {
-        RequestVacationServiceResponse response = vacationService.createVacation(form);
+        VacationServiceResponse response = vacationService.createVacation(form);
 
         return ResponseEntity.ok(response);
     }
@@ -74,9 +74,9 @@ public class VacationApiController {
      */
 
     @GetMapping("/api/members/{member-id}/vacations/{vacation-id}")
-    public ResponseEntity<?> readMyVacation(@PathVariable(name = "member-id") Long memberId, @PathVariable(name = "vacation-id") Long vacationId) {
-
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> readMyVacation(@PathVariable(name = "member-id") String memberId, @PathVariable(name = "vacation-id") Long vacationId) {
+        VacationServiceResponse response = vacationService.readOne(memberId, vacationId);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -84,9 +84,8 @@ public class VacationApiController {
      */
 
     @GetMapping("/api/members/{member-id}/vacations")
-    public ResponseEntity<?> readMyVacations(@PathVariable(name = "member-id") Long memberId) {
-
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> readMyVacations(@PathVariable(name = "member-id") String memberId) {
+        List<VacationServiceResponse> response = vacationService.readByRequesterId(memberId);
+        return ResponseEntity.ok(response);
     }
-
 }
