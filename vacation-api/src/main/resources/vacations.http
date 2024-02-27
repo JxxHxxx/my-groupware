@@ -37,7 +37,6 @@ Content-Type: application/json
 POST http://localhost:8080/api/vacations/9/raise
 Content-Type: application/json
 
-
 ###
 PATCH http://localhost:8080/message-q-results/2/retry
 Content-Type: application/json

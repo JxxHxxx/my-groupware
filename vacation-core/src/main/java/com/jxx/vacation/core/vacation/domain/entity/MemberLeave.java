@@ -1,7 +1,7 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
-import com.jxx.vacation.core.vacation.domain.exeception.UnableToApplyVacationException;
+import com.jxx.vacation.core.vacation.domain.exeception.MemberLeaveException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -83,11 +83,11 @@ public class MemberLeave {
         }
     }
 
-    public boolean checkRemainingLeaveBiggerThan(float deductionDate) throws UnableToApplyVacationException {
-        if (this.remainingLeave - deductionDate < 0) {
+    public boolean checkRemainingLeaveBiggerThan(float deductionDate) throws MemberLeaveException {
+        if (remainingLeave - deductionDate < 0 || deductionDate <= 0) {
             String format = String.format("신청 연차 일보다 잔여 연차일이 적습니다. 신청 연차일 : %f일, 잔여 연차일 : %f일",
-                    this.remainingLeave, deductionDate);
-            throw new UnableToApplyVacationException(format);
+                    remainingLeave, deductionDate);
+            throw new MemberLeaveException(format);
         }
         return true;
     }

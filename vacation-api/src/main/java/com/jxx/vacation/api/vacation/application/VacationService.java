@@ -115,7 +115,7 @@ public class VacationService {
 
         vacationManager.isRaisePossible(); // 상신이 가능한 상태이면.
         ConfirmDocumentRaiseResponse response = requestVacationRaiseApi(vacation, memberLeave); // 외부 통신
-        vacationManager.processRaise(response.confirmStatus());
+        vacationManager.raise(response.confirmStatus());
 
         return response;
 
