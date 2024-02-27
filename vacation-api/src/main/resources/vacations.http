@@ -45,3 +45,19 @@ Content-Type: application/json
 ###
 GET http://localhost:8080/message-q-results/fail?page=0&size=3
 Content-Type: application/json
+
+### 휴가 취소
+POST http://localhost:8080/api/vacations/2/cancel
+
+### 휴가 신청서 수정
+PATCH http://localhost:8080/api/vacations/1
+Content-Type: application/json
+
+{
+  "requesterId": "U00087",
+  "vacationDuration": {
+    "vacationType": "MORE_DAY",
+    "startDateTime": "2024-03-05T00:00",
+    "endDateTime": "2024-03-08T00:00"
+  }
+}

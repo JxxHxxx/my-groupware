@@ -68,12 +68,14 @@ public class VacationService {
         MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
 
-        VacationManager vacationManager = new VacationManager();
-        Vacation vacation = vacationManager.create(memberLeave, vacationForm.vacationDuration());
+        VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
+        vacationManager.validateVacation();
+        Vacation vacation = vacationManager.getVacation();
+
         final Vacation savedVacation = vacationRepository.save(vacation);
 
         if (savedVacation.isFailRequest()) { // Queue 가 결재 서버에 전달되지 않도록 여기서 리턴
-            return createVacationServiceResponse(savedVacation, requesterId, memberLeave);
+            return createVacationServiceResponse(savedVacation, memberLeave);
         }
 
         Organization organization = memberLeave.getOrganization();
@@ -91,7 +93,7 @@ public class VacationService {
                 .build();
 
         messageQRepository.save(messageQ);
-        return createVacationServiceResponse(savedVacation, requesterId, memberLeave);
+        return createVacationServiceResponse(savedVacation, memberLeave);
     }
 
     @Transactional
@@ -101,15 +103,6 @@ public class VacationService {
         }
     }
 
-    private static VacationServiceResponse createVacationServiceResponse(Vacation savedVacation, String requesterId, MemberLeave findMemberLeave) {
-        return new VacationServiceResponse(
-                savedVacation.getId(),
-                requesterId,
-                findMemberLeave.getName(),
-                savedVacation.getVacationDuration(),
-                savedVacation.getVacationStatus());
-    }
-
     @Transactional
     public ConfirmDocumentRaiseResponse raiseVacation(Long vacationId) throws JsonProcessingException {
         Vacation vacation = vacationRepository.findById(vacationId)
@@ -117,13 +110,12 @@ public class VacationService {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(vacation.getRequesterId())
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 
-        VacationManager vacationManager = new VacationManager();
-        vacationManager.validateRequester(memberLeave, vacation)
-                .verifyRaisePossible(vacation);
+        VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
+        vacationManager.validateVacation();
 
-        ConfirmDocumentRaiseResponse response = requestVacationRaiseApi(vacation, memberLeave);
-
-        vacationManager.processRaise(vacation, response.confirmStatus());
+        vacationManager.isRaisePossible(); // 상신이 가능한 상태이면.
+        ConfirmDocumentRaiseResponse response = requestVacationRaiseApi(vacation, memberLeave); // 외부 통신
+        vacationManager.processRaise(response.confirmStatus());
 
         return response;
 
@@ -139,5 +131,43 @@ public class VacationService {
 
         ResponseResult result = simpleRestClient.post(requestUri, confirmRaiseRequest, ResponseResult.class, confirmDocumentId);
         return simpleRestClient.convertTo(result, ConfirmDocumentRaiseResponse.class);
+    }
+
+    @Transactional
+    public VacationServiceResponse cancelVacation(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow();
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(vacation.getRequesterId())
+                .orElseThrow();
+
+        VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
+        vacationManager.validateVacation();
+        vacationManager.cancel();
+
+        return createVacationServiceResponse(vacation, memberLeave);
+    }
+
+
+    @Transactional
+    public VacationServiceResponse updateVacation(Long vacationId, RequestVacationForm form) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow();
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(vacation.getRequesterId())
+                .orElseThrow();
+
+        VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
+        vacationManager.validateVacation();
+        vacationManager.update(form.vacationDuration());
+
+        return createVacationServiceResponse(vacation, memberLeave);
+    }
+
+    private static VacationServiceResponse createVacationServiceResponse(Vacation vacation, MemberLeave memberLeave) {
+        return new VacationServiceResponse(
+                vacation.getId(),
+                vacation.getRequesterId(),
+                memberLeave.getName(),
+                vacation.getVacationDuration(),
+                vacation.getVacationStatus());
     }
 }

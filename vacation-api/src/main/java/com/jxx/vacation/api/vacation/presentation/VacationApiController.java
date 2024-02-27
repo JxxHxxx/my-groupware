@@ -37,7 +37,6 @@ public class VacationApiController {
         return ResponseEntity.ok("!");
     }
 
-
     /**
      * 휴가 신청 API, 결재 시스템 UI에 결재 문서가 생성되어 결재자가 볼 수 있도록 함
      */
@@ -54,19 +53,22 @@ public class VacationApiController {
      */
 
     @PatchMapping("/api/vacations/{vacation-id}")
-    public ResponseEntity<?> updateVacation(@PathVariable(name = "vacation-id") Long vacationId) {
-
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> updateVacation(@PathVariable(name = "vacation-id") Long vacationId,
+                                            @RequestBody RequestVacationForm requestVacationForm) {
+        VacationServiceResponse response = vacationService.updateVacation(vacationId, requestVacationForm);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * 휴가 취소 API
+     *
+     * 1. 추가 요구 사항 - 결재가 올라간 휴가를 취소할 경우, 결재 라인에 알려야 한다.
      */
 
     @PostMapping("/api/vacations/{vacation-id}/cancel")
     public ResponseEntity<?> cancelVacation(@PathVariable(name = "vacation-id") Long vacationId) {
-
-        return ResponseEntity.ok(null);
+        VacationServiceResponse response = vacationService.cancelVacation(vacationId);
+        return ResponseEntity.ok(response);
     }
 
     /**

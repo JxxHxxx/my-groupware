@@ -2,6 +2,8 @@ package com.jxx.vacation.core.vacation.domain.entity;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public enum VacationStatus {
 
@@ -10,10 +12,13 @@ public enum VacationStatus {
     REJECT("결재 반려"), // 걸재 서버에서 결정
     APPROVED("결재 승인"), // 결재 서버에서 결정
     CANCELED("연차 취소"), // 휴가 서버에서 결정 - REST API
+    ONGOING("휴가 사용 중"), // 배치에서 처리
     COMPLETED("연차 소진 완료"), // 배치 동작
     FAIL("신청 실패");
 
     private final String description;
+
+    public static final List<VacationStatus> CANCEL_POSSIBLE_GROUP = List.of(REQUEST, REJECT, APPROVED);
 
     VacationStatus(String description) {
         this.description = description;

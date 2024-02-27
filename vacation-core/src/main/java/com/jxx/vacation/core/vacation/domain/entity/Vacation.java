@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.envers.Audited;
 
+import java.time.LocalDateTime;
+
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Getter
@@ -75,5 +77,12 @@ public class Vacation {
     public boolean isMoreThanDayVacation(){
         VacationType vacationType = vacationType();
         return vacationType.equals(VacationType.MORE_DAY);
+    }
+
+    protected void updateVacationDuration(VacationDuration vacationDuration) {
+        this.vacationDuration = new VacationDuration(
+                vacationDuration.getVacationType(),
+                vacationDuration.getStartDateTime(),
+                vacationDuration.getEndDateTime());
     }
 }

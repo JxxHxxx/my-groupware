@@ -30,8 +30,6 @@ public class SimpleMessageConsumer {
 
     @Qualifier("vacationMessageService")
     private final MessageService messageService;
-
-
     @Transactional
     @ServiceActivators({
             @ServiceActivator(inputChannel = "sentQueueChannel1"), @ServiceActivator(inputChannel = "sentQueueChannel1"),
@@ -53,7 +51,7 @@ public class SimpleMessageConsumer {
             @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel1")
     })
     public void consumeSentMessage2(List<Message<MessageQ>> message) {
-        processes(message, "1");
+        processes(message, "2");
     }
 
     private void processes(List<Message<MessageQ>> messages, String channelNum) {

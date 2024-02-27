@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -17,7 +16,7 @@ import java.time.temporal.ChronoUnit;
 @NoArgsConstructor
 public class VacationDuration {
 
-    private static long DATE_ADJUSTMENTS_VALE = 1l;
+    private static long DATE_ADJUSTMENTS_VALUE = 1l;
 
     @Column(name = "VACATION_TYPE", nullable = false)
     @Comment(value = "연차 유형")
@@ -38,6 +37,7 @@ public class VacationDuration {
     }
 
     public long calculateDate() {
-        return ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALE;
+        return ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
     }
+
 }
