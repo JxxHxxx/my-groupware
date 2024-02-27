@@ -17,7 +17,6 @@ import java.util.Map;
 @Entity
 @NoArgsConstructor
 @Table(name = "JXX_MESSAGE_Q")
-@ToString
 public class MessageQ {
 
     public static final Long ERROR_ORIGINAL_MESSAGE_PK = Long.MIN_VALUE;
@@ -65,5 +64,18 @@ public class MessageQ {
     public void startProduce() {
         this.processStartTime = LocalDateTime.now();
         this.messageProcessStatus = MessageProcessStatus.PROCESS;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageQ{" +
+                "pk=" + pk +
+                ", messageDestination=" + messageDestination +
+                "\nbody=" + body +
+                "\nmessageProcessStatus=" + messageProcessStatus +
+                ", eventTime=" + eventTime +
+                ", processStartTime=" + processStartTime +
+                ", retryId=" + retryId +
+                '}';
     }
 }
