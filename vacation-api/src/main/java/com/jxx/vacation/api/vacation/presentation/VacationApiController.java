@@ -6,6 +6,7 @@ import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,6 @@ public class VacationApiController {
     @PostMapping(value = "/api/vacations/{vacation-id}/raise")
     public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) throws JsonProcessingException {
         ConfirmDocumentRaiseResponse response = vacationService.raiseVacation(vacationId);
-
         return ResponseEntity.ok(response);
     }
 

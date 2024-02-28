@@ -1,10 +1,7 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.envers.Audited;
 
@@ -15,6 +12,7 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 @Table(name = "JXX_VACATION_MASTER", indexes = @Index(name = "IDX_REQUESTER_ID", columnList = "REQUESTER_ID"))
 @Audited
 public class Vacation {
@@ -86,3 +84,4 @@ public class Vacation {
                 vacationDuration.getEndDateTime());
     }
 }
+

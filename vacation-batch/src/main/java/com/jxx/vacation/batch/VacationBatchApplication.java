@@ -1,15 +1,19 @@
 package com.jxx.vacation.batch;
 
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@EnableBatchProcessing
+@Slf4j
 @SpringBootApplication
 public class VacationBatchApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(VacationBatchApplication.class, args);
+        log.info("\n=========================================" +
+                "\nVacation Batch App Start Success" +
+                "\nDevelop JxxHxx " +
+                "\n=========================================");
     }
 
 }

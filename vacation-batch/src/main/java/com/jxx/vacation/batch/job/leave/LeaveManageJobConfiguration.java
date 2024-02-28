@@ -1,4 +1,4 @@
-package com.jxx.vacation.batch.job.leavemanage;
+package com.jxx.vacation.batch.job.leave;
 
 import org.springframework.context.annotation.Configuration;
 

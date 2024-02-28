@@ -3,14 +3,12 @@ package com.jxx.vacation.core.vacation.domain.entity;
 
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Getter
 @Entity
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "JXX_ORGANIZATION_MASTER", indexes = @Index(name = "IDX_COMPANY_ORG", columnList = "COMPANY_ID, DEPARTMENT_ID"))
 public class Organization {

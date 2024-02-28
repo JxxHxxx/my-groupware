@@ -1,0 +1,11 @@
+
+POST http://localhost:8070/batch/job/run
+Content-Type: application/json
+
+{
+  "jobName" : "vacation.status-manage.job",
+  "properties" : {
+    "run.id" : "ADMIN20240228-08",
+    "processDate" : "2024-03-02 00:00:00"
+  }
+}
