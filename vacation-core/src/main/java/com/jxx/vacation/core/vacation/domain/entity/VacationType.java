@@ -2,6 +2,8 @@ package com.jxx.vacation.core.vacation.domain.entity;
 
 import lombok.Getter;
 
+import java.util.List;
+
 /**
  * 추후 버전에서는 회사마다 휴가 체계가
  */
@@ -20,4 +22,6 @@ public enum VacationType {
     boolean isDeductedLeave() {
         return !this.equals(NOT_DEDUCTED);
     }
+
+    public static final List<VacationType> HALF_VACATION_TYPE = List.of(HALF_MORNING, HALF_AFTERNOON);
 }

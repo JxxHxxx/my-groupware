@@ -38,7 +38,6 @@ public class VacationStatusManageJobConfiguration {
     public Job vacationStatusManageJob(JobRepository jobRepository) {
         return new JobBuilder(JOB_NAME, jobRepository)
                 .start(step(jobRepository))
-                .incrementer(new RunIdIncrementer())
                 .build();
     }
 
