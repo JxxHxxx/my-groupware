@@ -1,7 +1,7 @@
 package com.jxx.vacation.batch.job.vacation.status.config;
 
 import com.jxx.vacation.batch.job.vacation.status.item.VacationItem;
-import com.jxx.vacation.batch.job.vacation.status.writer.VacationItemRowMapper;
+import com.jxx.vacation.batch.job.vacation.status.reader.VacationItemRowMapper;
 import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.JobContext;
 import org.springframework.batch.core.scope.context.JobSynchronizationManager;
@@ -24,6 +23,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+
+/**
+ * 휴가 시작 설정 배치
+ */
 
 @Slf4j
 @Configuration
@@ -58,20 +61,18 @@ public class VacationStatusManageJobConfiguration {
         String processDate = String.valueOf(context.getJobParameters().get("processDate"));
 
         return new JdbcCursorItemReaderBuilder<VacationItem>()
-                .fetchSize(10)
+                .fetchSize(100)
                 .dataSource(dataSource)
                 .sql("SELECT * FROM JXX_VACATION_MASTER JVM " +
-                    "   WHERE START_DATE_TIME = ?  AND VACATION_STATUS = 'CREATE'")
+                    "   WHERE START_DATE_TIME = ? AND VACATION_STATUS = 'CREATE'")
                 .rowMapper(new VacationItemRowMapper())
                 .name("vacationItemJdbcReader")
-                .preparedStatementSetter(preparedStatement -> {
-                    preparedStatement.setString(1, processDate);
-                })
+                .preparedStatementSetter(preparedStatement -> preparedStatement.setString(1, processDate))
                 .build();
     }
 
     @StepScope
-    @Bean
+    @Bean(name = "VacationItemProcessor")
     public ItemProcessor<VacationItem, VacationItem> itemProcessor() {
         return item -> { item.changeVacationStatus(VacationStatus.ONGOING);
             return item;
@@ -84,7 +85,8 @@ public class VacationStatusManageJobConfiguration {
         return new JdbcBatchItemWriterBuilder<VacationItem>()
                 .dataSource(dataSource)
                 .sql("UPDATE JXX_VACATION_MASTER JVM " +
-                        "   SET VACATION_STATUS=:vacationStatus ")
+                        "   SET VACATION_STATUS=:vacationStatus " +
+                        "   WHERE JVM.VACATION_ID=:vacationId")
                 .beanMapped()
                 .build();
     }

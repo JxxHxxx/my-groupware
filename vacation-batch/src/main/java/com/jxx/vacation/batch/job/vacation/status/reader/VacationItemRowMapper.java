@@ -1,4 +1,4 @@
-package com.jxx.vacation.batch.job.vacation.status.writer;
+package com.jxx.vacation.batch.job.vacation.status.reader;
 
 import com.jxx.vacation.batch.job.vacation.status.item.VacationItem;
 import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;

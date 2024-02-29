@@ -3,9 +3,21 @@ POST http://localhost:8070/batch/job/run
 Content-Type: application/json
 
 {
-  "jobName" : "vacation.status-manage.job",
-  "properties" : {
-    "run.id" : "ADMIN20240228-08",
-    "processDate" : "2024-03-02 00:00:00"
+  "jobName": "vacation.status-manage.job",
+  "properties": {
+    "run.id": "ADMIN20240229-01",
+    "processDate": "2024-02-29 00:00:00"
+  }
+}
+
+### 휴가 종료일에 맞춰 휴가 상태 조정 및 잔여 연차 차감
+POST http://localhost:8070/batch/job/run
+Content-Type: application/json
+
+{
+"jobName": "leave.adjust.job",
+"properties": {
+  "run.id": "ADMIN20240303-01",
+  "executeDateTime": "2024-03-05 00:00:00"
   }
 }

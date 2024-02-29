@@ -14,7 +14,8 @@ public enum VacationStatus {
     CANCELED("연차 취소"), // 휴가 서버에서 결정 - REST API
     ONGOING("휴가 사용 중"), // 배치에서 처리
     COMPLETED("연차 소진 완료"), // 배치 동작
-    FAIL("신청 실패");
+    FAIL("신청 실패"),
+    ERROR("시스템 상 처리 실패");
 
     private final String description;
 
@@ -22,5 +23,13 @@ public enum VacationStatus {
 
     VacationStatus(String description) {
         this.description = description;
+    }
+
+    public boolean isOngoing(String vacationStatus) {
+        return ONGOING.equals(VacationStatus.valueOf(vacationStatus));
+    }
+
+    public boolean isOngoing(VacationStatus vacationStatus) {
+        return ONGOING.equals(vacationStatus);
     }
 }

@@ -1,5 +1,9 @@
 package com.jxx.vacation.batch.job.leave.config;
 
+import com.jxx.vacation.batch.job.leave.item.LeaveItem;
+import com.jxx.vacation.batch.job.leave.processor.LeaveItemValidateProcessor;
+import com.jxx.vacation.batch.job.leave.reader.LeaveItemRowMapper;
+import com.jxx.vacation.core.common.converter.LocalDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -7,17 +11,28 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.scope.context.JobContext;
+import org.springframework.batch.core.scope.context.JobSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.batch.item.support.builder.CompositeItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+/**
+ *
+ */
 
 @Slf4j
 @Configuration
@@ -25,53 +40,103 @@ import javax.sql.DataSource;
 public class LeaveAdjustJobConfiguration {
 
     private static final String JOB_NAME = "leave.adjust.job";
+    private static final Long EXECUTE_DATE_TIME_ADJUST_VALUE = -1l;
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 
     @Bean(name = JOB_NAME)
     public Job leaveAdjustJob(JobRepository jobRepository) {
         return new JobBuilder(JOB_NAME, jobRepository)
-                .start(step())
+                .start(step(jobRepository))
                 .build();
     }
 
-    @StepScope
     @Bean
-    public Step step() {
-        return new StepBuilder("leave.adjust.step")
+    public Step step(JobRepository jobRepository) {
+        return new StepBuilder("leave.adjust.step", jobRepository)
                 .<LeaveItem, LeaveItem>chunk(100, transactionManager)
                 .reader(itemReader())
                 .processor(itemProcessor())
-                .writer(itemWriter())
+                .writer(compositeItemWriter())
                 .build();
     }
 
     @StepScope
-    @Bean
+    @Bean(name = "leaveItemReader")
     public JdbcCursorItemReader<LeaveItem> itemReader() {
+        String sql = "SELECT " +
+                "JMLM.MEMBER_PK , " +
+                "JMLM.REMAINING_LEAVE, " +
+                "JMLM.IS_ACTIVE AS 'MEMBER_ACTIVE', " +
+                "JVM.VACATION_ID , " +
+                "JVM.DEDUCTED , " +
+                "JVM.VACATION_STATUS , " +
+                "JVM.VACATION_TYPE , " +
+                "JVM.START_DATE_TIME , " +
+                "JVM.END_DATE_TIME , " +
+                "JOM.COMPANY_ID, " +
+                "JOM.DEPARTMENT_ID , " +
+                "JOM.IS_ACTIVE AS 'ORG_ACTIVE' FROM JXX_MEMBER_LEAVE_MASTER JMLM " +
+                " JOIN JXX_ORGANIZATION_MASTER JOM " +
+                " ON JMLM.COMPANY_ID = JOM.COMPANY_ID AND JMLM.DEPARTMENT_ID = JOM.DEPARTMENT_ID " +
+                " JOIN JXX_VACATION_MASTER JVM " +
+                " ON JMLM.MEMBER_ID = JVM.REQUESTER_ID " +
+                " WHERE JVM.END_DATE_TIME = ? AND JVM.VACATION_STATUS = 'ONGOING';";
+
+        JobContext context = JobSynchronizationManager.getContext();
+
+        String executeDateTime = String.valueOf(context.getJobParameters().get("executeDateTime"));
+        String endDateTime = LocalDateTimeConverter.adjustDateTime(executeDateTime, EXECUTE_DATE_TIME_ADJUST_VALUE);
+
         return new JdbcCursorItemReaderBuilder<LeaveItem>()
+                .name("leaveItemReader")
                 .dataSource(dataSource)
+                .fetchSize(100)
+                .sql(sql)
+                .rowMapper(new LeaveItemRowMapper())
+                .preparedStatementSetter(ps -> ps.setString(1, endDateTime))
                 .build();
     }
 
     @StepScope
-    @Bean
+    @Bean(name = "leaveItemProcessor")
     public ItemProcessor<LeaveItem, LeaveItem> itemProcessor() {
-        return item -> {
-            if (!item.memberOrgActive()) {
-                return null;
-            };
-            if (!item.validateDeductAmount()) {
-                return null;
-            }
-            return item;
-        };
+        return new LeaveItemValidateProcessor();
     }
 
     @StepScope
-    @Bean
-    public JdbcBatchItemWriter<LeaveItem> itemWriter() {
+    @Bean(name = "leaveAdjustWriter")
+    public JdbcBatchItemWriter<LeaveItem> leaveAdjustWriter() {
+        String sql = "UPDATE JXX_MEMBER_LEAVE_MASTER JLM" +
+                "   SET JLM.REMAINING_LEAVE = JLM.REMAINING_LEAVE -:deductedAmount  " +
+                "   WHERE JLM.MEMBER_PK =:memberPk ";
+
         return new JdbcBatchItemWriterBuilder<LeaveItem>()
+                .dataSource(dataSource)
+                .sql(sql)
+                .beanMapped()
+                .build();
+    }
+
+    @StepScope
+    @Bean(name = "vacationStatusChangeWriter")
+    public JdbcBatchItemWriter<LeaveItem> vacationStatusChangeWriter() {
+        String sql = "UPDATE JXX_VACATION_MASTER JVM" +
+                "   SET JVM.VACATION_STATUS =:vacationStatus  " +
+                "   WHERE JVM.VACATION_ID =:vacationId ";
+
+        return new JdbcBatchItemWriterBuilder<LeaveItem>()
+                .dataSource(dataSource)
+                .sql(sql)
+                .beanMapped()
+                .build();
+    }
+
+    @StepScope
+    @Bean(name = "compositeLeaveItemWriter")
+    public CompositeItemWriter<LeaveItem> compositeItemWriter() {
+        return new CompositeItemWriterBuilder<LeaveItem>()
+                .delegates(List.of(leaveAdjustWriter(), vacationStatusChangeWriter()))
                 .build();
     }
 

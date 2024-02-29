@@ -66,7 +66,7 @@ public class VacationService {
     public VacationServiceResponse createVacation(RequestVacationForm vacationForm) {
         String requesterId = vacationForm.requesterId();
         MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
-                .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("requesterId" + requesterId + " not found"));
 
         VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
         vacationManager.validateVacation();

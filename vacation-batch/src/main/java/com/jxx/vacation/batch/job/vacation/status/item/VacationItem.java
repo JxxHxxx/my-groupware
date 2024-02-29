@@ -10,7 +10,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
+@Setter // writer - beanMapped 용
 @AllArgsConstructor
 public class VacationItem {
     private final Long vacationId;
