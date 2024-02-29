@@ -66,7 +66,7 @@ public class VacationService {
     public VacationServiceResponse createVacation(RequestVacationForm vacationForm) {
         String requesterId = vacationForm.requesterId();
         MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
-                .orElseThrow(() -> new IllegalArgumentException("requesterId" + requesterId + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("requesterId " + requesterId + " not found"));
 
         VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
         vacationManager.validateVacation();
