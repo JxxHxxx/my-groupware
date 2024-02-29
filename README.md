@@ -104,7 +104,7 @@ messaging:
     select-sql:
 ```
 
-### 휴가 신청 API 헬퍼
+### 휴가 신청 API guide
 messaging 프로젝트에서 많은 양의 큐를 처리하는걸 보고 싶을 때, 사용하면 좋다.
 
 사전 준비물 : JXX_MEMBER_LEAVE_MASTER, JXX_ORGANIZATION_MASTER 레코드 , POSTMAN
@@ -123,16 +123,18 @@ POSTMAN 간단 설명
 
 ```
 const randomRequestId = function () {
-    const minU = 1; // 현재 존재하는 U 사번의 최소 값, 참고로 U사번 체계는 U00001 부터 1씩 증가하는 규칙을 가진다. 
-    const maxU = 132; // 현재 존재하는 U 사번의 최대 값
-    const minSPY = 1; // 현재 SPY 사번의 최소 값, SPY 사번의 체계도 U사번과 유사하게 1씩 증가한다.
-    const maxSPY = 165; // 현재 SPY 사번의 최대 값
-    const randomIdU = Math.floor(Math.random() * (maxU - minU + 1)) + minU;
-    const randomIdSPY = Math.floor(Math.random() * (maxSPY - minSPY + 1)) + minSPY;
-    // SPY, U 사번 랜덤하게 들어가기 위한 작업
-    const randomId = Math.random() < 0.5 ? randomIdU : randomIdSPY;
+    const minU = 1;
+    const maxU = 132;
+    const minSPY = 1;
+    const maxSPY = 301;
+
     const prefix = Math.random() < 0.5 ? "U" : "SPY";
-    return prefix + randomId.toString().padStart(5, '0');
+    if (prefix === "U") {
+        const randomIdU = Math.floor(Math.random() * (maxU)) + minU;
+        return prefix + randomIdU.toString().padStart(5, '0')
+    }
+    const randomIdSPY = Math.floor(Math.random() * (maxSPY)) + minSPY;
+    return prefix + randomIdSPY.toString().padStart(5, '0');
 } 
 
 pm.environment.set("requesterId", randomRequestId());
