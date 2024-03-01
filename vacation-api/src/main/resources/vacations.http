@@ -10,8 +10,8 @@ Content-Type: application/json
   "requesterId": "U00127",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-03-07T00:00",
-    "endDateTime": "2024-03-09T00:00"
+    "startDateTime": "2024-03-10T00:00",
+    "endDateTime": "2024-03-30T00:00"
   }
 }
 

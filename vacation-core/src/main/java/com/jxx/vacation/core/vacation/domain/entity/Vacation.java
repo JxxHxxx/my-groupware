@@ -5,15 +5,17 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.envers.Audited;
 
-import java.time.LocalDateTime;
-
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-@Table(name = "JXX_VACATION_MASTER", indexes = @Index(name = "IDX_REQUESTER_ID", columnList = "REQUESTER_ID"))
+@Table(name = "JXX_VACATION_MASTER", indexes = {
+        @Index(name = "IDX_REQUESTER_ID", columnList = "REQUESTER_ID"),
+        @Index(name = "IDX_START_DATE_TIME", columnList = "START_DATE_TIME"),
+        @Index(name = "IDX_END_DATE_TIME", columnList = "END_DATE_TIME")
+})
 @Audited
 public class Vacation {
 

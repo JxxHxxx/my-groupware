@@ -86,7 +86,7 @@ public class MemberLeave {
     public boolean checkRemainingLeaveBiggerThan(float deductionDate) throws MemberLeaveException {
         if (remainingLeave - deductionDate < 0 || deductionDate <= 0) {
             String format = String.format("신청 연차 일보다 잔여 연차일이 적습니다. 신청 연차일 : %f일, 잔여 연차일 : %f일",
-                    remainingLeave, deductionDate);
+                    deductionDate, remainingLeave);
             throw new MemberLeaveException(format);
         }
         return true;

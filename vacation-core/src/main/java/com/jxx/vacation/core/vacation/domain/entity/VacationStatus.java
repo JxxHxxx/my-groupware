@@ -20,16 +20,29 @@ public enum VacationStatus {
     private final String description;
 
     public static final List<VacationStatus> CANCEL_POSSIBLE_GROUP = List.of(REQUEST, REJECT, APPROVED);
+    // 휴가 신청 시, 신청 가능한 일 수 인지 파악해야 할 때, 필요한 그룹
+    public static final List<VacationStatus> APPROVING_GROUP = List.of(REQUEST, APPROVED);
+
+    public static final List<VacationStatus> APPROVING_ONGOING_GROUP = List.of(REQUEST, APPROVED. ONGOING);
 
     VacationStatus(String description) {
         this.description = description;
     }
 
-    public boolean isOngoing(String vacationStatus) {
+    public static boolean isOngoing(String vacationStatus) {
         return ONGOING.equals(VacationStatus.valueOf(vacationStatus));
     }
 
-    public boolean isOngoing(VacationStatus vacationStatus) {
+    public static boolean isOngoing(VacationStatus vacationStatus) {
         return ONGOING.equals(vacationStatus);
     }
+
+    public static boolean isApproval(String vacationStatus) {
+        return ONGOING.equals(VacationStatus.valueOf(vacationStatus));
+    }
+
+    public static boolean isApproval(VacationStatus vacationStatus) {
+        return ONGOING.equals(vacationStatus);
+    }
+
 }

@@ -2,10 +2,12 @@ package com.jxx.vacation.core.vacation.domain.entity;
 
 import com.jxx.vacation.core.message.payload.approval.ConfirmStatus;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
-import com.jxx.vacation.core.vacation.domain.exeception.MemberLeaveException;
+import com.jxx.vacation.core.vacation.domain.exeception.VacationException;
 import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
@@ -42,9 +44,51 @@ public class VacationManager {
                 .adjustDeducted();
     }
 
-    public void validateVacation() {
+    public void validateMemberActive() {
         validateMemberActive(memberLeave, vacation);
-        verifyRequestVacation(memberLeave, vacation);
+    }
+
+    public void validateCreatableVacationDuration(List<Vacation> requestVacations) {
+        validateVacationDatesAreDuplication(requestVacations);
+        validateRemainingLeaveIsBiggerThanExistedVacationsAnd(requestVacations);
+    }
+
+    protected void validateRemainingLeaveIsBiggerThanExistedVacationsAnd(List<Vacation> requestVacations) {
+        // 잔여 연차
+        Float remainingLeave = memberLeave.getRemainingLeave();
+        
+        // 현재 REQUEST, APPROVED 상태의 휴가 신청일 총 합
+        List<Long> vacationDays = requestVacations.stream()
+                .filter(vacation -> APPROVING_GROUP.contains(vacation.getVacationStatus()))
+                .map(vacation -> vacation.getVacationDuration().calculateDate())
+                .toList();
+
+        Long approvingVacationDate = 0L;
+        for (Long vacationDay : vacationDays) {
+            approvingVacationDate += vacationDay;
+        }
+        // 신청한 휴가 일 수
+        long requestVacationDate = vacation.getVacationDuration().calculateDate();
+
+        if (remainingLeave - approvingVacationDate - requestVacationDate < 0) {
+            throw new VacationException("신청 가능한 일 수 " + (remainingLeave - approvingVacationDate) + "일 신청 일 수 " + requestVacationDate + "일");
+        }
+    }
+
+    protected void validateVacationDatesAreDuplication(List<Vacation> requestVacations) {
+        List<VacationDuration> existedVacationDurations = requestVacations.stream()
+                .filter(vacation -> APPROVING_ONGOING_GROUP.contains(vacation.getVacationStatus()))
+                .map(vacation -> vacation.getVacationDuration())
+                .toList(); // 여기에 포함되어 있으면 안됨 날짜가.
+
+        VacationDuration requestVacationDuration = vacation.getVacationDuration();
+        List<LocalDateTime> requestVacationDateTimes = requestVacationDuration.receiveVacationDateTimes();
+
+        for (VacationDuration existedVacationDuration : existedVacationDurations) {
+            for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
+                existedVacationDuration.isInVacationDate(requestVacationDateTime);
+            }
+        }
     }
 
     public void isRaisePossible() {
@@ -81,15 +125,6 @@ public class VacationManager {
 
     public MemberLeave getMemberLeave() {
         return this.memberLeave;
-    }
-
-    protected void verifyRequestVacation(MemberLeave memberLeave, Vacation vacation) {
-        try {
-            memberLeave.checkRemainingLeaveBiggerThan(vacationDate); // 잔여 연차가 차감되는 연차보다 큰지 검증
-        } catch (MemberLeaveException e) {
-            log.warn("MESSAGE:{}", e.getMessage(), e);
-            vacation.changeVacationStatus(FAIL);
-        }
     }
 
     protected void validateMemberActive(MemberLeave memberLeave, Vacation vacation) {

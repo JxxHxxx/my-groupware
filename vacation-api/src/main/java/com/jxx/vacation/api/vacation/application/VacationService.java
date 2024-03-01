@@ -69,7 +69,11 @@ public class VacationService {
                 .orElseThrow(() -> new IllegalArgumentException("requesterId " + requesterId + " not found"));
 
         VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
-        vacationManager.validateVacation();
+        vacationManager.validateMemberActive();
+
+        List<Vacation> requestingVacations = vacationRepository.findAllByRequesterId(requesterId);
+        vacationManager.validateCreatableVacationDuration(requestingVacations);
+
         Vacation vacation = vacationManager.getVacation();
 
         final Vacation savedVacation = vacationRepository.save(vacation);
@@ -111,7 +115,7 @@ public class VacationService {
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 
         VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
-        vacationManager.validateVacation();
+        vacationManager.validateMemberActive();
 
         vacationManager.isRaisePossible(); // 상신이 가능한 상태이면.
         ConfirmDocumentRaiseResponse response = requestVacationRaiseApi(vacation, memberLeave); // 외부 통신
@@ -141,7 +145,7 @@ public class VacationService {
                 .orElseThrow();
 
         VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
-        vacationManager.validateVacation();
+        vacationManager.validateMemberActive();
         vacationManager.cancel();
 
         return createVacationServiceResponse(vacation, memberLeave);
@@ -156,7 +160,7 @@ public class VacationService {
                 .orElseThrow();
 
         VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
-        vacationManager.validateVacation();
+        vacationManager.validateMemberActive();
         vacationManager.update(form.vacationDuration());
 
         return createVacationServiceResponse(vacation, memberLeave);

@@ -1,5 +1,6 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
+import com.jxx.vacation.core.vacation.domain.exeception.VacationException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -10,6 +11,8 @@ import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Embeddable
@@ -38,6 +41,27 @@ public class VacationDuration {
 
     public long calculateDate() {
         return ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
+    }
+
+    public void isInVacationDate(LocalDateTime localDateTime) {
+        boolean isLocalDateTimeBetween = localDateTime.isAfter(startDateTime) && localDateTime.isBefore(endDateTime)
+                || localDateTime.isEqual(startDateTime) || localDateTime.isEqual(endDateTime);
+
+        if (isLocalDateTimeBetween) {
+            throw new VacationException(localDateTime + "은 이미 휴가로 신청되어 있는 일자입니다.");
+        }
+    }
+
+    public List<LocalDateTime> receiveVacationDateTimes() {
+        List<LocalDateTime> dates = new ArrayList<>();
+        LocalDateTime current = startDateTime;
+
+        while (!current.isAfter(endDateTime)) {
+            dates.add(current);
+            current = current.plusDays(1);
+        }
+
+        return dates;
     }
 
 }
