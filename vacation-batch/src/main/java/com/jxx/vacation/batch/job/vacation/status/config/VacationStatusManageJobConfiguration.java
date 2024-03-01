@@ -1,8 +1,8 @@
 package com.jxx.vacation.batch.job.vacation.status.config;
 
 import com.jxx.vacation.batch.job.vacation.status.item.VacationItem;
+import com.jxx.vacation.batch.job.vacation.status.processor.VacationOngoingProcessor;
 import com.jxx.vacation.batch.job.vacation.status.reader.VacationItemRowMapper;
-import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 /**
  * 휴가 시작 설정 배치
+ * APPROVED -> ONGOING
  */
 
 @Slf4j
@@ -64,7 +65,7 @@ public class VacationStatusManageJobConfiguration {
                 .fetchSize(100)
                 .dataSource(dataSource)
                 .sql("SELECT * FROM JXX_VACATION_MASTER JVM " +
-                    "   WHERE START_DATE_TIME = ? AND VACATION_STATUS = 'CREATE'")
+                    "   WHERE START_DATE_TIME = ? ")
                 .rowMapper(new VacationItemRowMapper())
                 .name("vacationItemJdbcReader")
                 .preparedStatementSetter(preparedStatement -> preparedStatement.setString(1, processDate))
@@ -74,9 +75,7 @@ public class VacationStatusManageJobConfiguration {
     @StepScope
     @Bean(name = "VacationItemProcessor")
     public ItemProcessor<VacationItem, VacationItem> itemProcessor() {
-        return item -> { item.changeVacationStatus(VacationStatus.ONGOING);
-            return item;
-        };
+        return new VacationOngoingProcessor();
     }
 
     @StepScope

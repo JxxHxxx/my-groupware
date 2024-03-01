@@ -1,4 +1,4 @@
-
+### 휴가 상태 ONGING
 POST http://localhost:8070/batch/job/run
 Content-Type: application/json
 
@@ -18,6 +18,6 @@ Content-Type: application/json
 "jobName": "leave.adjust.job",
 "properties": {
   "run.id": "ADMIN20240303-01",
-  "executeDateTime": "2024-03-04 00:00:00"
+  "executeDateTime": "2024-03-02 00:00:00"
   }
 }

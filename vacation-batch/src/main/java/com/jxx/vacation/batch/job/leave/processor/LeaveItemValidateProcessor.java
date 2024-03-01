@@ -1,6 +1,7 @@
 package com.jxx.vacation.batch.job.leave.processor;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
+import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 
@@ -16,7 +17,7 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
             return item;
         }
 
-        if (!ONGOING.isOngoing(item.getVacationStatus())) {
+        if (!VacationStatus.isOngoing(item.getVacationStatus())) {
             item.updateVacationStatusToError();
             log.info("[PROCESS][vacation status is not ongoing]");
             return item;
