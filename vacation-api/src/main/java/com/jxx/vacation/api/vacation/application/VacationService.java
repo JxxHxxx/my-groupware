@@ -75,7 +75,6 @@ public class VacationService {
         vacationManager.validateCreatableVacationDuration(requestingVacations);
 
         Vacation vacation = vacationManager.getVacation();
-
         final Vacation savedVacation = vacationRepository.save(vacation);
 
         if (savedVacation.isFailRequest()) { // Queue 가 결재 서버에 전달되지 않도록 여기서 리턴

@@ -1,11 +1,13 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
 
-import com.jxx.vacation.core.vacation.domain.exeception.VacationException;
+import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.testUtil.CoreEntityFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,9 +41,13 @@ class VacationManagerTest {
     }
 
     //
-    @DisplayName("3113")
-    @Test
-    void isAlreadyVacationDate() {
+    @DisplayName("이미 휴가로 지정된 날짜는 다시 휴가로 신청할 수 없다." +
+            "여기서 말하는 휴가로 지정되었다는 의미는 VacationStatus가" +
+            "REQUEST, APPROVED, ONGOING 상태를 말한다. " +
+            "만약 해당 상태를 가지는 휴가 날짜를 휴가로 요청할 경우 VacationClientException 이 발생한다.")
+    @EnumSource(names = {"REQUEST", "APPROVED", "ONGOING"})
+    @ParameterizedTest
+    void validateVacationDatesAreDuplication(VacationStatus vacationStatus) {
         //given - 휴가 신청
         LocalDateTime startDate = LocalDateTime.of(2024, 3, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 4, 0, 0);
@@ -56,11 +62,11 @@ class VacationManagerTest {
         LocalDateTime endDate2 = LocalDateTime.of(2024, 3, 3, 0, 0);
         VacationDuration vacationDuration2 = new VacationDuration(VacationType.MORE_DAY, startDate2, endDate2);
 
-        Vacation existedVacation = new Vacation("T0001", vacationDuration2, true, VacationStatus.CREATE);
+        Vacation existedVacation = new Vacation("T0001", vacationDuration2, true, vacationStatus);
 
         //when - then
         assertThatCode(() -> vacationManager.validateVacationDatesAreDuplication(List.of(existedVacation)))
-                .isInstanceOf(VacationException.class);
+                .isInstanceOf(VacationClientException.class);
 
     }
 

@@ -2,7 +2,7 @@ package com.jxx.vacation.core.vacation.domain.entity;
 
 import com.jxx.vacation.core.message.payload.approval.ConfirmStatus;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
-import com.jxx.vacation.core.vacation.domain.exeception.VacationException;
+import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,8 +70,9 @@ public class VacationManager {
         // 신청한 휴가 일 수
         long requestVacationDate = vacation.getVacationDuration().calculateDate();
 
+        String clientId = memberLeave.getMemberId();
         if (remainingLeave - approvingVacationDate - requestVacationDate < 0) {
-            throw new VacationException("신청 가능한 일 수 " + (remainingLeave - approvingVacationDate) + "일 신청 일 수 " + requestVacationDate + "일");
+            throw new VacationClientException("신청 가능한 일 수 " + (remainingLeave - approvingVacationDate) + "일 신청 일 수 " + requestVacationDate + "일", clientId);
         }
     }
 
@@ -86,7 +87,7 @@ public class VacationManager {
 
         for (VacationDuration existedVacationDuration : existedVacationDurations) {
             for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
-                existedVacationDuration.isInVacationDate(requestVacationDateTime);
+                existedVacationDuration.isInVacationDate(requestVacationDateTime, memberLeave.getMemberId());
             }
         }
     }

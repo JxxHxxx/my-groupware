@@ -1,6 +1,6 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
-import com.jxx.vacation.core.vacation.domain.exeception.VacationException;
+import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +36,8 @@ class VacationDurationTest {
         VacationDuration vacationDuration = new VacationDuration(VacationType.MORE_DAY, startDate, endDate);
         LocalDateTime betweenDate = LocalDateTime.of(2024, 2, 29, 0, 0);
 
-        assertThatThrownBy(() -> vacationDuration.isInVacationDate(betweenDate))
-                .isInstanceOf(VacationException.class);
+        assertThatThrownBy(() -> vacationDuration.isInVacationDate(betweenDate, ""))
+                .isInstanceOf(VacationClientException.class);
     }
 
     @Test
