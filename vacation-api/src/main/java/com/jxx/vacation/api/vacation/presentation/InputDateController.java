@@ -1,5 +1,6 @@
 package com.jxx.vacation.api.vacation.presentation;
 
+import com.jxx.vacation.core.vacation.domain.entity.Leave;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
@@ -20,7 +21,6 @@ public class InputDateController {
     private final MemberLeaveRepository memberLeaveRepository;
     private final OrganizationRepository organizationRepository;
 
-
     @Transactional
     @PostMapping("/members")
     public void save() {
@@ -33,7 +33,7 @@ public class InputDateController {
         MemberLeave memberLeave1 = MemberLeave.builder()
                 .name("이재헌")
                 .memberId("U00001")
-                .remainingLeave(15F)
+                .leave(new Leave(15F, 15F))
                 .enteredDate(LocalDate.of(2023, 8, 5))
                 .experienceYears(1)
                 .organization(organization)
@@ -43,7 +43,7 @@ public class InputDateController {
         MemberLeave memberLeave2 = MemberLeave.builder()
                 .name("하니")
                 .memberId("U00002")
-                .remainingLeave(15F)
+                .leave(new Leave(15F, 15F))
                 .enteredDate(LocalDate.of(2023, 1, 5))
                 .experienceYears(1)
                 .organization(organization)

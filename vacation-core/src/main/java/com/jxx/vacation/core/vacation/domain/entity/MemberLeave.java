@@ -8,14 +8,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 import java.time.LocalDate;
 
 @Getter
 @Entity
-@Audited
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "JXX_MEMBER_LEAVE_MASTER", indexes = @Index(name = "IDX_MEMBER_LEAVE_MEMBER_ID", columnList = "MEMBER_ID"))
 public class MemberLeave {
@@ -25,7 +22,7 @@ public class MemberLeave {
     @Comment(value = "사용자 테이블 PK")
     private Long pk;
     @Column(name = "IS_ACTIVE", nullable = false)
-    @Comment(value = "사용자 활성화 여부")
+    @Comment(value = "사용자 활성화 여부(0:비활성화 1:활성화)")
     private boolean isActive;
     @Column(name = "MEMBER_ID")
     @Comment(value = "사용자 식별자")
@@ -42,38 +39,25 @@ public class MemberLeave {
     @Comment(value = "입사일자")
     private LocalDate enteredDate;
 
-    @Column(name = "REMAINING_LEAVE")
-    @Comment(value = "연차 잔여일")
-    private Float remainingLeave;
+    @Embedded
+    private Leave leave;
 
     // 겸직 사용자를 위해 ManyToOne
-    @NotAudited
     @ManyToOne
     @JoinColumns(value = {
             @JoinColumn(name = "COMPANY_ID", referencedColumnName = "COMPANY_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)),
             @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "DEPARTMENT_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))})
     private Organization organization;
 
-
     @Builder
-    public MemberLeave(String memberId, String name, Integer experienceYears, LocalDate enteredDate, Float remainingLeave, Organization organization) {
-        this.isActive = true;
+    public MemberLeave(Long pk, boolean isActive, String memberId, String name, Integer experienceYears, LocalDate enteredDate, Leave leave, Organization organization) {
+        this.pk = pk;
+        this.isActive = isActive;
         this.memberId = memberId;
         this.name = name;
         this.experienceYears = experienceYears;
         this.enteredDate = enteredDate;
-        this.remainingLeave = remainingLeave;
-        this.organization = organization;
-    }
-
-    @Builder
-    public MemberLeave(String memberId, String name, LocalDate enteredDate, Float remainingLeave, Organization organization) {
-        this.isActive = true;
-        this.memberId = memberId;
-        this.name = name;
-        this.experienceYears = 0;
-        this.enteredDate = enteredDate;
-        this.remainingLeave = remainingLeave;
+        this.leave = leave;
         this.organization = organization;
     }
 
@@ -83,17 +67,28 @@ public class MemberLeave {
         }
     }
 
-    public boolean checkRemainingLeaveBiggerThan(float deductionDate) throws MemberLeaveException {
-        if (remainingLeave - deductionDate < 0 || deductionDate <= 0) {
-            String format = String.format("신청 연차 일보다 잔여 연차일이 적습니다. 신청 연차일 : %f일, 잔여 연차일 : %f일",
-                    deductionDate, remainingLeave);
-            throw new MemberLeaveException(format);
+    public boolean checkRemainingLeaveBiggerThan(float deductionLeave) throws MemberLeaveException {
+        if (deductionLeave < 0) {
+            throw new MemberLeaveException(String.format("잘못된 접근입니다. 신청 연차일 : %f일", deductionLeave));
+        };
+        Float remainingLeave = leave.getRemainingLeave();
+        if (remainingLeave - deductionLeave < 0) {
+            throw new MemberLeaveException(String.format("신청 연차 일보다 잔여 연차일이 적습니다. 신청 연차일 : %f일, 잔여 연차일 : %f일",
+                    deductionLeave, remainingLeave));
         }
         return true;
     }
 
     public String receiveCompanyId() {
         return organization.getCompanyId();
+    }
+
+    public Float getRemainingLeave() {
+        return leave.getRemainingLeave();
+    }
+
+    public Float getTotalLeave() {
+        return leave.getTotalLeave();
     }
 
 }

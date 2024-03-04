@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -17,7 +18,12 @@ public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
 
         String memberPk = rs.getString("MEMBER_PK");
         boolean memberActive = rs.getBoolean("MEMBER_ACTIVE");
+        float totalLeave = rs.getFloat("TOTAL_LEAVE");
         float remainingLeave = rs.getFloat("REMAINING_LEAVE");
+        String name = rs.getString("NAME");
+        String memberId = rs.getString("MEMBER_ID");
+        Integer experienceYears = rs.getInt("EXPERIENCE_YEARS");
+        LocalDate enteredDate = LocalDate.parse(rs.getString("ENTERED_DATE"));
         long vacationId = rs.getLong("VACATION_ID");
         boolean deducted = rs.getBoolean("DEDUCTED");
         String vacationStatus = rs.getString("VACATION_STATUS");
@@ -30,7 +36,12 @@ public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
 
         return new LeaveItem(memberPk,
                 memberActive,
+                totalLeave,
                 remainingLeave,
+                name,
+                memberId,
+                experienceYears,
+                enteredDate,
                 vacationId,
                 deducted,
                 vacationStatus,

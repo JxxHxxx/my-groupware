@@ -6,13 +6,14 @@ import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class VacationApiController {
@@ -26,6 +27,7 @@ public class VacationApiController {
 
     @PostMapping("/api/vacations")
     public ResponseEntity<?> createVacation(@RequestBody @Validated RequestVacationForm form) {
+        log.info("[REQ:createVacation][requesterId:{}]", form.requesterId());
         VacationServiceResponse response = vacationService.createVacation(form);
 
         return ResponseEntity.ok(response);

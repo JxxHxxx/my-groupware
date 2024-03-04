@@ -20,7 +20,7 @@ public class Organization {
     private Long id;
 
     @Column(name = "IS_ACTIVE", nullable = false)
-    @Comment(value = "부서 활성화 여부")
+    @Comment(value = "부서 활성화 여부(0:비활성화 1:활성화)")
     private boolean isActive;
 
     @Column(name = "COMPANY_ID", nullable = false)

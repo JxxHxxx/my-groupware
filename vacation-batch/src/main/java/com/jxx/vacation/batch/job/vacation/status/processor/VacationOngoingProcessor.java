@@ -10,7 +10,7 @@ import org.springframework.batch.item.ItemProcessor;
 public class VacationOngoingProcessor implements ItemProcessor<VacationItem, VacationItem> {
     @Override
     public VacationItem process(VacationItem item) throws Exception {
-        if (VacationStatus.isApproval(item.getVacationStatus())) {
+        if (VacationStatus.isApproved(item.getVacationStatus())) {
             log.info("[PROCESS][FAIL][VAC ID:{} STATUS:{}][vacation-status isn't approval]", item.getVacationId(), item.getVacationStatus());
             item.changeVacationStatus(VacationStatus.ERROR);
         }

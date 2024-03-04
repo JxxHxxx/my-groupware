@@ -64,8 +64,13 @@ public class LeaveAdjustJobConfiguration {
     public JdbcCursorItemReader<LeaveItem> itemReader() {
         String sql = "SELECT " +
                 "JMLM.MEMBER_PK , " +
-                "JMLM.REMAINING_LEAVE, " +
+                "JMLM.REMAINING_LEAVE , " +
+                "JMLM.TOTAL_LEAVE , " +
+                "JMLM.NAME ," +
+                "JMLM.MEMBER_ID ," +
+                "JMLM.EXPERIENCE_YEARS ," +
                 "JMLM.IS_ACTIVE AS 'MEMBER_ACTIVE', " +
+                "JMLM.ENTERED_DATE , " +
                 "JVM.VACATION_ID , " +
                 "JVM.DEDUCTED , " +
                 "JVM.VACATION_STATUS , " +
@@ -117,6 +122,44 @@ public class LeaveAdjustJobConfiguration {
     }
 
     @StepScope
+    @Bean(name = "leaveHistoryWriter")
+    public JdbcBatchItemWriter<LeaveItem> leaveHistoryWriter() {
+        String sql = "INSERT INTO JXX_MEMBER_LEAVE_HIST " +
+                "(EXECUTE_TIME, " +
+                "EXECUTOR, " +
+                "TASK_TYPE, " +
+                "ENTERED_DATE, " +
+                "EXPERIENCE_YEARS, " +
+                "IS_ACTIVE, " +
+                "REMAINING_LEAVE, " +
+                "TOTAL_LEAVE, " +
+                "MEMBER_ID, " +
+                "MEMBER_PK, " +
+                "NAME, " +
+                "COMPANY_ID, " +
+                "DEPARTMENT_ID)" +
+                "VALUES (CURRENT_TIMESTAMP , " +
+                "'BATCH', " +
+                "'U', " +
+                ":enteredDate, " +
+                ":experienceYears, " +
+                ":memberActive, " +
+                ":remainingLeave, " +
+                ":totalLeave, " +
+                ":memberId, " +
+                ":memberPk, " +
+                ":name, " +
+                ":companyId, " +
+                ":departmentId);";
+
+        return new JdbcBatchItemWriterBuilder<LeaveItem>()
+                .dataSource(dataSource)
+                .sql(sql)
+                .beanMapped()
+                .build();
+    }
+
+    @StepScope
     @Bean(name = "vacationStatusChangeWriter")
     public JdbcBatchItemWriter<LeaveItem> vacationStatusChangeWriter() {
         String sql = "UPDATE JXX_VACATION_MASTER JVM" +
@@ -134,7 +177,11 @@ public class LeaveAdjustJobConfiguration {
     @Bean(name = "compositeLeaveItemWriter")
     public CompositeItemWriter<LeaveItem> compositeItemWriter() {
         return new CompositeItemWriterBuilder<LeaveItem>()
-                .delegates(List.of(leaveAdjustWriter(), vacationStatusChangeWriter()))
+                .delegates(
+                        List.of(leaveAdjustWriter(),
+                                leaveHistoryWriter(),
+                                vacationStatusChangeWriter())
+                )
                 .build();
     }
 

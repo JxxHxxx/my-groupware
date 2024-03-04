@@ -23,6 +23,7 @@ public class MemberLeaveService {
                 memberLeave.getName(),
                 memberLeave.getExperienceYears(),
                 memberLeave.getEnteredDate(),
+                memberLeave.getTotalLeave(),
                 memberLeave.getRemainingLeave(),
                 organization.getCompanyId(),
                 organization.getCompanyName(),

@@ -8,6 +8,7 @@ public record MemberLeaveResponse(
         String name,
         Integer experienceYears,
         LocalDate enteredDate,
+        Float totalLeave,
         Float remainingLeave,
         String companyId,
         String companyName,

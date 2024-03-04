@@ -37,12 +37,12 @@ public enum VacationStatus {
         return ONGOING.equals(vacationStatus);
     }
 
-    public static boolean isApproval(String vacationStatus) {
-        return ONGOING.equals(VacationStatus.valueOf(vacationStatus));
+    public static boolean isApproved(String vacationStatus) {
+        return APPROVED.equals(VacationStatus.valueOf(vacationStatus));
     }
 
-    public static boolean isApproval(VacationStatus vacationStatus) {
-        return ONGOING.equals(vacationStatus);
+    public static boolean isApproved(VacationStatus vacationStatus) {
+        return APPROVED.equals(vacationStatus);
     }
 
 }
