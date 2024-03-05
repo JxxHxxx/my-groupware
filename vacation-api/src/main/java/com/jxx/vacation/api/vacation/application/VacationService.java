@@ -74,6 +74,11 @@ public class VacationService {
         VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
         vacationManager.validateMemberActive();
 
+        // 유급 휴가가 아니라면 - 얘도 메시지 생성 대상임을 고려
+        // 유급 휴가 아니기에 휴가에서 차감되면 안됨, batch 로직 확인
+        // 차감 플래그 false 설정
+
+        // 만약 유급 휴가라면
         List<Vacation> requestingVacations = vacationRepository.findAllByRequesterId(requesterId);
         vacationManager.validateCreatableVacationDuration(requestingVacations);
 
@@ -139,6 +144,9 @@ public class VacationService {
         return createVacationServiceResponse(vacation, memberLeave);
     }
 
+    /**
+     * 수정 시, 메시지 큐 UPDATE 플래그로 날라가야 함
+     */
 
     @Transactional
     public VacationServiceResponse updateVacation(Long vacationId, RequestVacationForm form) {
