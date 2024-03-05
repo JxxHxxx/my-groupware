@@ -39,7 +39,7 @@ public class VacationDuration {
         this.endDateTime = endDateTime;
     }
 
-    public long calculateDate() {
+    public float calculateDate() {
         return ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
     }
 

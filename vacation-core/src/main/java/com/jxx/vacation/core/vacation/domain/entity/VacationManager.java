@@ -58,17 +58,17 @@ public class VacationManager {
         Float remainingLeave = memberLeave.getRemainingLeave();
         
         // 현재 REQUEST, APPROVED 상태의 휴가 신청일 총 합
-        List<Long> vacationDays = requestVacations.stream()
+        List<Float> vacationDays = requestVacations.stream()
                 .filter(vacation -> APPROVING_GROUP.contains(vacation.getVacationStatus()))
                 .map(vacation -> vacation.getVacationDuration().calculateDate())
                 .toList();
 
-        Long approvingVacationDate = 0L;
-        for (Long vacationDay : vacationDays) {
+        Float approvingVacationDate = 0F;
+        for (Float vacationDay : vacationDays) {
             approvingVacationDate += vacationDay;
         }
         // 신청한 휴가 일 수
-        long requestVacationDate = vacation.getVacationDuration().calculateDate();
+        float requestVacationDate = vacation.getVacationDuration().calculateDate();
 
         String clientId = memberLeave.getMemberId();
         if (remainingLeave - approvingVacationDate - requestVacationDate < 0) {

@@ -7,7 +7,7 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "U00127",
+  "requesterId": "U00130",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
     "startDateTime": "2024-03-11T00:00",

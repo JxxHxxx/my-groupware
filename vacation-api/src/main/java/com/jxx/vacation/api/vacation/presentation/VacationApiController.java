@@ -26,10 +26,8 @@ public class VacationApiController {
      */
 
     @PostMapping("/api/vacations")
-    public ResponseEntity<?> createVacation(@RequestBody @Validated RequestVacationForm form) {
-        log.info("[REQ:createVacation][requesterId:{}]", form.requesterId());
+    public ResponseEntity<VacationServiceResponse> createVacation(@RequestBody @Validated RequestVacationForm form) {
         VacationServiceResponse response = vacationService.createVacation(form);
-
         return ResponseEntity.ok(response);
     }
 
