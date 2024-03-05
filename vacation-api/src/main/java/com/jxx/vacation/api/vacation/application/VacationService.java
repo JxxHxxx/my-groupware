@@ -9,8 +9,6 @@ import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
-import com.jxx.vacation.core.message.*;
-import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
@@ -23,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
-import java.util.Map;
-
-import static com.jxx.vacation.core.message.payload.approval.DocumentType.*;
 
 @Slf4j
 @Service
@@ -35,7 +30,6 @@ public class VacationService {
     private final ApplicationEventPublisher eventPublisher;
     private final VacationRepository vacationRepository;
     private final MemberLeaveRepository memberLeaveRepository;
-    private final MessageQRepository messageQRepository;
 
     public VacationServiceResponse readOne(String requesterId, Long vacationId) {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
