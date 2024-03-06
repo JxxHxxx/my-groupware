@@ -20,8 +20,8 @@ public class FamilyOccasionPolicy {
     @Column(name = "COMPANY_ID")
     @Comment("회사 코드")
     private String companyId;
-    @Column(name = "COMPANY_ID")
-    @Comment("경조 유형")
+    @Column(name = "VACATION_TYPE")
+    @Comment("휴가(경조) 유형")
     @Enumerated(EnumType.STRING)
     private VacationType vacationType;
     @Column(name = "VACATION_DAY")
