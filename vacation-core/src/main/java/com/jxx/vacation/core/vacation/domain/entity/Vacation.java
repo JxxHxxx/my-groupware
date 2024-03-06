@@ -3,7 +3,6 @@ package com.jxx.vacation.core.vacation.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import org.hibernate.envers.Audited;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
@@ -16,7 +15,6 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
         @Index(name = "IDX_START_DATE_TIME", columnList = "START_DATE_TIME"),
         @Index(name = "IDX_END_DATE_TIME", columnList = "END_DATE_TIME")
 })
-@Audited
 public class Vacation {
 
     private final static boolean DEDUCTED_DEFAULT_VALUE = true;

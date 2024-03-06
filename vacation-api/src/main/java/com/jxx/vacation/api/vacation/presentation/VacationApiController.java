@@ -2,8 +2,9 @@ package com.jxx.vacation.api.vacation.presentation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.vacation.api.vacation.application.VacationService;
-import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
+import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
+import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,5 +90,11 @@ public class VacationApiController {
     public ResponseEntity<?> readMyVacations(@PathVariable(name = "member-id") String memberId) {
         List<VacationServiceResponse> response = vacationService.readByRequesterId(memberId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/vacations/family-occasion-policies")
+    public ResponseEntity<?> readFamilyOccasionPolicies(@RequestParam("companyId") String companyId) {
+        List<FamilyOccasionPolicyResponse> responses = vacationService.findFamilyOccasionPoliciesByCompanyId(companyId);
+        return ResponseEntity.ok(responses);
     }
 }

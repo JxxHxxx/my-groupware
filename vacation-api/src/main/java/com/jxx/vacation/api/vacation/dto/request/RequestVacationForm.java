@@ -1,4 +1,4 @@
-package com.jxx.vacation.api.vacation.dto;
+package com.jxx.vacation.api.vacation.dto.request;
 
 import com.jxx.vacation.core.vacation.domain.entity.VacationDuration;
 import jakarta.validation.constraints.NotNull;

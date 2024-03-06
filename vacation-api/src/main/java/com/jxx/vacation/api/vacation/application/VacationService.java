@@ -2,15 +2,17 @@ package com.jxx.vacation.api.vacation.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.vacation.api.common.web.SimpleRestClient;
-import com.jxx.vacation.api.vacation.dto.RequestVacationForm;
+import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.ConfirmRaiseRequest;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
+import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
+import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class VacationService {
     private final ApplicationEventPublisher eventPublisher;
     private final VacationRepository vacationRepository;
     private final MemberLeaveRepository memberLeaveRepository;
+    private final FamilyOccasionPolicyRepository familyOccasionPolicyRepository;
 
     public VacationServiceResponse readOne(String requesterId, Long vacationId) {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
@@ -170,4 +173,13 @@ public class VacationService {
                 vacation.getVacationDuration(),
                 vacation.getVacationStatus());
     }
+
+    public List<FamilyOccasionPolicyResponse> findFamilyOccasionPoliciesByCompanyId(String companyId) {
+        List<FamilyOccasionPolicy> policies = familyOccasionPolicyRepository.findByCompanyId(companyId);
+
+        return policies.stream()
+                .map(policy -> new FamilyOccasionPolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
+                .toList();
+    }
+
 }

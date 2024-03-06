@@ -1,4 +1,4 @@
-package com.jxx.vacation.api.vacation.dto;
+package com.jxx.vacation.api.vacation.dto.response;
 
 import java.time.LocalDateTime;
 
