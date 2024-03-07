@@ -1,5 +1,6 @@
 package com.jxx.vacation.testUtil;
 
+import com.jxx.vacation.core.vacation.domain.entity.Leave;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import org.aspectj.weaver.ast.Or;
@@ -22,7 +23,7 @@ public class CoreEntityFactory {
                 .name("나재헌")
                 .experienceYears(1)
                 .enteredDate(LocalDate.of(2023, 8, 16))
-                .remainingLeave(15f)
+                .leave(new Leave(15F, 15F))
                 .organization(organization)
                 .build();
     }

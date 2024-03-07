@@ -30,15 +30,12 @@ public class MemberLeave {
     @Column(name = "NAME")
     @Comment(value = "사용자 이름")
     private String name;
-
     @Column(name = "EXPERIENCE_YEARS")
     @Comment(value = "경력 연차")
     private Integer experienceYears;
-
     @Column(name = "ENTERED_DATE")
     @Comment(value = "입사일자")
     private LocalDate enteredDate;
-
     @Embedded
     private Leave leave;
 
@@ -83,11 +80,11 @@ public class MemberLeave {
         return organization.getCompanyId();
     }
 
-    public Float getRemainingLeave() {
+    public Float receiveRemainingLeave() {
         return leave.getRemainingLeave();
     }
 
-    public Float getTotalLeave() {
+    public Float receiveTotalLeave() {
         return leave.getTotalLeave();
     }
 

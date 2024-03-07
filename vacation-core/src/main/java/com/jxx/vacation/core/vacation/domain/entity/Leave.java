@@ -13,11 +13,9 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Leave {
-
     @Column(name = "TOTAL_LEAVE")
     @Comment(value = "연차 잔여일")
     private Float totalLeave;
-
     @Column(name = "REMAINING_LEAVE")
     @Comment(value = "연차 잔여일")
     private Float remainingLeave;

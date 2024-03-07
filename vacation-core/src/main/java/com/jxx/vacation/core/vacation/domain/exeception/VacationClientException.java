@@ -6,10 +6,15 @@ import lombok.Getter;
 @Getter
 public class VacationClientException extends RuntimeException {
 
-    private final String clientId;
+    private String clientId;
 
     public VacationClientException(String message, String clientId) {
         super(message);
         this.clientId = clientId;
+    }
+
+    public VacationClientException(String message) {
+        super(message);
+
     }
 }

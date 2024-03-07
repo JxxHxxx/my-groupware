@@ -40,4 +40,5 @@ public enum VacationType {
     }
 
     public static final List<VacationType> HALF_VACATION_TYPE = List.of(HALF_MORNING, HALF_AFTERNOON);
+    public static final List<VacationType> DEDUCT_VACATION_TYPE = List.of(MORE_DAY, HALF_MORNING, HALF_AFTERNOON);
 }

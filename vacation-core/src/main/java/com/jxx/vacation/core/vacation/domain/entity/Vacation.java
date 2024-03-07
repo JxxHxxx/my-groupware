@@ -64,8 +64,8 @@ public class Vacation {
         this.vacationStatus = vacationStatus;
     }
 
-    public boolean isFailRequest() {
-        return FAIL.equals(this.vacationStatus);
+    public boolean successRequest() {
+        return CREATE.equals(this.vacationStatus);
     }
 
     public VacationType vacationType() {
@@ -82,6 +82,14 @@ public class Vacation {
                 vacationDuration.getVacationType(),
                 vacationDuration.getStartDateTime(),
                 vacationDuration.getEndDateTime());
+    }
+
+    public VacationType receiveVacationType() {
+        return vacationDuration.getVacationType();
+    }
+
+    protected void changeDeducted(boolean deducted) {
+        this.deducted = deducted;
     }
 }
 

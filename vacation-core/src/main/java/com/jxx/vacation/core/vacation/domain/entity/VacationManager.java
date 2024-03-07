@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
+import static com.jxx.vacation.core.vacation.domain.entity.VacationType.*;
 
 @Slf4j
 public class VacationManager {
@@ -48,18 +49,12 @@ public class VacationManager {
         validateMemberActive(memberLeave, vacation);
     }
 
-    public void validateCreatableVacationDuration(List<Vacation> requestVacations) {
-        validateVacationDatesAreDuplication(requestVacations);
-        validateRemainingLeaveIsBiggerThanExistedVacationsAnd(requestVacations);
-    }
-
-    protected void validateRemainingLeaveIsBiggerThanExistedVacationsAnd(List<Vacation> requestVacations) {
-        // 잔여 연차
-        Float remainingLeave = memberLeave.getRemainingLeave();
+    public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> requestVacations) {
+        Float remainingLeave = memberLeave.receiveRemainingLeave();
         
         // 현재 REQUEST, APPROVED 상태의 휴가 신청일 총 합
         List<Float> vacationDays = requestVacations.stream()
-                .filter(vacation -> APPROVING_GROUP.contains(vacation.getVacationStatus()))
+                .filter(vacation -> CONFIRMING_GROUP.contains(vacation.getVacationStatus()))
                 .map(vacation -> vacation.getVacationDuration().calculateDate())
                 .toList();
 
@@ -76,18 +71,18 @@ public class VacationManager {
         }
     }
 
-    protected void validateVacationDatesAreDuplication(List<Vacation> requestVacations) {
-        List<VacationDuration> existedVacationDurations = requestVacations.stream()
-                .filter(vacation -> APPROVING_ONGOING_GROUP.contains(vacation.getVacationStatus()))
+    public void validateVacationDatesAreDuplicated(List<Vacation> requestVacations) {
+        List<VacationDuration> confirmingAndOngoingVacationDurations = requestVacations.stream()
+                .filter(vacation -> CONFIRMING_AND_ONGOING_GROUP.contains(vacation.getVacationStatus()))
                 .map(vacation -> vacation.getVacationDuration())
-                .toList(); // 여기에 포함되어 있으면 안됨 날짜가.
+                .toList();
 
         VacationDuration requestVacationDuration = vacation.getVacationDuration();
         List<LocalDateTime> requestVacationDateTimes = requestVacationDuration.receiveVacationDateTimes();
 
-        for (VacationDuration existedVacationDuration : existedVacationDurations) {
+        for (VacationDuration vacationDuration : confirmingAndOngoingVacationDurations) {
             for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
-                existedVacationDuration.isInVacationDate(requestVacationDateTime, memberLeave.getMemberId());
+                vacationDuration.isInVacationDate(requestVacationDateTime);
             }
         }
     }
@@ -155,5 +150,12 @@ public class VacationManager {
             throw new IllegalArgumentException("수정 불가능>.<");
         }
         vacation.updateVacationDuration(vacationDuration);
+    }
+
+    public void decideDeduct() {
+        VacationType vacationType = vacation.receiveVacationType();
+        if (!DEDUCT_VACATION_TYPE.contains(vacationType)) {
+            vacation.changeDeducted(false);
+        };
     }
 }

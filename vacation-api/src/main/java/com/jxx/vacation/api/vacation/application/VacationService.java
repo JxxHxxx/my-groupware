@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -28,11 +27,43 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class VacationService {
-
     private final ApplicationEventPublisher eventPublisher;
     private final VacationRepository vacationRepository;
     private final MemberLeaveRepository memberLeaveRepository;
     private final FamilyOccasionPolicyRepository familyOccasionPolicyRepository;
+
+    /**
+     * 트랜잭션 커밋/롤백 정책
+     * 복구불가능한 비즈니스 로직의 경우 VacationClientException <- 롤백
+     * 복구 가능한 경우, 다른 예외를 사용
+     */
+    @Transactional
+    public VacationServiceResponse createVacation(RequestVacationForm vacationForm) {
+        String requesterId = vacationForm.requesterId();
+        MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
+                .orElseThrow(() -> new VacationClientException("requesterId " + requesterId + " not found", requesterId));
+
+        VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
+        vacationManager.validateMemberActive(); // 활성화 된 사용자인지 검증
+
+        List<Vacation> requestingVacations = vacationRepository.findAllByRequesterId(requesterId);
+        // 신청일이 이미 휴가로 지정되었거나
+        vacationManager.validateVacationDatesAreDuplicated(requestingVacations);
+        // TODO 근무일이 아닐 때 휴가를 신청했는지 검증 (테이블 필드 추가 필요)
+
+        vacationManager.decideDeduct();
+        Vacation vacation = vacationManager.getVacation();
+        if (vacation.isDeducted()) {
+            // TODO 매번 연산하는것보다 DB에 박아버리는것도 나쁘지 않을듯.
+            vacationManager.validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(requestingVacations);
+        }
+
+        final Vacation savedVacation = vacationRepository.save(vacation);
+        if (savedVacation.successRequest()) {
+            eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, vacationManager.receiveVacationDate(), requesterId));
+        }
+        return createVacationServiceResponse(savedVacation, memberLeave);
+    }
 
     public VacationServiceResponse readOne(String requesterId, Long vacationId) {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
@@ -61,39 +92,6 @@ public class VacationService {
                         vacation.getVacationDuration(),
                         vacation.getVacationStatus()
                 )).toList();
-    }
-
-    // create
-    @Transactional
-    public VacationServiceResponse createVacation(RequestVacationForm vacationForm) {
-        String currentTransactionName = TransactionSynchronizationManager.getCurrentTransactionName();
-        Thread thread = Thread.currentThread();
-        log.info("currentTransactionName {} threadName {}", currentTransactionName, thread.getName());
-
-        String requesterId = vacationForm.requesterId();
-        MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
-                .orElseThrow(() -> new VacationClientException("requesterId " + requesterId + " not found", requesterId));
-
-        VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
-        vacationManager.validateMemberActive();
-
-        // 유급 휴가가 아니라면 - 얘도 메시지 생성 대상임을 고려
-        // 유급 휴가 아니기에 휴가에서 차감되면 안됨, batch 로직 확인
-        // 차감 플래그 false 설정
-
-        // 만약 유급 휴가라면
-        List<Vacation> requestingVacations = vacationRepository.findAllByRequesterId(requesterId);
-        vacationManager.validateCreatableVacationDuration(requestingVacations);
-
-        Vacation vacation = vacationManager.getVacation();
-        final Vacation savedVacation = vacationRepository.save(vacation);
-
-        if (savedVacation.isFailRequest()) { // Queue 가 결재 서버에 전달되지 않도록 여기서 리턴
-            return createVacationServiceResponse(savedVacation, memberLeave);
-        }
-
-        eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, vacationManager.receiveVacationDate(), requesterId));
-        return createVacationServiceResponse(savedVacation, memberLeave);
     }
 
     @Transactional

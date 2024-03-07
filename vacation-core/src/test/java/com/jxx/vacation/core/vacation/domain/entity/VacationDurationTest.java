@@ -36,7 +36,7 @@ class VacationDurationTest {
         VacationDuration vacationDuration = new VacationDuration(VacationType.MORE_DAY, startDate, endDate);
         LocalDateTime betweenDate = LocalDateTime.of(2024, 2, 29, 0, 0);
 
-        assertThatThrownBy(() -> vacationDuration.isInVacationDate(betweenDate, ""))
+        assertThatThrownBy(() -> vacationDuration.isInVacationDate(betweenDate))
                 .isInstanceOf(VacationClientException.class);
     }
 

@@ -43,12 +43,12 @@ public class VacationDuration {
         return ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
     }
 
-    public void isInVacationDate(LocalDateTime localDateTime, String clientId) {
-        boolean isLocalDateTimeBetween = (localDateTime.isAfter(startDateTime) && localDateTime.isBefore(endDateTime))
+    public void isInVacationDate(LocalDateTime localDateTime) {
+        boolean isLocalDateTimeBetweenVacationDuration = (localDateTime.isAfter(startDateTime) && localDateTime.isBefore(endDateTime))
                 || localDateTime.isEqual(startDateTime) || localDateTime.isEqual(endDateTime);
 
-        if (isLocalDateTimeBetween) {
-            throw new VacationClientException(localDateTime + "은 이미 휴가로 신청되어 있는 일자입니다.", clientId);
+        if (isLocalDateTimeBetweenVacationDuration) {
+            throw new VacationClientException(localDateTime + "은 이미 휴가로 신청되어 있는 일자입니다.");
         }
     }
 

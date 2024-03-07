@@ -83,7 +83,6 @@ project(':vacation-core') {
     dependencies {
         //database
         runtimeOnly 'com.mysql:mysql-connector-j'
-        testImplementation 'com.h2database:h2'
 
         implementation 'org.springframework.data:spring-data-envers'
 
@@ -115,6 +114,8 @@ project(':vacation-api') {
         implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'com.h2database:h2'
+        testImplementation 'org.awaitility:awaitility:4.2.0'
     }
 }
 
