@@ -63,3 +63,20 @@ Content-Type: application/json
     "endDateTime": "2024-03-08T00:00"
   }
 }
+
+### SIGN IN
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "memberId": "U00130",
+  "password": "U00130"
+}
+
+### 부서원 조회
+GET http://localhost:8080/api/departments/J01020/member-leaves?cid=JXX
+Content-Type: application/json
+
+
+### 부서 휴가 조회
+GET http://localhost:8080/api/vacations?cid=SPY&pid=SPY01001

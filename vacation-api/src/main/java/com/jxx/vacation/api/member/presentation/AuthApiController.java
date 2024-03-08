@@ -27,10 +27,18 @@ public class AuthApiController {
         LoginResponse serviceResponse = authService.login(loginRequest);
 
         HttpSession session = request.getSession();
-        session.setAttribute("하이!!", serviceResponse);
-        Cookie cookie = new Cookie("session", session.getId());
+        String sessionId = session.getId();
+
+        session.setAttribute(sessionId, serviceResponse);
+        Cookie cookie = new Cookie("jxx-c-id", sessionId);
+        cookie.setPath("/");
         response.addCookie(cookie);
+
+        Object attribute = session.getAttribute(sessionId);
+        log.info("session Info {}", attribute);
 
         return ResponseEntity.ok(new LoginResult<>(200, serviceResponse));
     }
+
+
 }

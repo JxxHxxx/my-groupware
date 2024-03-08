@@ -180,4 +180,9 @@ public class VacationService {
                 .toList();
     }
 
+    public void getDepartmentVacation(String companyId, String departmentId) {
+        List<Vacation> vacations = vacationRepository.findDepartmentVacation(companyId, departmentId);
+        log.info("vacations {}", vacations);
+    }
+
 }

@@ -97,4 +97,10 @@ public class VacationApiController {
         List<FamilyOccasionPolicyResponse> responses = vacationService.findFamilyOccasionPoliciesByCompanyId(companyId);
         return ResponseEntity.ok(responses);
     }
+
+    @GetMapping("/api/vacations")
+    public ResponseEntity<?> readDepartmentVacations(@RequestParam("cid") String companyId, @RequestParam("pid") String departmentId) {
+        vacationService.getDepartmentVacation(companyId, departmentId);
+        return ResponseEntity.ok(null);
+    }
 }

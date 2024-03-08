@@ -1,4 +1,4 @@
-package com.jxx.vacation.api.configuration;
+package com.jxx.vacation.api.common.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
