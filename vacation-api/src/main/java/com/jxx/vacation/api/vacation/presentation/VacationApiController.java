@@ -100,7 +100,7 @@ public class VacationApiController {
 
     @GetMapping("/api/vacations")
     public ResponseEntity<?> readDepartmentVacations(@RequestParam("cid") String companyId, @RequestParam("pid") String departmentId) {
-        vacationService.getDepartmentVacation(companyId, departmentId);
-        return ResponseEntity.ok(null);
+        List<VacationServiceResponse> responses = vacationService.getDepartmentVacation(companyId, departmentId);
+        return ResponseEntity.ok(responses);
     }
 }

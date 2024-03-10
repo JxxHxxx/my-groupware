@@ -180,9 +180,17 @@ public class VacationService {
                 .toList();
     }
 
-    public void getDepartmentVacation(String companyId, String departmentId) {
+    public List<VacationServiceResponse> getDepartmentVacation(String companyId, String departmentId) {
         List<Vacation> vacations = vacationRepository.findDepartmentVacation(companyId, departmentId);
-        log.info("vacations {}", vacations);
+
+        return vacations.stream()
+                .map(vacation -> new VacationServiceResponse(
+                        vacation.getId(),
+                        vacation.getRequesterId(),
+                        "미정입니다.",
+                        vacation.getVacationDuration(),
+                        vacation.getVacationStatus()))
+                .toList();
     }
 
 }
