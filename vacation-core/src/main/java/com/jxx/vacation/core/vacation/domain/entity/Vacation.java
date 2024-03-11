@@ -21,7 +21,7 @@ public class Vacation {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VACATION_ID")
-    @Comment(value = "연차 식별자")
+    @Comment(value = "휴가 식별자")
     private Long id;
 
     @Column(name = "REQUESTER_ID", nullable = false)

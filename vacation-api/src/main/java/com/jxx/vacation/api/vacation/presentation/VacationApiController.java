@@ -6,6 +6,7 @@ import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
+import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -100,7 +101,14 @@ public class VacationApiController {
 
     @GetMapping("/api/vacations")
     public ResponseEntity<?> readDepartmentVacations(@RequestParam("cid") String companyId, @RequestParam("pid") String departmentId) {
-        List<VacationServiceResponse> responses = vacationService.getDepartmentVacation(companyId, departmentId);
+        List<DepartmentVacationProjection> responses = vacationService.getDepartmentVacation(companyId, departmentId);
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/api/vacations/{vacation-id}/approval-lines")
+    public ResponseEntity<?> createApprovalLines() {
+        vacationService.setApprovalLine();
+
+        return ResponseEntity.ok(null);
     }
 }

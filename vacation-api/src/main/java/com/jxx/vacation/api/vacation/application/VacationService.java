@@ -15,6 +15,7 @@ import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
+import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -180,17 +181,13 @@ public class VacationService {
                 .toList();
     }
 
-    public List<VacationServiceResponse> getDepartmentVacation(String companyId, String departmentId) {
-        List<Vacation> vacations = vacationRepository.findDepartmentVacation(companyId, departmentId);
+    public List<DepartmentVacationProjection> getDepartmentVacation(String companyId, String departmentId) {
+        return vacationRepository.findDepartmentVacation(companyId, departmentId);
 
-        return vacations.stream()
-                .map(vacation -> new VacationServiceResponse(
-                        vacation.getId(),
-                        vacation.getRequesterId(),
-                        "미정입니다.",
-                        vacation.getVacationDuration(),
-                        vacation.getVacationStatus()))
-                .toList();
     }
 
+    // 결재선 지정
+    public void setApprovalLine() {
+
+    }
 }
