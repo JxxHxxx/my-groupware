@@ -9,6 +9,8 @@ import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
+import com.jxx.vacation.api.vacation.query.VacationDynamicMapper;
+import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
@@ -32,6 +34,7 @@ public class VacationService {
     private final VacationRepository vacationRepository;
     private final MemberLeaveRepository memberLeaveRepository;
     private final FamilyOccasionPolicyRepository familyOccasionPolicyRepository;
+    private final VacationDynamicMapper vacationDynamicMapper;
 
     /**
      * 트랜잭션 커밋/롤백 정책
@@ -181,13 +184,7 @@ public class VacationService {
                 .toList();
     }
 
-    public List<DepartmentVacationProjection> getDepartmentVacation(String companyId, String departmentId) {
-        return vacationRepository.findDepartmentVacation(companyId, departmentId);
-
-    }
-
-    // 결재선 지정
-    public void setApprovalLine() {
-
+    public List<DepartmentVacationProjection> searchVacations(VacationSearchCondition condition) {
+        return vacationDynamicMapper.search(condition);
     }
 }

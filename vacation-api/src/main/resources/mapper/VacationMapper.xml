@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.vacation.api.vacation.query.VacationDynamicMapper">
+    <select id="search"
+            parameterType="com.jxx.vacation.api.vacation.query.VacationSearchCondition"
+            resultType="com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection"
+    >
+        SELECT V.VACATION_ID,
+        V.REQUESTER_ID,
+        ML.NAME,
+        O.COMPANY_NAME,
+        O.COMPANY_ID,
+        O.DEPARTMENT_NAME,
+        O.DEPARTMENT_ID,
+        V.START_DATE_TIME,
+        V.END_DATE_TIME,
+        V.VACATION_TYPE,
+        V.VACATION_STATUS
+        FROM JXX_MEMBER_LEAVE_MASTER AS ML
+        JOIN JXX_VACATION_MASTER AS V
+        ON ML.MEMBER_ID = V.REQUESTER_ID
+        JOIN JXX_ORGANIZATION_MASTER AS O
+        ON ML.COMPANY_ID = O.COMPANY_ID AND ML.DEPARTMENT_ID = O.DEPARTMENT_ID
+        <where>
+            <if test="companyId != null and companyId != ''">
+                AND ML.COMPANY_ID =#{companyId}
+            </if>
+            <if test="companyId != null and companyId != ''">
+                AND ML.DEPARTMENT_ID =#{departmentId}
+            </if>
+            <if test="vacationStatus != null ">
+                AND V.VACATION_STATUS IN
+                <foreach item="vacationStatus" collection="vacationStatus" open="(" separator=","  close=")">
+                    #{vacationStatus}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

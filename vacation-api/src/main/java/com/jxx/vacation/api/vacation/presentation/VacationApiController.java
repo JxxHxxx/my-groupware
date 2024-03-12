@@ -6,6 +6,7 @@ import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
+import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,17 +99,9 @@ public class VacationApiController {
         List<FamilyOccasionPolicyResponse> responses = vacationService.findFamilyOccasionPoliciesByCompanyId(companyId);
         return ResponseEntity.ok(responses);
     }
-
     @GetMapping("/api/vacations")
-    public ResponseEntity<?> readDepartmentVacations(@RequestParam("cid") String companyId, @RequestParam("pid") String departmentId) {
-        List<DepartmentVacationProjection> responses = vacationService.getDepartmentVacation(companyId, departmentId);
+    public ResponseEntity<?> searchDepartmentVacation(@ModelAttribute VacationSearchCondition searchCondition) {
+        List<DepartmentVacationProjection> responses = vacationService.searchVacations(searchCondition);
         return ResponseEntity.ok(responses);
-    }
-
-    @GetMapping("/api/vacations/{vacation-id}/approval-lines")
-    public ResponseEntity<?> createApprovalLines() {
-        vacationService.setApprovalLine();
-
-        return ResponseEntity.ok(null);
     }
 }
