@@ -1,0 +1,12 @@
+
+### 간단 로그인!!
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "memberId" : "U00130",
+  "password" : "U00130"
+}
+
+###
+GET http://localhost:8080/api/auth/check-authentication

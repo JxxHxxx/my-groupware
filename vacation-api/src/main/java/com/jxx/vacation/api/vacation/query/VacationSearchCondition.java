@@ -10,7 +10,6 @@ public record VacationSearchCondition(
 
         String companyId,
         String departmentId,
-
         String requesterId,
         List<VacationStatus> vacationStatus,
         VacationType vacationType,

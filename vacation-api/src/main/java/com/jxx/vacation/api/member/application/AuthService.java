@@ -1,7 +1,9 @@
 package com.jxx.vacation.api.member.application;
 
 
+import com.jxx.vacation.api.member.dto.request.AuthenticationRequest;
 import com.jxx.vacation.api.member.dto.request.LoginRequest;
+import com.jxx.vacation.api.member.presentation.UnAuthenticationException;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.domain.exeception.AuthClientException;
@@ -9,6 +11,8 @@ import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -38,6 +42,17 @@ public class AuthService {
                 memberLeave.getName(),
                 organization.getDepartmentId(),
                 organization.getDepartmentName());
+    }
 
+
+    public void checkAuthentication(LoginResponse response, AuthenticationRequest request) {
+        boolean memberIdEqual = Objects.equals(response.memberId(), request.memberId());
+        boolean departmentIdEqual = Objects.equals(response.departmentId(), request.departmentId());
+        boolean companyIdEqual = Objects.equals(response.companyId(), request.companyId());
+
+        if (!(memberIdEqual && departmentIdEqual && companyIdEqual)) {
+            log.warn("manipulated client request");
+            throw new UnAuthenticationException();
+        }
     }
 }
