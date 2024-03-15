@@ -21,7 +21,7 @@ public class AuthService {
 
     private final MemberLeaveRepository memberLeaveRepository;
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public LoginResponse signIn(LoginRequest loginRequest) {
         String memberId = loginRequest.memberId();
         MemberLeave memberLeave = memberLeaveRepository.findByMemberIdWithFetch(memberId)
                 .orElseThrow(() -> {
@@ -45,10 +45,10 @@ public class AuthService {
     }
 
 
-    public void checkAuthentication(LoginResponse response, AuthenticationRequest request) {
-        boolean memberIdEqual = Objects.equals(response.memberId(), request.memberId());
-        boolean departmentIdEqual = Objects.equals(response.departmentId(), request.departmentId());
-        boolean companyIdEqual = Objects.equals(response.companyId(), request.companyId());
+    public void validateUserSession(UserSession session, AuthenticationRequest request) {
+        boolean memberIdEqual = Objects.equals(session.getMemberId(), request.memberId());
+        boolean departmentIdEqual = Objects.equals(session.getDepartmentId(), request.departmentId());
+        boolean companyIdEqual = Objects.equals(session.getCompanyId(), request.companyId());
 
         if (!(memberIdEqual && departmentIdEqual && companyIdEqual)) {
             log.warn("manipulated client request");
