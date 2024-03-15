@@ -23,6 +23,12 @@ public class MemberLeaveApiController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/api/companies/{company-id}/member-leaves")
+    public ResponseEntity<?> getCompanyMemberLeave(@PathVariable("company-id") String companyId, @RequestParam List<String> membersId) {
+        List<MemberLeaveResponse> responses = memberLeaveService.findCompanyMembers(companyId, membersId);
+        return ResponseEntity.ok(responses);
+    }
+
     @GetMapping("/api/departments/{department-id}/member-leaves")
     public ResponseEntity<?> getDepartmentMembers(@PathVariable("department-id") String departmentId, @RequestParam("cid") String companyId) {
         List<MemberLeaveResponse> responses = memberLeaveService.findSameDepartmentMembers(companyId, departmentId);

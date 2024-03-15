@@ -1,0 +1,2 @@
+### 사내 구성원 조회
+GET http://localhost:8080/api/companies/SPY/member-leaves?membersId=SPY00467,SPY00468

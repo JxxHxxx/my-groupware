@@ -126,7 +126,7 @@ public class VacationService {
     private ConfirmDocumentRaiseResponse requestVacationRaiseApi(Vacation vacation, MemberLeave memberLeave) throws JsonProcessingException {
         // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
         SimpleRestClient simpleRestClient = new SimpleRestClient();
-        String requestUri = "http://localhost:8000/api/confirm-documents/{confirm-document-pk}/raise";
+        String requestUri = "http://localhost:8000/api/confirm-documents/{confirm-document-id}/raise";
         String companyId = memberLeave.receiveCompanyId();
         String confirmDocumentId = ConfirmDocumentIdGenerator.execute(companyId, vacation.getId());
         ConfirmRaiseRequest confirmRaiseRequest = new ConfirmRaiseRequest(companyId, memberLeave.getOrganization().getDepartmentId(), memberLeave.getMemberId());
