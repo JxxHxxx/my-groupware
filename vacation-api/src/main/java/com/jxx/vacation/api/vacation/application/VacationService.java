@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -30,6 +32,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class VacationService {
+
+    private static final String CONFIRM_SERVER_HOST = "http://localhost:8000";
+
     private final ApplicationEventPublisher eventPublisher;
     private final VacationRepository vacationRepository;
     private final MemberLeaveRepository memberLeaveRepository;
@@ -125,15 +130,30 @@ public class VacationService {
 
     private ConfirmDocumentRaiseResponse requestVacationRaiseApi(Vacation vacation, MemberLeave memberLeave) throws JsonProcessingException {
         // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
-        SimpleRestClient simpleRestClient = new SimpleRestClient();
-        String requestUri = "http://localhost:8000/api/confirm-documents/{confirm-document-id}/raise";
         String companyId = memberLeave.receiveCompanyId();
         String confirmDocumentId = ConfirmDocumentIdGenerator.execute(companyId, vacation.getId());
-        ConfirmRaiseRequest confirmRaiseRequest = new ConfirmRaiseRequest(companyId, memberLeave.getOrganization().getDepartmentId(), memberLeave.getMemberId());
+        ConfirmRaiseRequest confirmRaiseRequest = new ConfirmRaiseRequest(companyId, memberLeave.receiveDepartmentId(), memberLeave.getMemberId());
 
-        ResponseResult result = simpleRestClient.post(requestUri, confirmRaiseRequest, ResponseResult.class, confirmDocumentId);
+        UriComponents uriComponents = UriComponentsBuilder.fromUriString(CONFIRM_SERVER_HOST)
+                .path("/api/confirm-documents/{confirm-document-id}/raise")
+                .buildAndExpand(confirmDocumentId);
+
+        SimpleRestClient simpleRestClient = new SimpleRestClient();
+        ResponseResult result = simpleRestClient.post(uriComponents, confirmRaiseRequest, ResponseResult.class);
         return simpleRestClient.convertTo(result, ConfirmDocumentRaiseResponse.class);
     }
+
+//    private ConfirmDocumentRaiseResponse requestVacationRaiseApiV2(Vacation vacation, MemberLeave memberLeave) throws JsonProcessingException {
+//        // REST API 로 결재 서버 내 결재 API 호출 - 상신 가능한지 체크  CREATE, REJECT 리팩토링 대상, 테스트 진행 중
+//        SimpleRestClient simpleRestClient = new SimpleRestClient();
+//        String requestUri = "http://localhost:8000/api/confirm-documents/{confirm-document-id}/raise";
+//        String companyId = memberLeave.receiveCompanyId();
+//        String confirmDocumentId = ConfirmDocumentIdGenerator.execute(companyId, vacation.getId());
+//        ConfirmRaiseRequest confirmRaiseRequest = new ConfirmRaiseRequest(companyId, memberLeave.getOrganization().getDepartmentId(), memberLeave.getMemberId());
+//
+//        ResponseResult result = simpleRestClient.post(requestUri, confirmRaiseRequest, ResponseResult.class, confirmDocumentId);
+//        return simpleRestClient.convertTo(result, ConfirmDocumentRaiseResponse.class);
+//    }
 
     @Transactional
     public VacationServiceResponse cancelVacation(Long vacationId) {

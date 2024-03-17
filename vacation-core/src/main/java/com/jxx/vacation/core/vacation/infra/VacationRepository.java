@@ -20,10 +20,6 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
      * 	SELECT MEMBER_ID FROM JXX_MEMBER_LEAVE_MASTER
      * 	WHERE COMPANY_ID = 'SPY' AND DEPARTMENT_ID = 'SPY01001');
      */
-//    @Query("select v from Vacation v inner join MemberLeave m on v.requesterId = m.memberId " +
-//            "where v.requesterId in (select m2.memberId from MemberLeave m2 " +
-//            "where m2.organization.companyId =:companyId " +
-//            "and m2.organization.departmentId =:departmentId)")
 
     @Query("select new com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection" +
             "(v.id, " +

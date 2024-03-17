@@ -88,4 +88,8 @@ public class MemberLeave {
         return leave.getTotalLeave();
     }
 
+    public String receiveDepartmentId() {
+        return organization.getDepartmentId();
+    }
+
 }

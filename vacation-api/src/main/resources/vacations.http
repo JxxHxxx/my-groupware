@@ -15,11 +15,10 @@ Content-Type: application/json
   }
 }
 
-### 휴가 조회
-GET http://localhost:8080/api/vacations
+
 
 ### 휴가 상신
-POST http://localhost:8080/api/vacations/4795/raise
+POST http://localhost:8080/api/vacations/611/raise
 Content-Type: application/json
 
 ### 휴가 신청 POST 2
@@ -79,7 +78,12 @@ Content-Type: application/json
 
 
 ### 부서 휴가 조회
-GET http://localhost:8080/api/vacations?cid=SPY&pid=SPY01001
+GET http://localhost:8081/api/vacations?cid=SPY&pid=SPY01001
 
-### 부서 휴가 조회
-GET http://localhost:8080/api/vacations?companyId=SPY&departmentId=SPY00205&vacationStatus=REQUEST,APPROVED
+
+### 부서 휴가 검색
+GET http://localhost:8081/api/vacations?companyId=SPY&departmentId=SPY00202&vacationStatus=CREATE,REQUEST
+
+### 휴가 상신 (결재 서버 올라와있어야 함)
+POST http://localhost:8081/api/vacations/612/raise
+Content-Type: application/json
