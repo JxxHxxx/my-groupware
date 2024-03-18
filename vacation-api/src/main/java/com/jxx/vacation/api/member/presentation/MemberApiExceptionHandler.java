@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(basePackages = {"com.jxx.vacation.api.member"})
-public class AuthApiExceptionHandler {
+public class MemberApiExceptionHandler {
 
     @ExceptionHandler(UnAuthenticationException.class)
     public ResponseEntity<?> handleUnAuthenticationException(UnAuthenticationException exception) {
