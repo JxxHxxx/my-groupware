@@ -17,8 +17,8 @@ public class MemberApiExceptionHandler {
 
     @ExceptionHandler(MemberLeaveException.class)
     public ResponseEntity<?> handleMemberLeaveException(MemberLeaveException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new CommonResult(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), "No Contents"));
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new CommonResult(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), "No Contents"));
     }
-
 }
