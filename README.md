@@ -124,20 +124,21 @@ vacation-api/src/main/resources/logback.xml
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="10 seconds">
+    <property resource="logback.properties"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <Pattern>%d{YYYY-MM-dd}T%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36}[line: %L] - %msg%n</Pattern>
+            <Pattern>%d{YYYY-MM-dd}T%d{HH:mm:ss.SSS} %highlight([%-5level]) %boldBlue([%15.15t]) %logger{36}[line:%L] - %msg%n</Pattern>
         </encoder>
     </appender>
 
     <!-- 로그 파일 정책 -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="CONSOLE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
-        <file>D:/logs/was/jxx-vacation.log</file>
+        <file>${log.base.dir}/was/jxx-vacation.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
-            <fileNamePattern>D:/logs/was/jxx-vacation-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${log.base.dir}/was/jxx-vacation-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
 
@@ -146,27 +147,31 @@ vacation-api/src/main/resources/logback.xml
         </encoder>
     </appender>
 
-    <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="API_URI" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
-        <file>D:/logs/access/api.log</file>
+        <file>${log.base.dir}/access/api.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
-            <fileNamePattern>D:/logs/access/api-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>365</maxHistory>
+            <fileNamePattern>${log.base.dir}/access/api-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder>
             <Pattern>%d{HH:mm:ss.SSS} %msg%n</Pattern>
         </encoder>
     </appender>
 
-    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" >
-        <appender-ref ref="ACCESS_LOG" />
+    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" additivity="false">
+        <appender-ref ref="API_URI"/>
     </logger>
 
-    <root level="info">
+    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" additivity="false">
+        <appender-ref ref="API_URI"/>
+    </logger>
+
+    <logger name="com.jxx.vacation.api" level="info">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
+        <appender-ref ref="CONSOLE_FILE"/>
+    </logger>
 </configuration>
 ```
 
