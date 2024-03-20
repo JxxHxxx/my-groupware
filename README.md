@@ -103,6 +103,73 @@ messaging:
   produce:
     select-sql:
 ```
+### loback.xml
+애플리케이션 운영을 위한 로그 설정
+
+주요 기능
+- WWAS 에서 발생하는 로그
+- WAS 전체 로그 파일
+  - 일 단위로 저장
+- API 접근 로그 파일
+  - 접근 HOST, 호출 시간, API uri 
+  - 일 단위로 저장
+
+logback.xml 파일 위치
+```
+vacation-api/src/main/resources/logback.xml
+```
+
+
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds">
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d{YYYY-MM-dd}T%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36}[line: %L] - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- 로그 파일 정책 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
+        <file>D:/logs/was/jxx-vacation.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
+            <fileNamePattern>D:/logs/was/jxx-vacation-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <Pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36}[line: %L] - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
+        <file>D:/logs/access/api.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
+            <fileNamePattern>D:/logs/access/api-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>365</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%d{HH:mm:ss.SSS} %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" >
+        <appender-ref ref="ACCESS_LOG" />
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+```
+
 
 ### 휴가 신청 API guide
 messaging 프로젝트에서 많은 양의 큐를 처리하는걸 보고 싶을 때, 사용하면 좋다.
