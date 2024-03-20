@@ -39,3 +39,5 @@ out/
 /vacation-batch/src/main/resources/application.yml
 /vacation-core/src/main/resources/application.yml
 /vacation-messaging/src/main/resources/application.yml
+/log.base.dir_IS_UNDEFINED/access/api.log
+/log.base.dir_IS_UNDEFINED/was/jxx-vacation.log
