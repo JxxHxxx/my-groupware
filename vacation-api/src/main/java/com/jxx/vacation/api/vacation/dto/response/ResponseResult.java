@@ -10,11 +10,11 @@ import lombok.ToString;
 public class ResponseResult<T> {
     private Integer status;
     private String message;
-    private T response;
+    private T data;
 
-    public ResponseResult(Integer status, String message, T response) {
+    public ResponseResult(Integer status, String message, T data) {
         this.status = status;
         this.message = message;
-        this.response = response;
+        this.data = data;
     }
 }

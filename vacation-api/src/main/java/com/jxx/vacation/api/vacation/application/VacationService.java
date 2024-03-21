@@ -28,6 +28,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -206,5 +208,27 @@ public class VacationService {
 
     public List<DepartmentVacationProjection> searchVacations(VacationSearchCondition condition) {
         return vacationDynamicMapper.search(condition);
+    }
+    
+    
+    // 여기 추가 처리해야함
+    @Transactional
+    public VacationServiceResponse fetchVacationStatus(Long vacationId, VacationStatus vacationStatus) {
+        Vacation vacation = vacationRepository.findById(vacationId).orElseThrow();
+        if (!(vacationStatus.equals(APPROVED) || vacationStatus.equals(REJECT)))
+            throw new VacationClientException("잘못된 요청입니다.");
+
+        if (!REQUEST.equals(vacation.getVacationStatus())) {
+            throw new VacationClientException("상신/반려 불가능합니다.");
+        }
+
+        vacation.changeVacationStatus(vacationStatus);
+
+        return new VacationServiceResponse(
+                vacation.getId(),
+                vacation.getRequesterId(),
+                null,
+                vacation.getVacationDuration(),
+                vacation.getVacationStatus());
     }
 }

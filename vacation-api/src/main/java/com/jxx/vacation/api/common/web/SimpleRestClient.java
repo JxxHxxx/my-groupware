@@ -48,6 +48,6 @@ public class SimpleRestClient {
     }
 
     public <RESULT extends ResponseResult<T> ,T> T convertTo(RESULT responseResult, Class<T> convertType) {
-        return objectMapper.convertValue(responseResult.getResponse(), convertType);
+        return objectMapper.convertValue(responseResult.getData(), convertType);
     }
 }

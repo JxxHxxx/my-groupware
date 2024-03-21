@@ -27,11 +27,11 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "U00002",
+  "requesterId": "U00100",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-03-02T00:00",
-    "endDateTime": "2024-03-05T00:00"
+    "startDateTime": "2024-03-26T00:00",
+    "endDateTime": "2024-03-27T00:00"
   }
 }
 
@@ -55,11 +55,11 @@ PATCH http://localhost:8080/api/vacations/1
 Content-Type: application/json
 
 {
-  "requesterId": "U00087",
+  "requesterId": "U00100",
   "vacationDuration": {
     "vacationType": "MORE_DAY",
-    "startDateTime": "2024-03-05T00:00",
-    "endDateTime": "2024-03-08T00:00"
+    "startDateTime": "2024-03-24T00:00",
+    "endDateTime": "2024-03-25T00:00"
   }
 }
 
@@ -78,12 +78,13 @@ Content-Type: application/json
 
 
 ### 부서 휴가 조회
-GET http://localhost:8081/api/vacations?cid=SPY&pid=SPY01001
+GET http://localhost:8080/api/vacations?cid=SPY&pid=SPY01001
 
 
 ### 부서 휴가 검색
-GET http://localhost:8081/api/vacations?companyId=SPY&departmentId=SPY00202&vacationStatus=CREATE,REQUEST
+GET http://localhost:8080/api/vacations?companyId=SPY&departmentId=SPY00202&vacationStatus=CREATE,REQUEST
 
 ### 휴가 상신 (결재 서버 올라와있어야 함)
-POST http://localhost:8081/api/vacations/612/raise
+POST http://localhost:8080/api/vacations/4850/raise
 Content-Type: application/json
+

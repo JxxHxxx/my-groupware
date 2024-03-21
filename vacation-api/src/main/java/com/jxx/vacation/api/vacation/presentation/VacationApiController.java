@@ -2,9 +2,11 @@ package com.jxx.vacation.api.vacation.presentation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.vacation.api.vacation.application.VacationService;
+import com.jxx.vacation.api.vacation.dto.request.ConfirmStatusChangeRequest;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
+import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
@@ -103,5 +105,14 @@ public class VacationApiController {
     public ResponseEntity<?> searchDepartmentVacation(@ModelAttribute VacationSearchCondition searchCondition) {
         List<DepartmentVacationProjection> responses = vacationService.searchVacations(searchCondition);
         return ResponseEntity.ok(responses);
+    }
+
+    // TODO only Confirm Server Available, prevent public request
+    @PostMapping("/api/vacations/{vacation-id}/vacation-status")
+    public ResponseEntity<?> fetchVacationStatus(@PathVariable("vacation-id") Long vacationId,
+                                                 @RequestBody ConfirmStatusChangeRequest request) {
+        log.info("request from {}", request.requestSystem());
+        VacationServiceResponse response = vacationService.fetchVacationStatus(vacationId, request.vacationStatus());
+        return ResponseEntity.ok(new ResponseResult<>(200, "요청 완료", response));
     }
 }
