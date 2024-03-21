@@ -21,7 +21,7 @@ public interface MemberLeaveRepository extends JpaRepository<MemberLeave, Long> 
             "and o.departmentId =:departmentId")
     List<MemberLeave> findDepartmentMembers(@Param("companyId") String companyId, @Param("departmentId") String departmentId);
 
-    @Query ("select m from MemberLeave m " +
-            "where m.organization.companyId =:companyId and m.memberId in (:membersId)")
+    @Query ("select m from MemberLeave m join fetch m.organization o " +
+            "where o.companyId =:companyId and m.memberId in (:membersId)")
     List<MemberLeave> findCompanyMembers(@Param("companyId") String companyId, @Param("membersId") List<String> membersId);
 }
