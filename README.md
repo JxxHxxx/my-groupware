@@ -103,73 +103,77 @@ messaging:
   produce:
     select-sql:
 ```
-### loback.xml
-애플리케이션 운영을 위한 로그 설정
+### 로그 설정
 
-주요 기능
-- WWAS 에서 발생하는 로그
-- WAS 전체 로그 파일
-  - 일 단위로 저장
-- API 접근 로그 파일
-  - 접근 HOST, 호출 시간, API uri 
-  - 일 단위로 저장
+*로그 구성의 목적*
+1. 운영 및 모니터링
+- 애플리케이션 내에서 발생하는 이슈에 대응하기 위해 사용된다.
+이외에도 로그를 구성해야 하는 이유는 다양하지만 위 목적을 위주로 구성하였다.
 
-logback.xml 파일 위치
+##### logback.xml, loback.properties 파일 위치
 ```
-vacation-api/src/main/resources/logback.xml
+- vacation-api/src/main/resources/logback.xml logback 설정 파일
+- vacation-api/src/main/resources/logback.properties logback 설정을 위한 변수 파일 - logback.properties 파일 내용은 생략
 ```
 
-
-
+##### logback.xml
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="10 seconds">
+    <property resource="logback.properties"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <Pattern>%d{YYYY-MM-dd}T%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36}[line: %L] - %msg%n</Pattern>
+            <Pattern>%d{YYYY-MM-dd}T%d{HH:mm:ss.SSS} %highlight([%-5level]) %boldBlue([%15.15t]) %logger{36}[line:%L] - %msg%n</Pattern>
         </encoder>
     </appender>
 
     <!-- 로그 파일 정책 -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="CONSOLE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
-        <file>D:/logs/was/jxx-vacation.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
-            <fileNamePattern>D:/logs/was/jxx-vacation-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>7</maxHistory>
+        <file>${log.base.dir}/was/jxx-vacation.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 아래 경로에 1일 주기로 gzip 으로 압축한다. %i 는 파일의 인덱스로 maxFileSize를 넘어가여 롤링이 추가로 발생하면 증가 -->
+            <fileNamePattern>${log.base.dir}/was/jxx-vacation-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxHistory>${log.max.history}</maxHistory>
+            <maxFileSize>${log.max.file-size}</maxFileSize>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
 
         <encoder>
-            <Pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36}[line: %L] - %msg%n</Pattern>
+            <Pattern>%d{HH:mm:ss.SSS} [%15.15t] [%-5level] %logger{36}[line: %L] - %msg%n</Pattern>
         </encoder>
     </appender>
 
-    <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="API_URI" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
-        <file>D:/logs/access/api.log</file>
+        <file>${log.base.dir}/access/api.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
-            <fileNamePattern>D:/logs/access/api-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>365</maxHistory>
+            <fileNamePattern>${log.base.dir}/access/api-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${log.max.history}</maxHistory>
+            <maxFileSize>${log.max.file-size}</maxFileSize>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
             <Pattern>%d{HH:mm:ss.SSS} %msg%n</Pattern>
         </encoder>
     </appender>
 
-    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" >
-        <appender-ref ref="ACCESS_LOG" />
+    <!-- API 접근 로그 -->
+    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" additivity="false">
+        <appender-ref ref="API_URI"/>
     </logger>
-
-    <root level="info">
+    <!-- WAS 전역 -->
+    <logger name="com.jxx.vacation.api" level="info">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
+        <appender-ref ref="CONSOLE_FILE"/>
+    </logger>
 </configuration>
 ```
 
+설정을 변경하려면 아래 링크를 통해 Appender 메뉴얼을 살펴보는 것을 추천한다.   
+[logback manual - Appenders](https://logback.qos.ch/manual/appenders.html)
 
 ### 휴가 신청 API guide
 messaging 프로젝트에서 많은 양의 큐를 처리하는걸 보고 싶을 때, 사용하면 좋다.
