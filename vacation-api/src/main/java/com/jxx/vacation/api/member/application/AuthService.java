@@ -23,7 +23,7 @@ public class AuthService {
 
     public LoginResponse signIn(LoginRequest loginRequest) {
         String memberId = loginRequest.memberId();
-        MemberLeave memberLeave = memberLeaveRepository.findByMemberIdWithFetch(memberId)
+        MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(memberId)
                 .orElseThrow(() -> {
                     log.info("[AUTH][존재하지 않는 사용자:{}]", memberId);
                     return new AuthClientException("로그인 오류");

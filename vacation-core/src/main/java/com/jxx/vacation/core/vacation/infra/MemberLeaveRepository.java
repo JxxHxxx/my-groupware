@@ -14,7 +14,7 @@ public interface MemberLeaveRepository extends JpaRepository<MemberLeave, Long> 
     Optional<MemberLeave> findByMemberId(String memberId);
 
     @Query("select m from MemberLeave m join fetch m.organization where m.memberId =:memberId")
-    Optional<MemberLeave> findByMemberIdWithFetch(@Param("memberId") String memberId);
+    Optional<MemberLeave> findMemberWithOrganizationFetch(@Param("memberId") String memberId);
 
     @Query("select m from MemberLeave m join fetch m.organization o " +
             "where o.companyId =:companyId " +

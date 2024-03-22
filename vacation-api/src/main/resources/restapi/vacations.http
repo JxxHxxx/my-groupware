@@ -85,6 +85,6 @@ GET http://localhost:8080/api/vacations?cid=SPY&pid=SPY01002
 GET http://localhost:8080/api/vacations?companyId=SPY&departmentId=SPY00202&vacationStatus=CREATE,REQUEST
 
 ### 휴가 상신 (결재 서버 올라와있어야 함)
-POST http://localhost:8080/api/vacations/4839/raise
+POST http://localhost:8080/api/vacations/4834/raise
 Content-Type: application/json
 
