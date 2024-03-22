@@ -17,8 +17,12 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationType.*;
 public class VacationManager {
     private final float vacationDate;
     private final MemberLeave memberLeave;
-    private final Vacation vacation;
+    private final Vacation vacation; // 영속화가 보장되어 있지 않으니 주의
 
+
+    /**
+     * 해당 메서드로 생성 시 Vacation 영속화된 상태가 아니니 주의
+     */
     public static VacationManager createVacation(VacationDuration vacationDuration, MemberLeave memberLeave) {
         return new VacationManager(vacationDuration, memberLeave);
     }
@@ -26,6 +30,7 @@ public class VacationManager {
     public static VacationManager updateVacation(Vacation vacation, MemberLeave memberLeave) {
         return new VacationManager(vacation, memberLeave);
     }
+
     private VacationManager(VacationDuration vacationDuration, MemberLeave memberLeave) {
         this.memberLeave = memberLeave;
         this.vacation = create(vacationDuration);
@@ -45,13 +50,13 @@ public class VacationManager {
                 .adjustDeducted();
     }
 
-    public void validateMemberActive() {
-        validateMemberActive(memberLeave, vacation);
+    public boolean validateMemberActive() {
+        return validateMemberActive(memberLeave, vacation);
     }
 
     public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> requestVacations) {
         Float remainingLeave = memberLeave.receiveRemainingLeave();
-        
+
         // 현재 REQUEST, APPROVED 상태의 휴가 신청일 총 합
         List<Float> vacationDays = requestVacations.stream()
                 .filter(vacation -> CONFIRMING_GROUP.contains(vacation.getVacationStatus()))
@@ -89,7 +94,7 @@ public class VacationManager {
 
     public void isRaisePossible() {
         VacationStatus vacationStatus = vacation.getVacationStatus();
-        if (!(CREATE.equals(vacationStatus) || REJECT.equals(vacationStatus))) {
+        if (!(CREATE.equals(vacationStatus))) {
             throw new IllegalArgumentException("이미 결재가 올라갔거나 종료된 휴가입니다.");
         }
     }
@@ -98,10 +103,10 @@ public class VacationManager {
     public void raise(ConfirmStatus confirmStatus) {
         if (ConfirmStatus.RAISE.equals(confirmStatus)) { //결재 문서의 상태가 상신이면
             vacation.changeVacationStatus(REQUEST); // 휴가의 상태도 변경해라.
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("결재가 상신되지 않았습니다.");
-        };
+        }
+        ;
     }
 
     public void raise(String confirmStatus) {
@@ -123,16 +128,19 @@ public class VacationManager {
         return this.memberLeave;
     }
 
-    protected void validateMemberActive(MemberLeave memberLeave, Vacation vacation) {
+    protected boolean validateMemberActive(MemberLeave memberLeave, Vacation vacation) {
+        Organization organization = memberLeave.getOrganization();
         try {
-            Organization organization = memberLeave.getOrganization();
             memberLeave.checkActive();
             organization.checkActive();
-        }
-        catch (InactiveException e) {
+
+        } catch (InactiveException e) {
             log.warn("MESSAGE:{}", e.getMessage(), e);
             vacation.changeVacationStatus(FAIL);
+            return false;
         }
+
+        return true;
     }
 
     // 휴가 취소 (결재 문서를 취소)
@@ -156,6 +164,7 @@ public class VacationManager {
         VacationType vacationType = vacation.receiveVacationType();
         if (!DEDUCT_VACATION_TYPE.contains(vacationType)) {
             vacation.changeDeducted(false);
-        };
+        }
+        ;
     }
 }
