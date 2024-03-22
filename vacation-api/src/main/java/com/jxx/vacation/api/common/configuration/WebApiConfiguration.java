@@ -1,6 +1,6 @@
 package com.jxx.vacation.api.common.configuration;
 
-import com.jxx.vacation.api.common.ApiAccessLogInterceptor;
+import com.jxx.vacation.api.common.interceptor.ApiAccessLogInterceptor;
 import com.jxx.vacation.api.common.web.RestApiAuthenticationInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

@@ -38,3 +38,4 @@ out/
 /src/test/resources/application.yml
 /src/main/resources/logback.xml
 /src/main/resources/logback.properties
+/src/main/resources/logback-spring.xml
