@@ -110,30 +110,41 @@ messaging:
 - 애플리케이션 내에서 발생하는 이슈에 대응하기 위해 사용된다.
 이외에도 로그를 구성해야 하는 이유는 다양하지만 위 목적을 위주로 구성하였다.
 
-##### logback.xml, loback.properties 파일 위치
+##### logback-spring.xml, loback.properties 파일 위치
 ```
-- vacation-api/src/main/resources/logback.xml logback 설정 파일
+- vacation-api/src/main/resources/logback-spring.xml logback-spring 설정 파일
 - vacation-api/src/main/resources/logback.properties logback 설정을 위한 변수 파일 - logback.properties 파일 내용은 생략
 ```
 
-##### logback.xml
+##### logback-spring.xml
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="10 seconds">
     <property resource="logback.properties"/>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <Pattern>%d{YYYY-MM-dd}T%d{HH:mm:ss.SSS} %highlight([%-5level]) %boldBlue([%15.15t]) %logger{36}[line:%L] - %msg%n</Pattern>
-        </encoder>
-    </appender>
+    <!-- 기본 로그 정책 START -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="CONSOLE_FILE"/>
+    </root>
+    <!-- 기본 로그 정책 END -->
+
+    <logger name="org.springframework.web" level="${log.level.web}"/>
+    <logger name="org.springframework.jdbc" level="${log.level.jdbc}"/>
+    <logger name="org.hibernate" level="${log.level.hibernate}"/>
+    <logger name="com.jxx.vacation.api.common.interceptor.ApiAccessLogInterceptor" level="info" additivity="false">
+        <appender-ref ref="API_URI"/>
+    </logger>
 
     <!-- 로그 파일 정책 -->
     <appender name="CONSOLE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 현재 로그의 위치 주의) 프로젝트 루트 기준으로 내리는게 아님 -->
         <file>${log.base.dir}/was/jxx-vacation.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- 아래 경로에 1일 주기로 gzip 으로 압축한다. %i 는 파일의 인덱스로 maxFileSize를 넘어가여 롤링이 추가로 발생하면 증가 -->
+            <!-- 아래 패턴에 따라 로그 파일이 어느 주기마다 저장될지 결정됨 -->
             <fileNamePattern>${log.base.dir}/was/jxx-vacation-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxHistory>${log.max.history}</maxHistory>
             <maxFileSize>${log.max.file-size}</maxFileSize>
@@ -156,19 +167,10 @@ messaging:
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
-            <Pattern>%d{HH:mm:ss.SSS} %msg%n</Pattern>
+            <Pattern>[%d{HH:mm:ss.SSS}]%msg%n</Pattern>
         </encoder>
     </appender>
 
-    <!-- API 접근 로그 -->
-    <logger name="com.jxx.vacation.api.common.ApiAccessLogInterceptor" level="info" additivity="false">
-        <appender-ref ref="API_URI"/>
-    </logger>
-    <!-- WAS 전역 -->
-    <logger name="com.jxx.vacation.api" level="info">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="CONSOLE_FILE"/>
-    </logger>
 </configuration>
 ```
 
