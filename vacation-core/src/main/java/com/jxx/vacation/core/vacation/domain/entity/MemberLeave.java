@@ -92,4 +92,8 @@ public class MemberLeave {
         return organization.getDepartmentId();
     }
 
+    public void retire() {
+        isActive = false;
+    }
+
 }

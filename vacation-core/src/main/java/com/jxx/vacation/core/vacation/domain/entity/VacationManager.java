@@ -95,7 +95,7 @@ public class VacationManager {
     public void isRaisePossible() {
         VacationStatus vacationStatus = vacation.getVacationStatus();
         if (!(CREATE.equals(vacationStatus))) {
-            throw new IllegalArgumentException("이미 결재가 올라갔거나 종료된 휴가입니다.");
+            throw new VacationClientException("이미 결재가 올라갔거나 종료된 휴가입니다.");
         }
     }
 

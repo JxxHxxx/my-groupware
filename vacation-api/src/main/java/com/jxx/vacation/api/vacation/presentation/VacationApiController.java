@@ -45,7 +45,7 @@ public class VacationApiController {
 
     @PostMapping(value = "/api/vacations/{vacation-id}/raise")
     public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) {
-        ConfirmDocumentRaiseResponse response = vacationService.raiseVacation(vacationId);
+        VacationServiceResponse response = vacationService.raiseVacation(vacationId);
         return ResponseEntity.ok(response);
     }
 

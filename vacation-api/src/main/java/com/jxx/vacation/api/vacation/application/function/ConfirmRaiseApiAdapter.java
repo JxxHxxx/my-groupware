@@ -16,6 +16,9 @@ import java.util.function.BiFunction;
 public class ConfirmRaiseApiAdapter implements BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse>{
     private static final String CONFIRM_SERVER_HOST = "http://localhost:8000";
 
+    /**
+     * 결재 서버 상신 API
+     */
     @Override
     public ConfirmDocumentRaiseResponse apply(Vacation vacation, MemberLeave memberLeave) {
         String companyId = memberLeave.receiveCompanyId();

@@ -9,6 +9,7 @@ import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.api.vacation.query.VacationDynamicMapper;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.vacation.domain.entity.*;
+import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
@@ -106,27 +107,39 @@ public class VacationService {
     }
 
     @Transactional
-    public ConfirmDocumentRaiseResponse raiseVacation(Long vacationId) {
+    public VacationServiceResponse raiseVacation(Long vacationId) {
         BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter = new ConfirmRaiseApiAdapter();
         return raiseVacation(vacationId, apiAdapter);
     }
 
-    @Transactional // 테스팅을 위한
-    protected ConfirmDocumentRaiseResponse raiseVacation(Long vacationId, BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
+    @Transactional // 테스팅을 위해
+    protected VacationServiceResponse raiseVacation(Long vacationId, BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
         MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(vacation.getRequesterId())
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 
         VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
-        vacationManager.validateMemberActive();
+        // validate start
+        if (!vacationManager.validateMemberActive()) {
+            VacationServiceResponse response = new VacationServiceResponse(vacation.getId(),
+                    vacation.getRequesterId(),
+                    memberLeave.getName(),
+                    vacation.getVacationDuration(),
+                    vacation.getVacationStatus());
+            return response;
+        }
 
-        vacationManager.isRaisePossible(); // 상신이 가능한 상태이면.
-
+        vacationManager.isRaisePossible();
+        // call to another server api
         ConfirmDocumentRaiseResponse response = function.apply(vacation, memberLeave);
 
         vacationManager.raise(response.confirmStatus());
-        return response;
+        return new VacationServiceResponse(vacation.getId(),
+                vacation.getRequesterId(),
+                memberLeave.getName(),
+                vacation.getVacationDuration(),
+                vacation.getVacationStatus());
     }
 
     @Transactional

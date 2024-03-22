@@ -9,6 +9,7 @@ import com.jxx.vacation.core.message.MessageQ;
 import com.jxx.vacation.core.message.MessageQRepository;
 import com.jxx.vacation.core.message.payload.approval.ConfirmStatus;
 import com.jxx.vacation.core.vacation.domain.entity.*;
+import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.OrganizationRepository;
@@ -17,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -115,6 +118,26 @@ class VacationServiceTest {
                 .isInstanceOf(VacationClientException.class);
     }
 
+    @DisplayName("비활성화 된 사용자가 휴가를 신청할 경우," +
+            "휴가는 생성되나 VacationStatus=FAIL 이다. " +
+            "비활성화된 사용자가 휴가를 신청한다는 것 자체가 모순이기에 " +
+            "요청자와 컨택하여 문제를 해결해야 하기에 데이터는 세이빙한다.")
+    @Test
+    void create_vacation_success_fail_inactive_member() {
+        String memberId = "T0001";
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
+        memberLeave.retire();
+        MemberLeave retireMember = memberLeaveRepository.save(memberLeave);
+
+        RequestVacationForm vacationForm = new RequestVacationForm(
+                retireMember.getMemberId(), new VacationDuration(VacationType.MORE_DAY,
+                LocalDateTime.of(9999, 3, 1, 0, 0),
+                LocalDateTime.of(9999, 3, 4, 0, 0)));
+
+        VacationServiceResponse response = vacationService.createVacation(vacationForm);
+
+        assertThat(response.vacationStatus()).isEqualTo(VacationStatus.FAIL);
+    }
 
     @DisplayName("휴가 상신 API flow " +
             "1. 상신이 가능한 문서인지 검증한다." +
@@ -125,7 +148,7 @@ class VacationServiceTest {
             "API가 정상적으로 호출/응답됐다고 가정한다." +
             "이 부분은 BiFunction 타입의 람다로 구현되어 있다. ")
     @Test
-    void raise_vacation() {
+    void raise_vacation_success_simple() {
         String memberId = "T0001";
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
         RequestVacationForm vacationForm = new RequestVacationForm(
@@ -136,16 +159,78 @@ class VacationServiceTest {
 
         VacationServiceResponse vacation = vacationService.createVacation(vacationForm);
 
-        //외부 서버와 통신하는 부분을 아래 람다로 대체
+        //외부 서버와 통신하는 부분을 아래 람다로 대체 confirmStatus 필드를 RAISE 상태로 응답받아야 휴가의 상태가 변경된다.
         BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
                 (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
-
         // WHEN
         vacationService.raiseVacation(vacation.vacationId(), apiAdapter);
 
         // THEN
         Vacation updatedVacation = vacationRepository.findById(vacation.vacationId()).get();
         assertThat(updatedVacation.getVacationStatus()).isEqualTo(VacationStatus.REQUEST);
+    }
 
+    @DisplayName("비활성화 된 사용자가 휴가 상신을 할 경우, " +
+            "생성된 휴가의 상태(VacationStatus)는 FAIL이다. ")
+    @Test
+    void raise_vacation_fail_member_inactive() {
+        //given
+        //비활성화 사용자 생성
+        String memberId = "T0001";
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
+        memberLeave.retire(); // 사용자 비활성화
+        memberLeaveRepository.save(memberLeave);
+        //휴가 생성
+        Vacation vacation = Vacation.builder()
+                .vacationDuration(new VacationDuration(VacationType.MORE_DAY,
+                        LocalDateTime.of(9999, 3, 1, 0, 0),
+                        LocalDateTime.of(9999, 3, 4, 0, 0)))
+                .deducted(true)
+                .requesterId("T0001")
+                .vacationStatus(VacationStatus.CREATE)
+                .build();
+        Vacation savedVacation = vacationRepository.save(vacation);
+
+        // 외부 API 호출 대체
+        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
+                (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
+
+        //when
+        VacationServiceResponse response = vacationService.raiseVacation(savedVacation.getId(), apiAdapter);
+        //then
+        Vacation updatedVacation = vacationRepository.findById(savedVacation.getId()).get();
+        assertThat(response.vacationStatus()).isEqualTo(VacationStatus.FAIL);
+        assertThat(updatedVacation.getVacationStatus()).isEqualTo(VacationStatus.FAIL);
+    }
+
+    @DisplayName("Vacation 의 VacationStatus=CREATED 인 경우에만 상신이 가능하다." +
+            "그외 상태에서 상신을 보낼 경우 " +
+            "VacationClientException 예외가 발생한다.")
+    @ParameterizedTest
+    @EnumSource(names = {"REQUEST", "REJECT", "APPROVED", "CANCELED","ONGOING", "COMPLETED", "FAIL", "ERROR"})
+    void raise_vacation_fail_raise_impossible_status(VacationStatus vacationStatus) {
+        //given
+        //사용자 생성
+        String memberId = "T0001";
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
+        memberLeaveRepository.save(memberLeave);
+        //휴가 생성
+        Vacation vacation = Vacation.builder()
+                .vacationDuration(new VacationDuration(VacationType.MORE_DAY,
+                        LocalDateTime.of(9999, 3, 1, 0, 0),
+                        LocalDateTime.of(9999, 3, 4, 0, 0)))
+                .deducted(true)
+                .requesterId("T0001")
+                .vacationStatus(vacationStatus)
+                .build();
+        Vacation savedVacation = vacationRepository.save(vacation);
+
+        //when - then
+        // 외부 API 호출 대체
+        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
+                (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
+
+        assertThatThrownBy(() -> vacationService.raiseVacation(savedVacation.getId(), apiAdapter))
+                .isInstanceOf(VacationClientException.class);
     }
 }
