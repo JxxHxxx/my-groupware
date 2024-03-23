@@ -96,9 +96,10 @@ public class VacationMessageService implements MessageService<MessageQ>{
         String companyId = (String) body.get("company_id");
         String departmentId = (String) body.get("department_id");
         String requesterId = (String) body.get("requester_id");
+        String approvalLineStatus = (String) body.get("approval_line_status");
         LocalDateTime createTime = convertToCreateTime(body);
 
-        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime, documentType, companyId, departmentId, requesterId);
+        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime, documentType, companyId, departmentId, requesterId, approvalLineStatus);
     }
 
     private static LocalDateTime convertToCreateTime(Map<String, Object> body) {

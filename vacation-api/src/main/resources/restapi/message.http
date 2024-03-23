@@ -1,0 +1,2 @@
+### 메시지 재시도
+PATCH http://localhost:8080/message-q-results/2/retry

@@ -23,9 +23,10 @@ public class VacationApprovalForm {
     private final float vacationDate;
     private final Long vacationId;
     private final LocalDateTime createTime;
+    private final String approvalLineStatus;
 
     private VacationApprovalForm(ConfirmStatus confirmStatus, String requesterId, String companyId, String departmentId,
-                                 String createSystem, DocumentType documentType, float vacationDate, Long vacationId) {
+                                 String createSystem, DocumentType documentType, float vacationDate, Long vacationId, String approvalLineStatus) {
         this.confirmStatus = confirmStatus;
         this.requesterId = requesterId;
         this.companyId = companyId;
@@ -34,11 +35,12 @@ public class VacationApprovalForm {
         this.documentType = documentType;
         this.vacationDate = vacationDate;
         this.vacationId = vacationId;
+        this.approvalLineStatus = approvalLineStatus;
         this.createTime = LocalDateTime.now();
     }
 
     public static VacationApprovalForm create(String requesterId, String companyId, String departmentId, String createSystem,
-                                              DocumentType documentType, float vacationDate, Long vacationId) {
-        return new VacationApprovalForm(CREATE, requesterId, companyId, departmentId, createSystem, documentType, vacationDate, vacationId);
+                                              DocumentType documentType, float vacationDate, Long vacationId, String approvalLineStatus) {
+        return new VacationApprovalForm(CREATE, requesterId, companyId, departmentId, createSystem, documentType, vacationDate, vacationId, approvalLineStatus);
     }
 }

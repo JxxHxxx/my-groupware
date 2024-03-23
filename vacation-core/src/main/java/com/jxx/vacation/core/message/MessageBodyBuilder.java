@@ -5,7 +5,6 @@ import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 // SimpleMessageConsumer 같이 리팩토링하면 변경 포인트 하나 줄일 수 있어보임
 public class MessageBodyBuilder {
@@ -23,6 +22,7 @@ public class MessageBodyBuilder {
         payload.put("department_id", form.getDepartmentId());
         payload.put("confirm_document_id", vacationConfirmDocumentId);
         payload.put("create_time", form.getCreateTime());
+        payload.put("approval_line_status", form.getApprovalLineStatus());
         return payload;
     }
 }

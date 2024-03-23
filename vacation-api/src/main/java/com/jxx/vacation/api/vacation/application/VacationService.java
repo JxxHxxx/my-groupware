@@ -70,6 +70,14 @@ public class VacationService {
         return createVacationServiceResponse(savedVacation, memberLeave);
     }
 
+    @Transactional
+    public void createVacations(List<RequestVacationForm> requestVacationForms) {
+        for (RequestVacationForm requestVacationForm : requestVacationForms) {
+            createVacation(requestVacationForm);
+        }
+    }
+
+
     public VacationServiceResponse readOne(String requesterId, Long vacationId) {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
@@ -97,13 +105,6 @@ public class VacationService {
                         vacation.getVacationDuration(),
                         vacation.getVacationStatus()
                 )).toList();
-    }
-
-    @Transactional
-    public void createVacations(List<RequestVacationForm> requestVacationForms) {
-        for (RequestVacationForm requestVacationForm : requestVacationForms) {
-            createVacation(requestVacationForm);
-        }
     }
 
     @Transactional
