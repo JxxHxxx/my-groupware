@@ -114,7 +114,8 @@ public class VacationService {
     }
 
     @Transactional // 테스팅을 위해
-    protected VacationServiceResponse raiseVacation(Long vacationId, BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
+    protected VacationServiceResponse raiseVacation(Long vacationId,
+                                                    BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
         MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(vacation.getRequesterId())
