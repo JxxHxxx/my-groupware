@@ -4,23 +4,17 @@ package com.jxx.vacation.api.vacation.application;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
-import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
-import com.jxx.vacation.core.message.MessageQ;
-import com.jxx.vacation.core.message.MessageQRepository;
-import com.jxx.vacation.core.message.payload.approval.ConfirmStatus;
+import com.jxx.vacation.core.message.domain.MessageQ;
+import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.vacation.domain.entity.*;
-import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.OrganizationRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
-import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -33,7 +27,6 @@ import java.util.function.BiFunction;
 import static com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.*;
-import static org.mockito.Mockito.*;
 
 @Slf4j
 @SpringBootTest

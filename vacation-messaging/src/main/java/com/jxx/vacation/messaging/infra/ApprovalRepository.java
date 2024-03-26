@@ -1,6 +1,6 @@
 package com.jxx.vacation.messaging.infra;
 
-import com.jxx.vacation.core.message.payload.approval.form.VacationConfirmModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;

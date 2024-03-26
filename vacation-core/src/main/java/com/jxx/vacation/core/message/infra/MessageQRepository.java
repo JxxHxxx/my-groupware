@@ -1,5 +1,6 @@
-package com.jxx.vacation.core.message;
+package com.jxx.vacation.core.message.infra;
 
+import com.jxx.vacation.core.message.domain.MessageQ;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

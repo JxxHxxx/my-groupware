@@ -1,10 +1,7 @@
 package com.jxx.vacation.api.messaging.dto.response;
 
-import com.jxx.vacation.core.message.MessageDestination;
-import com.jxx.vacation.core.message.MessageProcessStatus;
-import jakarta.persistence.*;
-import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.Type;
+import com.jxx.vacation.core.message.domain.MessageDestination;
+import com.jxx.vacation.core.message.domain.MessageProcessStatus;
 
 import java.time.LocalDateTime;
 import java.util.Map;

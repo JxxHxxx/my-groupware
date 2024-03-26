@@ -2,7 +2,11 @@ package com.jxx.vacation.api.vacation.listener;
 
 
 import com.jxx.vacation.core.message.*;
-import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
+import com.jxx.vacation.core.message.domain.MessageDestination;
+import com.jxx.vacation.core.message.domain.MessageProcessStatus;
+import com.jxx.vacation.core.message.domain.MessageQ;
+import com.jxx.vacation.core.message.infra.MessageQRepository;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmMessageForm;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.domain.entity.Vacation;
 import lombok.RequiredArgsConstructor;
@@ -15,15 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-import static com.jxx.vacation.core.message.payload.approval.DocumentType.VAC;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class VacationEventListener {
 
-    private static final String CREATE_SYSTEM = "JXX-API-APP";
-    private static final String APPROVAL_LINE_LIFECYCLE_INITIAL_VALUE = "BEFORE_CREATE";
     private final MessageQRepository messageQRepository;
 
     @Async("${event.executor.name}")
@@ -43,22 +43,18 @@ public class VacationEventListener {
         Vacation vacation = createdEvent.vacation();
         Organization organization = createdEvent.memberLeave().getOrganization();
 
-        VacationApprovalForm vacationApprovalForm = VacationApprovalForm.create(
+        VacationConfirmMessageForm vacationConfirmMessageForm = VacationConfirmMessageForm.create(
                 createdEvent.requesterId(),
                 organization.getCompanyId(),
                 organization.getDepartmentId(),
-                CREATE_SYSTEM,
-                VAC,
                 createdEvent.vacationDate(),
-                vacation.getId(),
-                APPROVAL_LINE_LIFECYCLE_INITIAL_VALUE
-                );
+                vacation.getId());
 
-        Map<String, Object> messageBody = MessageBodyBuilder.createVacationApprovalBody(vacationApprovalForm);
+        Map<String, Object> vacationConfirmMessageBody = MessageBodyBuilder.from(vacationConfirmMessageForm);
         MessageQ messageQ = MessageQ.builder()
                 .messageDestination(MessageDestination.APPROVAL)
                 .messageProcessStatus(MessageProcessStatus.SENT)
-                .body(messageBody)
+                .body(vacationConfirmMessageBody)
                 .build();
         return messageQ;
     }

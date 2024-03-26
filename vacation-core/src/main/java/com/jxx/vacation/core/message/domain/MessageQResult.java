@@ -1,4 +1,4 @@
-package com.jxx.vacation.core.message;
+package com.jxx.vacation.core.message.domain;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;

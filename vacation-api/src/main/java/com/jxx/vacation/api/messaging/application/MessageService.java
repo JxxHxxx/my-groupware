@@ -1,19 +1,19 @@
 package com.jxx.vacation.api.messaging.application;
 
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponse;
-import com.jxx.vacation.core.message.*;
+import com.jxx.vacation.core.message.domain.MessageProcessStatus;
+import com.jxx.vacation.core.message.domain.MessageQ;
+import com.jxx.vacation.core.message.domain.MessageQResult;
+import com.jxx.vacation.core.message.infra.MessageQRepository;
+import com.jxx.vacation.core.message.infra.MessageQResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static org.springframework.data.domain.Sort.Direction.*;
 
 @Slf4j
 @Service

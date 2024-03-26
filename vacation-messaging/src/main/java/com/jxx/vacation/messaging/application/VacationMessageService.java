@@ -1,8 +1,12 @@
 package com.jxx.vacation.messaging.application;
 
-import com.jxx.vacation.core.message.*;
+import com.jxx.vacation.core.message.domain.MessageProcessStatus;
+import com.jxx.vacation.core.message.domain.MessageQ;
+import com.jxx.vacation.core.message.domain.MessageQResult;
+import com.jxx.vacation.core.message.infra.MessageQRepository;
+import com.jxx.vacation.core.message.infra.MessageQResultRepository;
 import com.jxx.vacation.messaging.infra.ApprovalRepository;
-import com.jxx.vacation.core.message.payload.approval.form.VacationConfirmModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,8 +16,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 import static com.jxx.vacation.core.message.MessageConst.RETRY_HEADER;
-import static com.jxx.vacation.core.message.MessageProcessStatus.FAIL;
-import static com.jxx.vacation.core.message.MessageProcessStatus.SUCCESS;
+import static com.jxx.vacation.core.message.domain.MessageProcessStatus.FAIL;
+import static com.jxx.vacation.core.message.domain.MessageProcessStatus.SUCCESS;
 
 @Slf4j
 @Service(value = "vacationMessageService")

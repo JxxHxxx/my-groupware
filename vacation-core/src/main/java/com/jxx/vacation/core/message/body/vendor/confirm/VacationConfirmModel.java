@@ -1,4 +1,4 @@
-package com.jxx.vacation.core.message.payload.approval.form;
+package com.jxx.vacation.core.message.body.vendor.confirm;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-// approval 서버 데이터베이스에 넣을 쿼리 모델
+/**
+ * VacationConfirmForm : MessageQ body 를 만들기 위한 토대 객체
+ * MessageBodyBuilder : MessageQ body 필드가 Map 타입임 convert object(VacationConfirmForm) to Map
+ * VacationConfirmModel : convert map(body) to object, SQL로 변환되는 모델
+ */
 @Getter
 @Setter
 @ToString
@@ -38,18 +42,18 @@ public class VacationConfirmModel {
         this.approvalLineLifeCycle = approvalLineLifeCycle;
     }
 
-    public static VacationConfirmModel from(Map<String, Object> body) {
-        String confirmStatus = (String) body.get("confirm_status");
-        String confirmDocumentId = String.valueOf(body.get("confirm_document_id"));
-        String createSystem = (String) body.get("create_system");
-        String documentType = (String) body.get("document_type");
-        String companyId = (String) body.get("company_id");
-        String departmentId = (String) body.get("department_id");
-        String requesterId = (String) body.get("requester_id");
-        String approvalLineStatus = (String) body.get("approval_line_life_cycle");
-        LocalDateTime createTime = convertToCreateTime(body);
+    public static VacationConfirmModel from(Map<String, Object> messageBody) {
+        String confirmStatus = (String) messageBody.get("confirm_status");
+        String confirmDocumentId = String.valueOf(messageBody.get("confirm_document_id"));
+        String createSystem = (String) messageBody.get("create_system");
+        String documentType = (String) messageBody.get("document_type");
+        String companyId = (String) messageBody.get("company_id");
+        String departmentId = (String) messageBody.get("department_id");
+        String requesterId = (String) messageBody.get("requester_id");
+        String approvalLineLifeCycle = (String) messageBody.get("approval_line_life_cycle");
+        LocalDateTime createTime = convertToCreateTime(messageBody);
 
-        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime, documentType, companyId, departmentId, requesterId, approvalLineStatus);
+        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime, documentType, companyId, departmentId, requesterId, approvalLineLifeCycle);
     }
 
     private static LocalDateTime convertToCreateTime(Map<String, Object> body) {

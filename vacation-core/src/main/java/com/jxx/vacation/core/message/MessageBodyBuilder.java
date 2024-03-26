@@ -1,38 +1,26 @@
 package com.jxx.vacation.core.message;
 
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
-import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
-import com.jxx.vacation.core.message.payload.approval.form.VacationConfirmModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmMessageForm;
 
 import java.util.HashMap;
 import java.util.Map;
 
-// SimpleMessageConsumer 같이 리팩토링하면 변경 포인트 하나 줄일 수 있어보임
 public class MessageBodyBuilder {
-    public static Map<String, Object> createVacationApprovalBody(VacationApprovalForm form) {
-        String vacationConfirmDocumentId = ConfirmDocumentIdGenerator.execute(form.getCompanyId(), form.getVacationId());
+    public static Map<String, Object> from(VacationConfirmMessageForm messageForm) {
+        String vacationConfirmDocumentId = ConfirmDocumentIdGenerator.execute(messageForm.getCompanyId(), messageForm.getVacationId());
         Map<String, Object> payload = new HashMap<>();
 
-        payload.put("confirm_status", form.getConfirmStatus());
-        payload.put("requester_id", form.getRequesterId());
-        payload.put("vacation_date", form.getVacationDate());
-        payload.put("create_system", form.getCreateSystem());
-        payload.put("document_type", form.getDocumentType());
-        payload.put("company_id", form.getCompanyId());
-        payload.put("department_id", form.getDepartmentId());
+        payload.put("confirm_status", messageForm.getConfirmStatus());
+        payload.put("requester_id", messageForm.getRequesterId());
+        payload.put("vacation_date", messageForm.getVacationDate());
+        payload.put("create_system", messageForm.getCreateSystem());
+        payload.put("document_type", messageForm.getDocumentType());
+        payload.put("company_id", messageForm.getCompanyId());
+        payload.put("department_id", messageForm.getDepartmentId());
         payload.put("confirm_document_id", vacationConfirmDocumentId);
-        payload.put("create_time", form.getCreateTime());
-        payload.put("approval_line_life_cycle", form.getApprovalLineLifeCycle());
+        payload.put("create_time", messageForm.getCreateTime());
+        payload.put("approval_line_life_cycle", messageForm.getApprovalLineLifeCycle());
         return payload;
-    }
-
-    // Object to Map 메시지 큐를 생성하기 위한
-    public static Map<String, Object> modelToMap(VacationConfirmModel model) {
-        return null;
-    }
-
-    // Map to Object 메시지 큐를 저장하기 위한
-    public static VacationConfirmModel mapToModel(Map<String, Object> body) {
-        return null;
     }
 }

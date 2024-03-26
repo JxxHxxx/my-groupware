@@ -1,10 +1,10 @@
 package com.jxx.vacation.messaging.producer;
 
 
-import com.jxx.vacation.core.message.MessageQ;
-import com.jxx.vacation.core.message.MessageQRepository;
-import com.jxx.vacation.core.message.MessageQResult;
-import com.jxx.vacation.core.message.MessageQResultRepository;
+import com.jxx.vacation.core.message.domain.MessageQ;
+import com.jxx.vacation.core.message.infra.MessageQRepository;
+import com.jxx.vacation.core.message.domain.MessageQResult;
+import com.jxx.vacation.core.message.infra.MessageQResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.jxx.vacation.core.message.MessageConst.RETRY_HEADER;
-import static com.jxx.vacation.core.message.MessageProcessStatus.ALREADY;
-import static com.jxx.vacation.core.message.MessageProcessStatus.SUCCESS;
+import static com.jxx.vacation.core.message.domain.MessageProcessStatus.ALREADY;
+import static com.jxx.vacation.core.message.domain.MessageProcessStatus.SUCCESS;
 
 
 @Slf4j

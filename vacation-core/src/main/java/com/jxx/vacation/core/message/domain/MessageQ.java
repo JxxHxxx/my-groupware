@@ -1,11 +1,10 @@
-package com.jxx.vacation.core.message;
+package com.jxx.vacation.core.message.domain;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
 

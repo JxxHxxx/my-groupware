@@ -1,6 +1,6 @@
 package com.jxx.vacation.api.vacation.listener;
 
-import com.jxx.vacation.core.message.MessageQRepository;
+import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

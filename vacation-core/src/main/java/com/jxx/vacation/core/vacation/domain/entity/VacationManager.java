@@ -1,6 +1,6 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
-import com.jxx.vacation.core.message.payload.approval.ConfirmStatus;
+import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;

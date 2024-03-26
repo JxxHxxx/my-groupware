@@ -1,11 +1,11 @@
-package com.jxx.vacation.core.message.payload.approval;
+package com.jxx.vacation.core.message.body.vendor.confirm;
 
 import lombok.Getter;
 
 import java.util.List;
 
 
-// 결재 서버의 결재 문서 상태 목록
+// 결재 애플리케이션 코드
 @Getter
 public enum ConfirmStatus {
     CREATE("결재 생성"), // 200

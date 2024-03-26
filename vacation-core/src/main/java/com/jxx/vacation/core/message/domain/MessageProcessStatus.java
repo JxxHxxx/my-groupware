@@ -1,4 +1,4 @@
-package com.jxx.vacation.core.message;
+package com.jxx.vacation.core.message.domain;
 
 public enum MessageProcessStatus {
 

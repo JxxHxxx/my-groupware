@@ -1,6 +1,6 @@
 package com.jxx.vacation.messaging.consumer;
 
-import com.jxx.vacation.core.message.*;
+import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.messaging.application.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
