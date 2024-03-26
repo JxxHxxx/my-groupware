@@ -2,13 +2,13 @@ package com.jxx.vacation.core.message;
 
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.message.payload.approval.form.VacationApprovalForm;
+import com.jxx.vacation.core.message.payload.approval.form.VacationConfirmModel;
 
 import java.util.HashMap;
 import java.util.Map;
 
 // SimpleMessageConsumer 같이 리팩토링하면 변경 포인트 하나 줄일 수 있어보임
 public class MessageBodyBuilder {
-
     public static Map<String, Object> createVacationApprovalBody(VacationApprovalForm form) {
         String vacationConfirmDocumentId = ConfirmDocumentIdGenerator.execute(form.getCompanyId(), form.getVacationId());
         Map<String, Object> payload = new HashMap<>();
@@ -24,5 +24,15 @@ public class MessageBodyBuilder {
         payload.put("create_time", form.getCreateTime());
         payload.put("approval_line_life_cycle", form.getApprovalLineLifeCycle());
         return payload;
+    }
+
+    // Object to Map 메시지 큐를 생성하기 위한
+    public static Map<String, Object> modelToMap(VacationConfirmModel model) {
+        return null;
+    }
+
+    // Map to Object 메시지 큐를 저장하기 위한
+    public static VacationConfirmModel mapToModel(Map<String, Object> body) {
+        return null;
     }
 }
