@@ -2,7 +2,7 @@ package com.jxx.vacation.messaging.application;
 
 import com.jxx.vacation.core.message.*;
 import com.jxx.vacation.messaging.infra.ApprovalRepository;
-import com.jxx.vacation.messaging.infra.VacationConfirmModel;
+import com.jxx.vacation.core.message.payload.approval.form.VacationConfirmModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,9 +10,6 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static com.jxx.vacation.core.message.MessageConst.RETRY_HEADER;
 import static com.jxx.vacation.core.message.MessageProcessStatus.FAIL;
@@ -33,7 +30,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
         MessageQ messageQ = message.getPayload();
         MessageProcessStatus sentMessageProcessStatus = null;
         try {
-            VacationConfirmModel vacationConfirmModel = createVacationConfirmModel(messageQ.getBody());
+            VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageQ.getBody());
             approvalRepository.insert(vacationConfirmModel);
             sentMessageProcessStatus = SUCCESS;
         } catch (Exception e) {
@@ -52,7 +49,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
         MessageProcessStatus retryMessageProcessStatus = null;
         Long originalMessagePk = null;
         try {
-            VacationConfirmModel vacationConfirmModel = createVacationConfirmModel(messageQ.getBody());
+            VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageQ.getBody());
             approvalRepository.insert(vacationConfirmModel);
             retryMessageProcessStatus = SUCCESS;
             originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
@@ -86,33 +83,6 @@ public class VacationMessageService implements MessageService<MessageQ>{
                 .originalMessagePk(messageQ.getPk())
                 .body(messageQ.getBody())
                 .build();
-    }
-
-    private static VacationConfirmModel createVacationConfirmModel(Map<String, Object> body) {
-        String confirmStatus = (String) body.get("confirm_status");
-        String confirmDocumentId = String.valueOf(body.get("confirm_document_id"));
-        String createSystem = (String) body.get("create_system");
-        String documentType = (String) body.get("document_type");
-        String companyId = (String) body.get("company_id");
-        String departmentId = (String) body.get("department_id");
-        String requesterId = (String) body.get("requester_id");
-        String approvalLineStatus = (String) body.get("approval_line_life_cycle");
-        LocalDateTime createTime = convertToCreateTime(body);
-
-        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime, documentType, companyId, departmentId, requesterId, approvalLineStatus);
-    }
-
-    private static LocalDateTime convertToCreateTime(Map<String, Object> body) {
-        List<Integer> createTimes = (ArrayList) body.get("create_time");
-        Integer year = createTimes.get(0);
-        Integer month = createTimes.get(1);
-        Integer dayOfMonth = createTimes.get(2);
-        Integer hour = createTimes.get(3);
-        Integer minute = createTimes.get(4);
-        Integer second = createTimes.get(5);
-        Integer nanoOfSecond = createTimes.get(6);
-
-        return LocalDateTime.of(year, month, dayOfMonth, hour, minute, second, nanoOfSecond);
     }
 
     private static MessageQResult createRetryMessageQResult(MessageQ messageQ, MessageProcessStatus retryMessageProcessStatus, Long originalMessagePk) {
