@@ -23,7 +23,7 @@ import static com.jxx.vacation.core.message.payload.approval.DocumentType.VAC;
 public class VacationEventListener {
 
     private static final String CREATE_SYSTEM = "JXX-API-APP";
-    private static final String APPROVAL_LINE_STATUS_CREATE_DEFAULT = "BEFORE_CREATE";
+    private static final String APPROVAL_LINE_LIFECYCLE_INITIAL_VALUE = "BEFORE_CREATE";
     private final MessageQRepository messageQRepository;
 
     @Async("${event.executor.name}")
@@ -51,7 +51,7 @@ public class VacationEventListener {
                 VAC,
                 createdEvent.vacationDate(),
                 vacation.getId(),
-                APPROVAL_LINE_STATUS_CREATE_DEFAULT
+                APPROVAL_LINE_LIFECYCLE_INITIAL_VALUE
                 );
 
         Map<String, Object> messageBody = MessageBodyBuilder.createVacationApprovalBody(vacationApprovalForm);

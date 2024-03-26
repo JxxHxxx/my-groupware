@@ -20,10 +20,10 @@ public class VacationConfirmModel {
     private String companyId;
     private String departmentId;
     private String requesterId;
-    private String approvalLineStatus;
+    private String approvalLineLifeCycle;
 
     public VacationConfirmModel(String confirmStatus, String confirmDocumentId, String createSystem, LocalDateTime createTime, String documentType, String companyId,
-                                String departmentId, String requesterId, String approvalLineStatus) {
+                                String departmentId, String requesterId, String approvalLineLifeCycle) {
         this.confirmStatus = confirmStatus;
         this.createSystem = createSystem;
         this.createTime = createTime;
@@ -32,6 +32,6 @@ public class VacationConfirmModel {
         this.companyId = companyId;
         this.departmentId = departmentId;
         this.requesterId = requesterId;
-        this.approvalLineStatus = approvalLineStatus;
+        this.approvalLineLifeCycle = approvalLineLifeCycle;
     }
 }

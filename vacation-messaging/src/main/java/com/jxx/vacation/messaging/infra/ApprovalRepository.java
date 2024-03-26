@@ -17,8 +17,8 @@ public class ApprovalRepository {
     public void insert(VacationConfirmModel form) {
         BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(form);
         String sql = "INSERT INTO JXX_CONFIRM_DOCUMENT_MASTER" +
-                "(CONFIRM_STATUS, CREATE_SYSTEM, CREATE_TIME, CONFIRM_DOCUMENT_ID, DOCUMENT_TYPE, COMPANY_ID, DEPARTMENT_ID, REQUESTER_ID, APPROVAL_LINE_STATUS) VALUES " +
-                "(:confirmStatus, :createSystem, :createTime, :confirmDocumentId, :documentType, :companyId, :departmentId, :requesterId, :approvalLineStatus)";
+                "(CONFIRM_STATUS, CREATE_SYSTEM, CREATE_TIME, CONFIRM_DOCUMENT_ID, DOCUMENT_TYPE, COMPANY_ID, DEPARTMENT_ID, REQUESTER_ID, APPROVAL_LINE_LIFE_CYCLE) VALUES " +
+                "(:confirmStatus, :createSystem, :createTime, :confirmDocumentId, :documentType, :companyId, :departmentId, :requesterId, :approvalLineLifeCycle)";
 
         approvalJdbcTemplate.update(sql, source);
     }
