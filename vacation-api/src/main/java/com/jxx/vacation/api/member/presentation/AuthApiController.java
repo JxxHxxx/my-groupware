@@ -42,9 +42,16 @@ public class AuthApiController {
                 loginResponse.departmentId(),
                 loginResponse.departmentName());
 
-        //세션에 사용자 세션 저장 및 로깅
-        HttpSession session = httpRequest.getSession();
-        session.setMaxInactiveInterval(28800); // 세션 4시간 설정
+
+        HttpSession session = httpRequest.getSession(true);
+        // 한 브라우저에서 여러 계정을 사용할 경우를 위해 처리
+        if (!session.isNew()) {
+            log.info("session is legacy");
+            session.invalidate();
+            session = httpRequest.getSession(true);
+        }
+
+        session.setMaxInactiveInterval(28800); // 세션 유효 4시간
         String sessionId = session.getId();
         session.setAttribute(sessionId, userSession);
         log.info("sessionId:{} userSession:{}",sessionId, userSession);

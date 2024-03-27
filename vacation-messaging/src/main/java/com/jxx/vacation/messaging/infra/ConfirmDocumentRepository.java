@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class ApprovalRepository {
+public class ConfirmDocumentRepository {
 
     @Qualifier(value = "approvalNamedParameterJdbcTemplate")
     private final NamedParameterJdbcTemplate approvalJdbcTemplate;

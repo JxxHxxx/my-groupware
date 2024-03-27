@@ -5,11 +5,10 @@ import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.domain.MessageQResult;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.message.infra.MessageQResultRepository;
-import com.jxx.vacation.messaging.infra.ApprovalRepository;
+import com.jxx.vacation.messaging.infra.ConfirmDocumentRepository;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +23,7 @@ import static com.jxx.vacation.core.message.domain.MessageProcessStatus.SUCCESS;
 @RequiredArgsConstructor
 public class VacationMessageService implements MessageService<MessageQ>{
 
-    @Qualifier("approvalNamedParameterJdbcTemplate")
-    private final ApprovalRepository approvalRepository;
+    private final ConfirmDocumentRepository confirmDocumentRepository;
     private final MessageQRepository messageQRepository;
     private final MessageQResultRepository messageQResultRepository;
 
@@ -35,7 +33,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
         MessageProcessStatus sentMessageProcessStatus = null;
         try {
             VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageQ.getBody());
-            approvalRepository.insert(vacationConfirmModel);
+            confirmDocumentRepository.insert(vacationConfirmModel);
             sentMessageProcessStatus = SUCCESS;
         } catch (Exception e) {
             log.warn("메시지 변환 중 오류가 발생했습니다.", e);
@@ -54,7 +52,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
         Long originalMessagePk = null;
         try {
             VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageQ.getBody());
-            approvalRepository.insert(vacationConfirmModel);
+            confirmDocumentRepository.insert(vacationConfirmModel);
             retryMessageProcessStatus = SUCCESS;
             originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
 
