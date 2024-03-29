@@ -7,9 +7,7 @@ import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,10 +22,17 @@ public class VacationAdminController {
     private final VacationAdminService vacationAdminService;
 
     // 공동 연차 지정 API
-
+    @PostMapping("/admin/vacations/set-common-vacation")
+    public ResponseEntity<?> setCommonVacation() {
+        log.info("공동 연차를 등록합니다.");
+        vacationAdminService.setCommonVacation();
+        return null;
+    }
     // 공동 연차 수정 API
-
-    // 공동 연차 삭제 API
+    @PatchMapping("/admin/vacations/update-common-vacation")
+    public ResponseEntity<?> updateCommonVacation() {
+        return null;
+    }
 
     // 연차 충전 2024 -> 2025년으로 갔을 때 -> 이건 배치로 가야될듯.
 

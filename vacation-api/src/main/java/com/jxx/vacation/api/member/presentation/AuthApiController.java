@@ -68,13 +68,7 @@ public class AuthApiController {
     public ResponseEntity<?> checkAuthentication(
             @RequestBody AuthenticationRequest authenticationRequest, HttpServletRequest httpRequest) {
         // 쿠키 중 사용자 세션 키를 담은 쿠기 가져오기, 없다면 UNAUTHORIZED 401
-        Cookie sessionCookie = Arrays.stream(httpRequest.getCookies())
-                .filter(cookie -> COOKIE_KEY_OF_USER_SESSION.equals(cookie.getName()))
-                .findFirst()
-                .orElseThrow(UnAuthenticationException::new);
-
-        // 세션이 존재하지 않으면 미인증 대상이라 판단하고 예외
-        String userSessionKey = sessionCookie.getValue();
+        String userSessionKey = authService.getSessionKey(httpRequest);
 
         // null 가능성 존재
         Object oUserSession = httpRequest.getSession().getAttribute(userSessionKey);

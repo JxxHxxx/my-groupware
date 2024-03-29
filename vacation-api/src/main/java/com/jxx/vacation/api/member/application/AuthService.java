@@ -8,17 +8,20 @@ import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.domain.exeception.AuthClientException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
+    private static final String COOKIE_KEY_OF_USER_SESSION = "jxx-c-id";
     private final MemberLeaveRepository memberLeaveRepository;
 
     public LoginResponse signIn(LoginRequest loginRequest) {
@@ -44,6 +47,14 @@ public class AuthService {
                 organization.getDepartmentName());
     }
 
+    public String getSessionKey(HttpServletRequest httpRequest) {
+        Cookie sessionCookie = Arrays.stream(httpRequest.getCookies())
+                .filter(cookie -> COOKIE_KEY_OF_USER_SESSION.equals(cookie.getName()))
+                .findFirst()
+                .orElseThrow(UnAuthenticationException::new);
+
+        return sessionCookie.getValue();
+    }
 
     public void validateUserSession(UserSession session, AuthenticationRequest request) {
         boolean memberIdEqual = Objects.equals(session.getMemberId(), request.memberId());

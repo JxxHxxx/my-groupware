@@ -6,12 +6,13 @@ import com.jxx.vacation.core.vacation.domain.entity.FamilyOccasionPolicy;
 import com.jxx.vacation.core.vacation.domain.entity.VacationType;
 import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VacationAdminService {
@@ -32,5 +33,8 @@ public class VacationAdminService {
                 .map(policy -> new FamilyOccasionPolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
                 .toList();
 
+    }
+
+    public void setCommonVacation() {
     }
 }

@@ -1,0 +1,6 @@
+
+### 관리자 API TEST
+POST localhost:8080/admin/vacations/set-common-vacation
+
+###
+POST localhost:8080/admin/vacations/set-common-vacation

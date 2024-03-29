@@ -1,14 +1,19 @@
 package com.jxx.vacation.api.common.configuration;
 
 import com.jxx.vacation.api.common.interceptor.ApiAccessLogInterceptor;
-import com.jxx.vacation.api.common.web.RestApiAuthenticationInterceptor;
+import com.jxx.vacation.api.common.web.AdminApiAuthenticationInterceptor;
+import com.jxx.vacation.api.member.application.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebApiConfiguration implements WebMvcConfigurer {
+
+    private final AuthService authService;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -24,8 +29,8 @@ public class WebApiConfiguration implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new ApiAccessLogInterceptor())
                 .order(1);
-        registry.addInterceptor(new RestApiAuthenticationInterceptor())
-                .addPathPatterns("/api/vacations/**/vacation-status")
+        registry.addInterceptor(new AdminApiAuthenticationInterceptor(authService))
+                .addPathPatterns("/admin/**")
                 .order(2);
     }
 }
