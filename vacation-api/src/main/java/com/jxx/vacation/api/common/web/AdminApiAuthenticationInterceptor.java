@@ -24,14 +24,8 @@ public class AdminApiAuthenticationInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // TODO 관리자 인증 구현
         log.info("관리자 한정 API 를 호출하였습니다.");
-        String sessionKey = authService.getSessionKey(request);
-        Object oUserSession = request.getSession(false).getAttribute(sessionKey);
-        if (Objects.isNull(oUserSession)) {
-            log.warn("유효하지 않은 세션값입니다.");
-            return false;
-        }
+        UserSession userSession = authService.getUserSession(request);
 
-        UserSession userSession = (UserSession) oUserSession;
         // 임시 관리자 ID
         if (!"U00001".equals(userSession.getMemberId())) {
             log.warn("admin api call by {}", userSession.getMemberId());

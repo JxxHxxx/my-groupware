@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -68,19 +65,8 @@ public class AuthApiController {
     public ResponseEntity<?> checkAuthentication(
             @RequestBody AuthenticationRequest authenticationRequest, HttpServletRequest httpRequest) {
         // 쿠키 중 사용자 세션 키를 담은 쿠기 가져오기, 없다면 UNAUTHORIZED 401
-        String userSessionKey = authService.getSessionKey(httpRequest);
-
-        // null 가능성 존재
-        Object oUserSession = httpRequest.getSession().getAttribute(userSessionKey);
-        // userSession 만료, 올바르지 않은 KEY 라면 NULL 가능 UNAUTHORIZED 401
-        if (Objects.isNull(oUserSession)) {
-            log.info("userSession Not Found");
-            throw new UnAuthenticationException();
-        }
-
-        //이외 검증 로직 추가 가능...
-        UserSession userSession = (UserSession) oUserSession;
-        authService.validateUserSession(userSession, authenticationRequest);
+        UserSession userSession = authService.getUserSession(httpRequest);
+        authService.validateUserSessionValue(userSession, authenticationRequest);
         log.info("userSession {}", userSession);
         return ResponseEntity.ok(200);
     }
