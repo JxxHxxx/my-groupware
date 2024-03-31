@@ -25,7 +25,9 @@ public enum VacationType {
     DEATH_PARENT_SELF("부모의 사망", "F"),
     DEATH_SIBLING_SELF("본인 형제자매의 사망", "F"),
     DEATH_SPOUSE("배우자의 사망", "F"),
-    DEATH_CHILD("자녀의 사망", "F");
+    DEATH_CHILD("자녀의 사망", "F"),
+
+    COMMON_VACATION("공동 연차", "C");
 
     private final String description;
     private final String type;

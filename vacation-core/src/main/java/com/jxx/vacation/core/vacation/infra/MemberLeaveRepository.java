@@ -24,4 +24,8 @@ public interface MemberLeaveRepository extends JpaRepository<MemberLeave, Long> 
     @Query ("select m from MemberLeave m join fetch m.organization o " +
             "where o.companyId =:companyId and m.memberId in (:membersId)")
     List<MemberLeave> findCompanyMembers(@Param("companyId") String companyId, @Param("membersId") List<String> membersId);
+
+    @Query("update MemberLeave ml set ml.leave.remainingLeave = ml.leave.remainingLeave -:leaveDate " +
+            "where ml.organization.companyId =:companyId and ml.isActive = true ")
+    void updateRemainingLeave(@Param("companyId") String companyId, @Param("leaveDate") float leaveDate);
 }

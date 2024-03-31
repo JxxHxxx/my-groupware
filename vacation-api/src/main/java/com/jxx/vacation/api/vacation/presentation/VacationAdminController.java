@@ -1,9 +1,14 @@
 package com.jxx.vacation.api.vacation.presentation;
 
+import com.jxx.vacation.api.member.application.AuthService;
+import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.vacation.application.VacationAdminService;
+import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
+import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
 import com.jxx.vacation.api.vacation.dto.request.FamilyOccasionPolicyRequest;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +25,15 @@ import java.util.List;
 public class VacationAdminController {
 
     private final VacationAdminService vacationAdminService;
+    private final AuthService authService;
 
     // 공동 연차 지정 API
     @PostMapping("/admin/vacations/set-common-vacation")
-    public ResponseEntity<?> setCommonVacation() {
+    public ResponseEntity<?> setCommonVacation(HttpServletRequest httpRequest, @RequestBody CommonVacationForm vacationForm) {
         log.info("공동 연차를 등록합니다.");
-        vacationAdminService.setCommonVacation();
+        UserSession userSession = authService.getUserSession(httpRequest);
+        CommonVacationServiceForm vacationServiceForm = new CommonVacationServiceForm(userSession, vacationForm);
+        vacationAdminService.assignCommonVacation(vacationServiceForm);
         return null;
     }
     // 공동 연차 수정 API
