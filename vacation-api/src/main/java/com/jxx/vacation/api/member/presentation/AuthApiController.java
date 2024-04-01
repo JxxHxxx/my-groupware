@@ -61,6 +61,18 @@ public class AuthApiController {
         return ResponseEntity.ok(new LoginResult<>(200, loginResponse));
     }
 
+    @PostMapping("/api/auth/logout")
+    public ResponseEntity<String> expireSession(HttpServletRequest httpRequest) {
+        HttpSession session = httpRequest.getSession(false);
+        UserSession userSession = authService.getUserSession(httpRequest);
+        session.invalidate();
+        log.info(" userSession expired {}", userSession);
+
+
+
+        return ResponseEntity.ok("success logout");
+    }
+
     @PostMapping("/api/auth/check-authentication")
     public ResponseEntity<?> checkAuthentication(
             @RequestBody AuthenticationRequest authenticationRequest, HttpServletRequest httpRequest) {

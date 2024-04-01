@@ -10,6 +10,7 @@ import com.jxx.vacation.core.vacation.domain.exeception.AuthClientException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -61,21 +62,24 @@ public class AuthService {
     public UserSession getUserSession(HttpServletRequest httpRequest) {
         String sessionKey = getSessionKey(httpRequest);
 
-        Object oUserSession = httpRequest.getSession(false).getAttribute(sessionKey);
+        HttpSession oUserSession = httpRequest.getSession(false);
+
         if (Objects.isNull(oUserSession)) {
             log.warn("유효하지 않은 세션값입니다.");
             throw new UnAuthenticationException();
         }
 
-        if (!(oUserSession instanceof UserSession userSession)) {
+        Object userSession = oUserSession.getAttribute(sessionKey);
+        if (!(userSession instanceof UserSession) || Objects.isNull(userSession)) {
             throw new IllegalArgumentException();
         }
         else {
-            return userSession;
+            return (UserSession) userSession;
         }
     }
 
     private String getSessionKey(HttpServletRequest httpRequest) {
+        // NULL 처리 필요
         Cookie sessionCookie = Arrays.stream(httpRequest.getCookies())
                 .filter(cookie -> COOKIE_KEY_OF_USER_SESSION.equals(cookie.getName()))
                 .findFirst()
