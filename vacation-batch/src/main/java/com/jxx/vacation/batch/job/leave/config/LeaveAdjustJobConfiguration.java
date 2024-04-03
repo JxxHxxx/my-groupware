@@ -28,6 +28,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.List;
 
+import static com.jxx.vacation.batch.job.common.JobParameterConst.JOB_PARAM_EXECUTE_DATE_TIME;
+
 /**
  *
  */
@@ -88,7 +90,7 @@ public class LeaveAdjustJobConfiguration {
 
         JobContext context = JobSynchronizationManager.getContext();
 
-        String executeDateTime = String.valueOf(context.getJobParameters().get("executeDateTime"));
+        String executeDateTime = String.valueOf(context.getJobParameters().get(JOB_PARAM_EXECUTE_DATE_TIME));
         String endDateTime = LocalDateTimeConverter.adjustDateTime(executeDateTime, EXECUTE_DATE_TIME_ADJUST_VALUE);
 
         return new JdbcCursorItemReaderBuilder<LeaveItem>()

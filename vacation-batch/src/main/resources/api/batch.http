@@ -1,0 +1,25 @@
+### 휴가 상태 ONGING
+POST http://localhost:8070/batch/job/run
+Content-Type: application/json
+
+{
+  "properties": {
+    "jobName": "vacation.status-manage.job",
+    "run.id": "ADMIN20240403-003",
+    "processDate": "2024-04-03 00:00:00"
+  }
+}
+
+//       "executeDateTime": "2024-03-04 00:00:00"
+
+### 휴가 종료일에 맞춰 휴가 상태 조정 및 잔여 연차 차감
+POST http://localhost:8070/batch/job/run
+Content-Type: application/json
+
+{
+  "jobName": "leave.adjust.job",
+  "properties": {
+    "run.id": "ADMIN20240304-01",
+    "executeDateTime": "2024-03-04 00:00:00"
+  }
+}

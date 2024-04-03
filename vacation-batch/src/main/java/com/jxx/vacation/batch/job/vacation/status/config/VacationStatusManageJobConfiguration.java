@@ -24,6 +24,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+import static com.jxx.vacation.batch.job.common.JobParameterConst.JOB_PARAM_PROCESS_DATE;
+
 /**
  * 휴가 시작 설정 배치
  * APPROVED -> ONGOING
@@ -59,7 +61,7 @@ public class VacationStatusManageJobConfiguration {
     @Bean("vacationItemJdbcReader")
     public JdbcCursorItemReader<VacationItem> itemReader() {
         JobContext context = JobSynchronizationManager.getContext();
-        String processDate = String.valueOf(context.getJobParameters().get("processDate"));
+        String processDate = String.valueOf(context.getJobParameters().get(JOB_PARAM_PROCESS_DATE));
 
         return new JdbcCursorItemReaderBuilder<VacationItem>()
                 .fetchSize(100)
