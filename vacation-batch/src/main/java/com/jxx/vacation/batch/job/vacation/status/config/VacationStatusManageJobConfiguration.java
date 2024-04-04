@@ -1,5 +1,6 @@
 package com.jxx.vacation.batch.job.vacation.status.config;
 
+import com.jxx.vacation.batch.job.parameters.JxxJobParameter;
 import com.jxx.vacation.batch.job.vacation.status.item.VacationItem;
 import com.jxx.vacation.batch.job.vacation.status.processor.VacationOngoingProcessor;
 import com.jxx.vacation.batch.job.vacation.status.reader.VacationItemRowMapper;
@@ -24,7 +25,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
-import static com.jxx.vacation.batch.job.parameters.JobParameterConst.JOB_PARAM_PROCESS_DATE;
+import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 
 /**
  * 휴가 시작 설정 배치
@@ -61,7 +62,7 @@ public class VacationStatusManageJobConfiguration {
     @Bean("vacationItemJdbcReader")
     public JdbcCursorItemReader<VacationItem> itemReader() {
         JobContext context = JobSynchronizationManager.getContext();
-        String processDate = String.valueOf(context.getJobParameters().get(JOB_PARAM_PROCESS_DATE));
+        String processDate = String.valueOf(context.getJobParameters().get(JOB_PARAM_PROCESS_DATE.keyName()));
 
         return new JdbcCursorItemReaderBuilder<VacationItem>()
                 .fetchSize(100)

@@ -3,6 +3,7 @@ package com.jxx.vacation.batch.job.leave.config;
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
 import com.jxx.vacation.batch.job.leave.processor.LeaveItemValidateProcessor;
 import com.jxx.vacation.batch.job.leave.reader.LeaveItemRowMapper;
+import com.jxx.vacation.batch.job.parameters.JxxJobParameter;
 import com.jxx.vacation.core.common.converter.LocalDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.List;
 
-import static com.jxx.vacation.batch.job.parameters.JobParameterConst.JOB_PARAM_EXECUTE_DATE_TIME;
+import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
+
 
 /**
  *
@@ -90,7 +92,7 @@ public class LeaveAdjustJobConfiguration {
 
         JobContext context = JobSynchronizationManager.getContext();
 
-        String executeDateTime = String.valueOf(context.getJobParameters().get(JOB_PARAM_EXECUTE_DATE_TIME));
+        String executeDateTime = String.valueOf(context.getJobParameters().get(JOB_PARAM_EXECUTE_DATE_TIME.keyName()));
         String endDateTime = LocalDateTimeConverter.adjustDateTime(executeDateTime, EXECUTE_DATE_TIME_ADJUST_VALUE);
 
         return new JdbcCursorItemReaderBuilder<LeaveItem>()
