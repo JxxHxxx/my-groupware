@@ -10,16 +10,37 @@ Content-Type: application/json
   }
 }
 
-//       "executeDateTime": "2024-03-04 00:00:00"
+### 휴가 상태 ONGING 필수 파라미터 누락 CASE
+POST http://localhost:8070/batch/job/run
+Content-Type: application/json
+
+{
+  "properties": {
+    "run.id": "ADMIN20240403-003",
+    "processDate": "2024-04-03 00:00:00"
+  }
+}
+
 
 ### 휴가 종료일에 맞춰 휴가 상태 조정 및 잔여 연차 차감
 POST http://localhost:8070/batch/job/run
 Content-Type: application/json
 
 {
-  "jobName": "leave.adjust.job",
   "properties": {
+    "jobName": "leave.adjust.job",
     "run.id": "ADMIN20240304-01",
+    "executeDateTime": "2024-03-04 00:00:00"
+  }
+}
+
+### 휴가 종료일에 맞춰 휴가 상태 조정 및 잔여 연차 차감 필수 파라미터 누락 CASE
+POST http://localhost:8070/batch/job/run
+Content-Type: application/json
+
+{
+  "properties": {
+    "run.id": "ADMIN20240404-01",
     "executeDateTime": "2024-03-04 00:00:00"
   }
 }

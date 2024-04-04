@@ -28,7 +28,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.List;
 
-import static com.jxx.vacation.batch.job.common.JobParameterConst.JOB_PARAM_EXECUTE_DATE_TIME;
+import static com.jxx.vacation.batch.job.parameters.JobParameterConst.JOB_PARAM_EXECUTE_DATE_TIME;
 
 /**
  *

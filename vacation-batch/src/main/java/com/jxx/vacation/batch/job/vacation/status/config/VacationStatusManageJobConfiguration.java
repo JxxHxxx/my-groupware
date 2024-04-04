@@ -24,7 +24,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
-import static com.jxx.vacation.batch.job.common.JobParameterConst.JOB_PARAM_PROCESS_DATE;
+import static com.jxx.vacation.batch.job.parameters.JobParameterConst.JOB_PARAM_PROCESS_DATE;
 
 /**
  * 휴가 시작 설정 배치

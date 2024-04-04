@@ -1,4 +1,4 @@
-package com.jxx.vacation.batch.job.common;
+package com.jxx.vacation.batch.job.parameters;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
