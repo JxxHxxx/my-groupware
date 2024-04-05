@@ -14,7 +14,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.JobContext;
 import org.springframework.batch.core.scope.context.JobSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -75,9 +74,11 @@ public class VacationStatusManageJobConfiguration {
                 .build();
     }
 
+    // 구현체를 반환하도록 해야 한다.
+    // 그렇지 않으면 인터페이스의 메소드만 사용할 수 있다. 다른 리스너나 추가 메서드를 사용할 수 없다.
     @StepScope
     @Bean(name = "VacationItemProcessor")
-    public ItemProcessor<VacationItem, VacationItem> itemProcessor() {
+    public VacationOngoingProcessor itemProcessor() {
         return new VacationOngoingProcessor();
     }
 

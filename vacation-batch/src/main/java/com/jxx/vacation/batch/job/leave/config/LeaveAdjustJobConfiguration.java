@@ -3,7 +3,6 @@ package com.jxx.vacation.batch.job.leave.config;
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
 import com.jxx.vacation.batch.job.leave.processor.LeaveItemValidateProcessor;
 import com.jxx.vacation.batch.job.leave.reader.LeaveItemRowMapper;
-import com.jxx.vacation.batch.job.parameters.JxxJobParameter;
 import com.jxx.vacation.core.common.converter.LocalDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +97,7 @@ public class LeaveAdjustJobConfiguration {
         return new JdbcCursorItemReaderBuilder<LeaveItem>()
                 .name("leaveItemReader")
                 .dataSource(dataSource)
-                .fetchSize(100)
+                .fetchSize(3)
                 .sql(sql)
                 .rowMapper(new LeaveItemRowMapper())
                 .preparedStatementSetter(ps -> ps.setString(1, endDateTime))
@@ -107,7 +106,7 @@ public class LeaveAdjustJobConfiguration {
 
     @StepScope
     @Bean(name = "leaveItemProcessor")
-    public ItemProcessor<LeaveItem, LeaveItem> itemProcessor() {
+    public LeaveItemValidateProcessor itemProcessor() {
         return new LeaveItemValidateProcessor();
     }
 
