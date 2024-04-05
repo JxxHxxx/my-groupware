@@ -87,7 +87,7 @@ public class LeaveAdjustJobConfiguration {
                 " ON JMLM.COMPANY_ID = JOM.COMPANY_ID AND JMLM.DEPARTMENT_ID = JOM.DEPARTMENT_ID " +
                 " JOIN JXX_VACATION_MASTER JVM " +
                 " ON JMLM.MEMBER_ID = JVM.REQUESTER_ID " +
-                " WHERE JVM.END_DATE_TIME = ? AND JVM.VACATION_STATUS = 'ONGOING';";
+                " WHERE JVM.END_DATE_TIME = ? ;";
 
         JobContext context = JobSynchronizationManager.getContext();
 
@@ -147,7 +147,7 @@ public class LeaveAdjustJobConfiguration {
                 ":enteredDate, " +
                 ":experienceYears, " +
                 ":memberActive, " +
-                ":remainingLeave, " +
+                ":remainingLeave -:deductedAmount, " +
                 ":totalLeave, " +
                 ":memberId, " +
                 ":memberPk, " +
