@@ -41,3 +41,5 @@ out/
 /vacation-messaging/src/main/resources/application.yml
 /log.base.dir_IS_UNDEFINED/access/api.log
 /log.base.dir_IS_UNDEFINED/was/jxx-vacation.log
+/vacation-batch/src/main/resources/logback-spring.xml
+/vacation-batch/src/main/resources/logback.properties
