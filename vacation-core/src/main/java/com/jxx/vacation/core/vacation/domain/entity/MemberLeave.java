@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MEMBER_LEAVE_MASTER", indexes = @Index(name = "IDX_MEMBER_LEAVE_MEMBER_ID", columnList = "MEMBER_ID"))
+@Table(name = "JXX_MEMBER_LEAVE_MASTER", indexes = @Index(name = "IDX_MEMBER_LEAVE_MEMBER_ID", columnList = "MEMBER_ID", unique = true))
 public class MemberLeave {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class MemberLeave {
     @Column(name = "IS_ACTIVE", nullable = false)
     @Comment(value = "사용자 활성화 여부(0:비활성화 1:활성화)")
     private boolean isActive;
-    @Column(name = "MEMBER_ID")
+    @Column(name = "MEMBER_ID", unique = true)
     @Comment(value = "사용자 식별자")
     private String memberId;
     @Column(name = "NAME")

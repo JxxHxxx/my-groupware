@@ -95,6 +95,9 @@ public class VacationApiController {
     }
 
     // TODO only Confirm Server Available, prevent public request
+    /**
+     * 결재 서버에서 최종 결정권자의 승인, 결정권자의 반려 시, 휴가 서버의 VacationStatus 값을 적절하게 변경해야 한다.
+     */
     @PostMapping("/api/vacations/{vacation-id}/vacation-status")
     public ResponseEntity<?> fetchVacationStatus(@PathVariable("vacation-id") Long vacationId,
                                                  @RequestBody ConfirmStatusChangeRequest request) {

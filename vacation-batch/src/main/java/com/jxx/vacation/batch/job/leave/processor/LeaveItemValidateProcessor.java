@@ -9,22 +9,26 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Slf4j
 public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, LeaveItem> {
+
     @Override
     public LeaveItem process(LeaveItem item) throws Exception {
-        if (!item.checkMemberOrgActive()) {
-            item.updateVacationStatusToError();
-            log.info("[PROCESS][member, org inactive]");
-            return item;
+        boolean memberOrgActive = item.checkMemberOrgActive();
+        boolean ongoingVacationStatus = isOngoing(item.getVacationStatus());
+        String memberId = item.getMemberId();
+        String vacationStatus = item.getVacationStatus();
+
+        if (!memberOrgActive) {
+            log.info("[PROCESS][FAIL][memberId:{} inactive][member {}, org {}]", memberId, item.isMemberActive(), item.isOrgActive());
+        }
+        else if (!ongoingVacationStatus) {
+            log.info("[PROCESS][FAIL][memberId:{} vacationStatus:{}][vacation must be ongoing]", memberId, vacationStatus);
         }
 
-        if (!VacationStatus.isOngoing(item.getVacationStatus())) {
-            item.updateVacationStatusToError();
-            log.info("[PROCESS][vacation status is not ongoing]");
-            return item;
+        if (memberOrgActive && ongoingVacationStatus) {
+            item.updateVacationStatusToCompleted();
+            item.calculateDeductAmount();
         }
-        item.updateVacationStatusToCompleted();
-        item.calculateDeductAmount();
-        log.info("[PROCESS][{}]", item);
-        return item;
+
+        return memberOrgActive && ongoingVacationStatus ? item : null;
     }
 }

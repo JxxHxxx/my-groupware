@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDateTime;
+
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Getter
@@ -40,6 +42,10 @@ public class Vacation {
     @Enumerated(value = EnumType.STRING)
     private VacationStatus vacationStatus;
 
+    @Column(name = "CREATE_TIME", nullable = false)
+    @Comment(value = "레코드 생성 시간")
+    private LocalDateTime createTime;
+
 
     @Builder
     public Vacation(String requesterId, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
@@ -47,6 +53,7 @@ public class Vacation {
         this.vacationDuration = vacationDuration;
         this.deducted = deducted;
         this.vacationStatus = vacationStatus;
+        this.createTime = LocalDateTime.now();
     }
 
     public static Vacation createVacation(String requesterId, VacationDuration vacationDuration) {

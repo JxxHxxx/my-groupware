@@ -15,7 +15,7 @@ public enum VacationStatus {
     ONGOING("휴가 사용 중"), // 배치에서 처리
     COMPLETED("연차 소진 완료"), // 배치 동작
     FAIL("신청 실패"),
-    ERROR("시스템 상 처리 실패");
+    ERROR("시스템 상 처리 실패"); // Deprecated
 
     private final String description;
 
