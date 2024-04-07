@@ -137,6 +137,7 @@ project(':vacation-batch') {
         implementation 'org.springframework.boot:spring-boot-starter-quartz'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+        testImplementation 'com.h2database:h2'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.batch:spring-batch-test'
     }

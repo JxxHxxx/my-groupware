@@ -43,3 +43,4 @@ out/
 /log.base.dir_IS_UNDEFINED/was/jxx-vacation.log
 /vacation-batch/src/main/resources/logback-spring.xml
 /vacation-batch/src/main/resources/logback.properties
+/vacation-batch/src/test/resources/application.yml
