@@ -1,7 +1,6 @@
 package com.jxx.vacation.batch.job.leave.processor;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,14 +12,13 @@ import java.time.LocalDateTime;
 import static com.jxx.vacation.core.vacation.domain.entity.VacationType.MORE_DAY;
 import static org.assertj.core.api.Assertions.*;
 
-
 class LeaveItemValidateProcessorTest {
 
     private final LeaveItemValidateProcessor leaveItemValidateProcessor = new LeaveItemValidateProcessor();
 
     @DisplayName("vacationStatus=ONGOING 이 아닐 때 " +
             "LeaveItemValidateProcessor 를 실행할 경우 " +
-            "vacationStatus 는 ERROR 로 변경되고 DeductedAmount = 0 이다.")
+            "item 은 반환되지 않는다.(null 이다.)")
     @ParameterizedTest
     @ValueSource(strings = {"CREATE", "REJECT", "REQUEST","APPROVED" ,"CANCELED", "COMPLETED", "FAIL" ,"ERROR"})
     void leave_item_validate_fail_cause_not_ongoing_vacation_status(String vacationStatus) throws Exception {
@@ -48,8 +46,7 @@ class LeaveItemValidateProcessorTest {
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
         //then
-        assertThat(processedItem.getVacationStatus()).isEqualTo("ERROR");
-        assertThat(processedItem.getDeductedAmount()).isEqualTo(0f);
+        assertThat(processedItem).isNull();
     }
 
     @DisplayName("vacationStatus = ONGOING 일 때 " +
