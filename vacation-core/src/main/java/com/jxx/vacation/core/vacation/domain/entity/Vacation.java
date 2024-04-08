@@ -38,7 +38,7 @@ public class Vacation {
     private VacationDuration vacationDuration;
 
     @Column(name = "DEDUCTED", nullable = false)
-    @Comment(value = "연차에서 차감 여부")
+    @Comment(value = "연차에서 차감 여부(0:미차감/1:차감)")
     private boolean deducted;
 
     @Column(name = "VACATION_STATUS", nullable = false)

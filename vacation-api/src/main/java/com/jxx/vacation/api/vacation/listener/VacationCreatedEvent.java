@@ -6,6 +6,6 @@ import com.jxx.vacation.core.vacation.domain.entity.Vacation;
 public record VacationCreatedEvent(
         MemberLeave memberLeave,
         Vacation vacation,
-
-        float vacationDate, String requesterId) {
+        float vacationDate,
+        String requesterId) {
 }

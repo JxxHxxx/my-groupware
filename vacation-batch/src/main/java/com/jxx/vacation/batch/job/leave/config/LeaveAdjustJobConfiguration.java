@@ -32,7 +32,10 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 
 
 /**
- *
+ * LeaveAdjust 잡은 3가지 데이터 쓰기 작업을 합니다.
+ * 1. 휴가 상태 ONGOING -> COMPLETED (진행중인 휴가 -> 종료 상태로 변경)
+ * 2. MemberLeave RemainingLeave 차감 (잔여일차 소진한 휴가만큼 차감)
+ * 3. 2번에 따른 MemberLeave History 생성
  */
 
 @Slf4j
