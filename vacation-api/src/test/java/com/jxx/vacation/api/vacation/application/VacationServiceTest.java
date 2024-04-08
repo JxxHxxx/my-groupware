@@ -180,6 +180,7 @@ class VacationServiceTest {
                         LocalDateTime.of(9999, 3, 4, 0, 0)))
                 .deducted(true)
                 .requesterId("T0001")
+                .companyId("TJX")
                 .vacationStatus(VacationStatus.CREATE)
                 .build();
         Vacation savedVacation = vacationRepository.save(vacation);
@@ -214,6 +215,7 @@ class VacationServiceTest {
                         LocalDateTime.of(9999, 3, 4, 0, 0)))
                 .deducted(true)
                 .requesterId("T0001")
+                .companyId("TJX")
                 .vacationStatus(vacationStatus)
                 .build();
         Vacation savedVacation = vacationRepository.save(vacation);

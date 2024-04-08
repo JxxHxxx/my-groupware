@@ -48,7 +48,7 @@ public class VacationAdminService {
 
     // TODO 몇 명이 반영됐고 몇 일 반영 됐는지
     @Transactional
-    public void assignCommonVacation(CommonVacationServiceForm vacationServiceForm) {
+    public int assignCommonVacation(CommonVacationServiceForm vacationServiceForm) {
         // 검증 전역 관리자 혹은 사내 관리자 검증
         UserSession userSession = vacationServiceForm.userSession();
         CommonVacationForm commonVacationForm = vacationServiceForm.commonVacationForm();
@@ -60,27 +60,25 @@ public class VacationAdminService {
                     .deducted(true)
                     .vacationStatus(VacationStatus.CREATE)
                     .requesterId(userSession.getMemberId())
+                    .companyId(commonVacationForm.companyId())
                     .vacationDuration(new VacationDuration(VacationType.COMMON_VACATION,
                             vacationDate.atStartOfDay(), vacationDate.atTime(23, 59, 59)))
                     .build();
 
             vacations.add(commonVacation);
         }
-        List<Vacation> savedVacations = vacationRepository.saveAll(vacations);
+        vacationRepository.saveAll(vacations);
 
-        // 차감여부 true
-        if (commonVacationForm.deducted()) {
+        int updateRows = 0;
+        // 결재 X, 차감 O 일 경우 바로 차감
+        if (!commonVacationForm.mustApproval() && commonVacationForm.deducted()) {
             int leaveDate = vacationDates.size();
-            // 전역 관리자라면...
-            if (false) {
-                memberLeaveRepository.updateRemainingLeave(commonVacationForm.companyId(), leaveDate);
-            }
-
-            // 고객사 소속의 관리자
-            if (true) {
-                memberLeaveRepository.updateRemainingLeave(userSession.getCompanyId(), leaveDate);
-            }
+            updateRows = memberLeaveRepository.updateRemainingLeave(leaveDate, commonVacationForm.companyId());
         }
+
+        // 결재 O, 차감 X - 이게 조금 까다로울 듯
+
+        // 결재 O, 차감 O
 
         // 결재가 필요하다면 -- 메시지 보내라...
         if (commonVacationForm.mustApproval()) {
@@ -90,5 +88,6 @@ public class VacationAdminService {
 //                    .forEach(vacation -> eventPublisher.publishEvent(null));
         }
 
+        return updateRows;
     }
 }

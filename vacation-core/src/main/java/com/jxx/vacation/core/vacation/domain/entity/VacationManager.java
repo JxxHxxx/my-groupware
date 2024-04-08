@@ -45,8 +45,9 @@ public class VacationManager {
 
     protected Vacation create(VacationDuration vacationDuration) {
         String requesterId = memberLeave.getMemberId();
+        String companyId = memberLeave.receiveCompanyId();
         return Vacation
-                .createVacation(requesterId, vacationDuration)
+                .createVacation(requesterId, companyId, vacationDuration)
                 .adjustDeducted();
     }
 

@@ -30,6 +30,10 @@ public class Vacation {
     @Comment(value = "연차 신청자 ID")
     private String requesterId;
 
+    @Column(name = "COMPANY_ID", nullable = false)
+    @Comment(value = "회사 식별자")
+    private String companyId;
+
     @Embedded
     private VacationDuration vacationDuration;
 
@@ -48,16 +52,17 @@ public class Vacation {
 
 
     @Builder
-    public Vacation(String requesterId, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
+    public Vacation(String requesterId, String companyId, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
         this.requesterId = requesterId;
+        this.companyId = companyId;
         this.vacationDuration = vacationDuration;
         this.deducted = deducted;
         this.vacationStatus = vacationStatus;
         this.createTime = LocalDateTime.now();
     }
 
-    public static Vacation createVacation(String requesterId, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
+    public static Vacation createVacation(String requesterId, String companyId, VacationDuration vacationDuration) {
+        return new Vacation(requesterId, companyId, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
     }
 
     public Vacation adjustDeducted() {
