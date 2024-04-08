@@ -44,10 +44,11 @@ class VacationEventListenerTest {
                         LocalDateTime.of(2023, 5, 17, 0, 0)))
                 .vacationStatus(VacationStatus.CREATE)
                 .deducted(true)
+                .leaveDeduct(LeaveDeduct.DEDUCT)
                 .build();
 
         //when - then
-        assertThatCode(() -> eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, 2l, "U00100")))
+        assertThatCode(() -> eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, 2f, "U00100")))
                 .doesNotThrowAnyException();
     }
 

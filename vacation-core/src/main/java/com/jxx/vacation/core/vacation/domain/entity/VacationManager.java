@@ -47,8 +47,7 @@ public class VacationManager {
         String requesterId = memberLeave.getMemberId();
         String companyId = memberLeave.receiveCompanyId();
         return Vacation
-                .createVacation(requesterId, companyId, vacationDuration)
-                .adjustDeducted();
+                .createVacation(requesterId, companyId, LeaveDeduct.DEDUCT, vacationDuration);
     }
 
     public boolean validateMemberActive() {
@@ -149,7 +148,6 @@ public class VacationManager {
         if (!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {
             throw new IllegalArgumentException("취소 불가능>.<");
         }
-
         vacation.changeVacationStatus(CANCELED);
     }
 
@@ -159,13 +157,5 @@ public class VacationManager {
             throw new IllegalArgumentException("수정 불가능>.<");
         }
         vacation.updateVacationDuration(vacationDuration);
-    }
-
-    public void decideDeduct() {
-        VacationType vacationType = vacation.receiveVacationType();
-        if (!DEDUCT_VACATION_TYPE.contains(vacationType)) {
-            vacation.changeDeducted(false);
-        }
-        ;
     }
 }

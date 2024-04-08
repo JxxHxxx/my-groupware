@@ -25,7 +25,7 @@ public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
         Integer experienceYears = rs.getInt("EXPERIENCE_YEARS");
         LocalDate enteredDate = LocalDate.parse(rs.getString("ENTERED_DATE"));
         long vacationId = rs.getLong("VACATION_ID");
-        boolean deducted = rs.getBoolean("DEDUCTED");
+        String deducted = rs.getString("LEAVE_DEDUCT");
         String vacationStatus = rs.getString("VACATION_STATUS");
         String vacationType = rs.getString("VACATION_TYPE");
         LocalDateTime startDateTime = LocalDateTime.parse(rs.getString("START_DATE_TIME"), formatter);

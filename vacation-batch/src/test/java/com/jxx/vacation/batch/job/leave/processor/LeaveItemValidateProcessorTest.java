@@ -1,6 +1,7 @@
 package com.jxx.vacation.batch.job.leave.processor;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
+import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,7 +36,7 @@ class LeaveItemValidateProcessorTest {
                 2,
                 LocalDate.of(2023, 12, 12),
                 100l,
-                true,
+                LeaveDeduct.DEDUCT.name(),
                 vacationStatus,
                 MORE_DAY.name(),
                 vacationStartDateTime,
@@ -68,7 +69,7 @@ class LeaveItemValidateProcessorTest {
                 2,
                 LocalDate.of(2023, 12, 12),
                 100l,
-                true,
+                LeaveDeduct.DEDUCT.name(),
                 vacationStatus,
                 MORE_DAY.name(),
                 vacationStartDateTime,

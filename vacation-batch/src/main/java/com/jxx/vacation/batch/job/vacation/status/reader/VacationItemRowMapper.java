@@ -17,12 +17,13 @@ public class VacationItemRowMapper implements RowMapper<VacationItem> {
     @Override
     public VacationItem mapRow(ResultSet rs, int rowNum) throws SQLException {
         long vacationId = rs.getLong("VACATION_ID");
-        boolean deducted = rs.getBoolean("DEDUCTED");
+//        boolean deducted = rs.getBoolean("DEDUCTED");
+        String leaveDeduct = rs.getString("LEAVE_DEDUCT");
         String requesterId = rs.getString("REQUESTER_ID");
         LocalDateTime startDateTime = LocalDateTime.parse(rs.getString("START_DATE_TIME"), formatter);
         LocalDateTime endDateTime = LocalDateTime.parse(rs.getString("END_DATE_TIME"), formatter);
         VacationType vacationTypes = VacationType.valueOf(rs.getString("VACATION_TYPE"));
         String vacationStatus = rs.getString("VACATION_STATUS");
-        return new VacationItem(vacationId, deducted, requesterId, startDateTime, endDateTime, vacationTypes, vacationStatus);
+        return new VacationItem(vacationId, leaveDeduct, requesterId, startDateTime, endDateTime, vacationTypes, vacationStatus);
     }
 }

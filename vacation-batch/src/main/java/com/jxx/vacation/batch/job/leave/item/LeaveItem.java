@@ -1,5 +1,6 @@
 package com.jxx.vacation.batch.job.leave.item;
 
+import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
 import com.jxx.vacation.core.vacation.domain.entity.VacationDuration;
 import com.jxx.vacation.core.vacation.domain.entity.VacationType;
 import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
@@ -22,7 +23,7 @@ public class LeaveItem {
     private final Integer experienceYears;
     private final LocalDate enteredDate;
     private final Long vacationId;
-    private final boolean deducted;
+    private final String leaveDeduct;
     private String vacationStatus;
     private final String vacationType;
     private final LocalDateTime startDateTime;
@@ -32,8 +33,8 @@ public class LeaveItem {
     private final boolean orgActive;
     private Float deductedAmount;
 
-    public LeaveItem(String memberPk, boolean memberActive,Float totalLeave,  Float remainingLeave, String name, String memberId, Integer experienceYears, LocalDate enteredDate,
-                     Long vacationId, boolean deducted, String vacationStatus, String vacationType, LocalDateTime startDateTime, LocalDateTime endDateTime, String companyId, String departmentId, boolean orgActive) {
+    public LeaveItem(String memberPk, boolean memberActive, Float totalLeave, Float remainingLeave, String name, String memberId, Integer experienceYears, LocalDate enteredDate,
+                     Long vacationId, String leaveDeduct, String vacationStatus, String vacationType, LocalDateTime startDateTime, LocalDateTime endDateTime, String companyId, String departmentId, boolean orgActive) {
         this.memberPk = memberPk;
         this.memberActive = memberActive;
         this.totalLeave = totalLeave;
@@ -43,7 +44,7 @@ public class LeaveItem {
         this.experienceYears = experienceYears;
         this.enteredDate = enteredDate;
         this.vacationId = vacationId;
-        this.deducted = deducted;
+        this.leaveDeduct = leaveDeduct;
         this.vacationStatus = vacationStatus;
         this.vacationType = vacationType;
         this.startDateTime = startDateTime;
@@ -60,7 +61,7 @@ public class LeaveItem {
 
     public void calculateDeductAmount() {
         VacationDuration vacationDuration = new VacationDuration(VacationType.valueOf(vacationType), startDateTime, endDateTime);
-        deductedAmount = VacationCalculator.getVacationDuration(vacationDuration, deducted);
+        deductedAmount = VacationCalculator.getVacationDuration(vacationDuration, LeaveDeduct.valueOf(leaveDeduct));
     }
 
     public void updateVacationStatusToError() {

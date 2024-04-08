@@ -61,7 +61,7 @@ public class VacationEventListener {
 
     @Async("${event.executor.name}")
     @Transactional(propagation = Propagation.REQUIRED)
-    @EventListener(VacationCreatedEvent.class)
+    @EventListener(CommonVacationCreateEvent.class)
     public void listen(CommonVacationCreateEvent createdEvent) {
         try {
             MessageQ messageQ = createMessage(createdEvent);

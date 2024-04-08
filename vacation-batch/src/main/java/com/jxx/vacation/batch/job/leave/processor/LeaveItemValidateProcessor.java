@@ -1,7 +1,7 @@
 package com.jxx.vacation.batch.job.leave.processor;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
-import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
+import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 
@@ -23,7 +23,7 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
         } else if (!ongoingVacationStatus) {
             log.info("[PROCESS VID:{}][FILTER][memberId:{} vacationStatus:{}][vacation must be ongoing]", vacationId, memberId, vacationStatus);
             return null;
-        } else if (!item.isDeducted()) {
+        } else if (!LeaveDeduct.DEDUCT.equals(LeaveDeduct.valueOf(item.getLeaveDeduct()))) {
             log.info("[PROCESS VID:{}][FILTER][memberId:{} companyId:{}][is set deducted value false]", vacationId, memberId, item.getCompanyId());
             return null;
         }

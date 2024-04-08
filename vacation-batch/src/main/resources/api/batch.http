@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "properties": {
     "jobName": "vacation.status-manage.job",
-    "run.id": "ADMIN20240403-003",
+    "run.id": "ADMIN20240408-008",
     "processDate": "2024-04-03 00:00:00"
   }
 }
@@ -29,8 +29,8 @@ Content-Type: application/json
 {
   "properties": {
     "jobName": "leave.adjust.job",
-    "run.id": "ADMIN20240304-01",
-    "executeDateTime": "2024-03-04 00:00:00"
+    "run.id": "ADMIN20240408-01",
+    "executeDateTime": "2024-04-09 00:00:00"
   }
 }
 

@@ -78,7 +78,7 @@ public class LeaveAdjustJobConfiguration {
                 "JMLM.IS_ACTIVE AS 'MEMBER_ACTIVE', " +
                 "JMLM.ENTERED_DATE , " +
                 "JVM.VACATION_ID , " +
-                "JVM.DEDUCTED , " +
+                "JVM.LEAVE_DEDUCT , " +
                 "JVM.VACATION_STATUS , " +
                 "JVM.VACATION_TYPE , " +
                 "JVM.START_DATE_TIME , " +

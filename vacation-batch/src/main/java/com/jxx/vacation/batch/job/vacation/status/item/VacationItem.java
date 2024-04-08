@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class VacationItem {
     private final Long vacationId;
-    private final Boolean deducted;
+    private final String leaveDeduct;
     private final String requesterId;
     private final LocalDateTime startDateTime;
     private final LocalDateTime endDateTime;

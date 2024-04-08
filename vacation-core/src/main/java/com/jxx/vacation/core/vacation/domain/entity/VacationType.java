@@ -13,7 +13,6 @@ public enum VacationType {
     MORE_DAY("1일 이상의 연차", "P"),
     HALF_MORNING("반차-오전", "P"),
     HALF_AFTERNOON("반차-오전", "P"),
-    NOT_DEDUCTED("연차 차감되지 않는 휴가", "S"),
 
     MARRIAGE_SELF("본인의 결혼", "F"),
     MARRIAGE_CHILD("자녀의 결혼", "F"),
@@ -37,10 +36,5 @@ public enum VacationType {
         this.type = type;
     }
 
-    boolean isDeductedLeave() {
-        return !this.equals(NOT_DEDUCTED);
-    }
-
     public static final List<VacationType> HALF_VACATION_TYPE = List.of(HALF_MORNING, HALF_AFTERNOON);
-    public static final List<VacationType> DEDUCT_VACATION_TYPE = List.of(MORE_DAY, HALF_MORNING, HALF_AFTERNOON);
 }

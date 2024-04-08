@@ -60,7 +60,7 @@ class VacationManagerTest {
         LocalDateTime endDate2 = LocalDateTime.of(2024, 3, 3, 0, 0);
         VacationDuration vacationDuration2 = new VacationDuration(VacationType.MORE_DAY, startDate2, endDate2);
 
-        Vacation existedVacation = new Vacation("T0001", vacationDuration2, true, vacationStatus);
+        Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, vacationDuration2, true, vacationStatus);
 
         //WHEN - THEN
         assertThatThrownBy(() -> vacationManager.validateVacationDatesAreDuplicated(List.of(existedVacation)))
@@ -87,7 +87,8 @@ class VacationManagerTest {
         VacationDuration vacationDuration2 = new VacationDuration(VacationType.MORE_DAY, startDate2, endDate2);
 
         //WHEN - THEN
-        Vacation existedVacation = new Vacation("T0001", vacationDuration2, true, vacationStatus);
+        Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, vacationDuration2, true, vacationStatus);
+
         assertThatCode(() -> vacationManager.validateVacationDatesAreDuplicated(List.of(existedVacation)))
                 .doesNotThrowAnyException();
     }

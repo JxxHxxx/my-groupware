@@ -19,5 +19,4 @@ public class Leave {
     @Column(name = "REMAINING_LEAVE")
     @Comment(value = "연차 잔여일")
     private Float remainingLeave;
-
 }
