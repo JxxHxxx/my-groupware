@@ -54,7 +54,8 @@ public class AuthService {
         boolean companyIdEqual = Objects.equals(session.getCompanyId(), request.companyId());
 
         if (!(memberIdEqual && departmentIdEqual && companyIdEqual)) {
-            log.warn("manipulated client request");
+            log.warn("manipulated client request session's memberId:{} request's memberId:{}",
+                    session.getMemberId(), request.memberId());
             throw new UnAuthenticationException();
         }
     }
@@ -80,6 +81,11 @@ public class AuthService {
 
     private String getSessionKey(HttpServletRequest httpRequest) {
         // NULL 처리 필요
+        if (Objects.isNull(httpRequest.getCookies())) {
+            log.warn("Cookie is null");
+            throw new UnAuthenticationException();
+        }
+
         Cookie sessionCookie = Arrays.stream(httpRequest.getCookies())
                 .filter(cookie -> COOKIE_KEY_OF_USER_SESSION.equals(cookie.getName()))
                 .findFirst()

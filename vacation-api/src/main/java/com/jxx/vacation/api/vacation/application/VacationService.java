@@ -9,7 +9,6 @@ import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.api.vacation.query.VacationDynamicMapper;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.vacation.domain.entity.*;
-import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
@@ -56,9 +55,8 @@ public class VacationService {
         vacationManager.validateVacationDatesAreDuplicated(requestingVacations);
         // TODO 근무일이 아닐 때 휴가를 신청했는지 검증 (테이블 필드 추가 필요)
 
-        vacationManager.decideDeduct();
         Vacation vacation = vacationManager.getVacation();
-        if (vacation.isDeducted()) {
+        if (LeaveDeduct.isLeaveDeductVacation(vacation.getLeaveDeduct())) {
             // TODO 매번 연산하는것보다 DB에 박아버리는것도 나쁘지 않을듯.
             vacationManager.validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(requestingVacations);
         }

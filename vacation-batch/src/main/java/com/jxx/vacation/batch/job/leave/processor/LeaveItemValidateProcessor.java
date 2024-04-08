@@ -1,7 +1,7 @@
 package com.jxx.vacation.batch.job.leave.processor;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
-import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
+import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 
@@ -16,19 +16,21 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
         boolean ongoingVacationStatus = isOngoing(item.getVacationStatus());
         String memberId = item.getMemberId();
         String vacationStatus = item.getVacationStatus();
-
+        Long vacationId = item.getVacationId();
         if (!memberOrgActive) {
-            log.info("[PROCESS][FAIL][memberId:{} inactive][member {}, org {}]", memberId, item.isMemberActive(), item.isOrgActive());
-        }
-        else if (!ongoingVacationStatus) {
-            log.info("[PROCESS][FAIL][memberId:{} vacationStatus:{}][vacation must be ongoing]", memberId, vacationStatus);
+            log.info("[PROCESS VID:{}][FILTER][memberId:{} inactive][member {}, org {}]", vacationId, memberId, item.isMemberActive(), item.isOrgActive());
+            return null;
+        } else if (!ongoingVacationStatus) {
+            log.info("[PROCESS VID:{}][FILTER][memberId:{} vacationStatus:{}][vacation must be ongoing]", vacationId, memberId, vacationStatus);
+            return null;
+        } else if (!LeaveDeduct.DEDUCT.equals(LeaveDeduct.valueOf(item.getLeaveDeduct()))) {
+            log.info("[PROCESS VID:{}][FILTER][memberId:{} companyId:{}][is set deducted value false]", vacationId, memberId, item.getCompanyId());
+            return null;
         }
 
-        if (memberOrgActive && ongoingVacationStatus) {
-            item.updateVacationStatusToCompleted();
-            item.calculateDeductAmount();
-        }
+        item.updateVacationStatusToCompleted();
+        item.calculateDeductAmount();
 
-        return memberOrgActive && ongoingVacationStatus ? item : null;
+        return item;
     }
 }

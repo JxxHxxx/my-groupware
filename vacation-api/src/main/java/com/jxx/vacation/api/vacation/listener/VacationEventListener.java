@@ -58,4 +58,34 @@ public class VacationEventListener {
                 .build();
         return messageQ;
     }
+
+    @Async("${event.executor.name}")
+    @Transactional(propagation = Propagation.REQUIRED)
+    @EventListener(CommonVacationCreateEvent.class)
+    public void listen(CommonVacationCreateEvent createdEvent) {
+        try {
+            MessageQ messageQ = createMessage(createdEvent);
+            messageQRepository.save(messageQ);
+        } catch (Exception e) {
+            log.info("Fail Create MessageQ createdEvent {}", createdEvent);
+            log.error("Error : ", e);
+        }
+    }
+
+    private static MessageQ createMessage(CommonVacationCreateEvent createdEvent) {
+        VacationConfirmMessageForm vacationConfirmMessageForm = VacationConfirmMessageForm.create(
+                createdEvent.requesterId(),
+                createdEvent.companyId(),
+                createdEvent.departmentId(),
+                createdEvent.vacationDate(),
+                createdEvent.vacationId());
+
+        Map<String, Object> vacationConfirmMessageBody = MessageBodyBuilder.from(vacationConfirmMessageForm);
+        MessageQ messageQ = MessageQ.builder()
+                .messageDestination(MessageDestination.APPROVAL)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .body(vacationConfirmMessageBody)
+                .build();
+        return messageQ;
+    }
 }

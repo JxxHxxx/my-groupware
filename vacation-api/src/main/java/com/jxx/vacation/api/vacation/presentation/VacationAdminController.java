@@ -29,12 +29,12 @@ public class VacationAdminController {
 
     // 공동 연차 지정 API
     @PostMapping("/admin/vacations/set-common-vacation")
-    public ResponseEntity<?> setCommonVacation(HttpServletRequest httpRequest, @RequestBody CommonVacationForm vacationForm) {
+    public ResponseEntity<?> setCommonVacation(@RequestBody CommonVacationForm vacationForm, HttpServletRequest httpRequest) {
         log.info("공동 연차를 등록합니다.");
         UserSession userSession = authService.getUserSession(httpRequest);
         CommonVacationServiceForm vacationServiceForm = new CommonVacationServiceForm(userSession, vacationForm);
-        vacationAdminService.assignCommonVacation(vacationServiceForm);
-        return null;
+        int updateRows = vacationAdminService.assignCommonVacation(vacationServiceForm);
+        return ResponseEntity.ok("업데이트 된 로우  수" + updateRows);
     }
     // 공동 연차 수정 API
     @PatchMapping("/admin/vacations/update-common-vacation")

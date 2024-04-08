@@ -30,13 +30,16 @@ public class Vacation {
     @Comment(value = "연차 신청자 ID")
     private String requesterId;
 
+    @Column(name = "COMPANY_ID", nullable = false)
+    @Comment(value = "회사 식별자")
+    private String companyId;
+
     @Embedded
     private VacationDuration vacationDuration;
-
-    @Column(name = "DEDUCTED", nullable = false)
-    @Comment(value = "연차에서 차감 여부")
-    private boolean deducted;
-
+    @Column(name = "LEAVE_DEDUCT", nullable = false)
+    @Comment(value = "연차 차감 여부")
+    @Enumerated(EnumType.STRING)
+    private LeaveDeduct leaveDeduct;
     @Column(name = "VACATION_STATUS", nullable = false)
     @Comment(value = "휴가 신청 상태")
     @Enumerated(value = EnumType.STRING)
@@ -48,23 +51,17 @@ public class Vacation {
 
 
     @Builder
-    public Vacation(String requesterId, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
+    public Vacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
         this.requesterId = requesterId;
+        this.companyId = companyId;
+        this.leaveDeduct = leaveDeduct;
         this.vacationDuration = vacationDuration;
-        this.deducted = deducted;
         this.vacationStatus = vacationStatus;
         this.createTime = LocalDateTime.now();
     }
 
-    public static Vacation createVacation(String requesterId, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
-    }
-
-    public Vacation adjustDeducted() {
-        VacationType vacationType = vacationDuration.getVacationType();
-        deducted = vacationType.isDeductedLeave();
-
-        return this;
+    public static Vacation createVacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationDuration vacationDuration) {
+        return new Vacation(requesterId, companyId, leaveDeduct, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
     }
 
     public void changeVacationStatus(VacationStatus vacationStatus) {
@@ -93,10 +90,6 @@ public class Vacation {
 
     public VacationType receiveVacationType() {
         return vacationDuration.getVacationType();
-    }
-
-    protected void changeDeducted(boolean deducted) {
-        this.deducted = deducted;
     }
 }
 

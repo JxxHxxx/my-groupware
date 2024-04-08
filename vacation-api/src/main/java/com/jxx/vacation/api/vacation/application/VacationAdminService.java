@@ -5,7 +5,7 @@ import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
 import com.jxx.vacation.api.vacation.dto.request.FamilyOccasionPolicyForm;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
-import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
+import com.jxx.vacation.api.vacation.listener.CommonVacationCreateEvent;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
@@ -30,6 +30,8 @@ public class VacationAdminService {
     private final VacationRepository vacationRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    private static final String COMMON_VACATION_DEPARTMENT_CODE = "ALL";
+
     @Transactional
     public List<FamilyOccasionPolicyResponse> addFamilyOccasionPolicies(List<FamilyOccasionPolicyForm> forms) {
         List<FamilyOccasionPolicy> policies = forms.stream()
@@ -48,47 +50,54 @@ public class VacationAdminService {
 
     // TODO 몇 명이 반영됐고 몇 일 반영 됐는지
     @Transactional
-    public void assignCommonVacation(CommonVacationServiceForm vacationServiceForm) {
+    public int assignCommonVacation(CommonVacationServiceForm vacationServiceForm) {
         // 검증 전역 관리자 혹은 사내 관리자 검증
         UserSession userSession = vacationServiceForm.userSession();
         CommonVacationForm commonVacationForm = vacationServiceForm.commonVacationForm();
         List<LocalDate> vacationDates = commonVacationForm.vacationDates();
+        boolean deducted = vacationServiceForm.commonVacationForm().deducted();
 
         List<Vacation> vacations = new ArrayList<>();
         for (LocalDate vacationDate : vacationDates) {
             Vacation commonVacation = Vacation.builder()
-                    .deducted(true)
+                    .deducted(deducted)
                     .vacationStatus(VacationStatus.CREATE)
-                    .requesterId(userSession.getMemberId())
-                    .vacationDuration(new VacationDuration(VacationType.COMMON_VACATION,
-                            vacationDate.atStartOfDay(), vacationDate.atTime(23, 59, 59)))
+                    .requesterId(userSession.getMemberId()) // check
+                    .companyId(commonVacationForm.companyId())
+                    .vacationDuration(new VacationDuration(VacationType.COMMON_VACATION, vacationDate.atStartOfDay(), vacationDate.atTime(23, 59, 59)))
                     .build();
 
             vacations.add(commonVacation);
         }
         List<Vacation> savedVacations = vacationRepository.saveAll(vacations);
 
-        // 차감여부 true
-        if (commonVacationForm.deducted()) {
+        int updateRows = 0;
+        // TODO 배치에서 이중 차감
+        // 결재 X, 차감 O 일 경우 바로 차감
+        if (!commonVacationForm.mustApproval() && commonVacationForm.deducted()) {
             int leaveDate = vacationDates.size();
-            // 전역 관리자라면...
-            if (false) {
-                memberLeaveRepository.updateRemainingLeave(commonVacationForm.companyId(), leaveDate);
-            }
-
-            // 고객사 소속의 관리자
-            if (true) {
-                memberLeaveRepository.updateRemainingLeave(userSession.getCompanyId(), leaveDate);
-            }
+            updateRows = memberLeaveRepository.updateRemainingLeave(leaveDate, commonVacationForm.companyId());
         }
 
-        // 결재가 필요하다면 -- 메시지 보내라...
+        // 결재 승인을 받아야 하는 경우, messageQ 생성
         if (commonVacationForm.mustApproval()) {
-//            savedVacations.stream()
-//                    .filter(vacation -> vacation.successRequest())
-//                    .peek(// 로그 작업)
-//                    .forEach(vacation -> eventPublisher.publishEvent(null));
+            List<Vacation> succeedVacations = savedVacations.stream()
+                    .filter(vacation -> vacation.successRequest())
+                    .toList();
+
+            final float vacationDate = 1f; // 공동 연차는 신청 1개에 하루라는 정책이 존재하기 때문에 해당 값 써도 안전
+            for (Vacation succeedVacation : succeedVacations) {
+                CommonVacationCreateEvent commonVacationCreateEvent = new CommonVacationCreateEvent(
+                        succeedVacation.getRequesterId(),
+                        succeedVacation.getCompanyId(),
+                        COMMON_VACATION_DEPARTMENT_CODE,
+                        vacationDate,
+                        succeedVacation.getId()
+                );
+                eventPublisher.publishEvent(commonVacationCreateEvent);
+            }
         }
 
+        return updateRows;
     }
 }

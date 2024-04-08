@@ -19,15 +19,14 @@ public class AdminApiAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // TODO 관리자 인증 구현
-        log.info("관리자 한정 API 를 호출하였습니다.");
         UserSession userSession = authService.getUserSession(request);
+        log.info("관리자 API 호출 : 사용자 {} 관리자 권한을 검증합니다.", userSession.getMemberId());
 
         // 임시 관리자 ID
         if (!"U00001".equals(userSession.getMemberId())) {
             log.warn("admin api call by {}", userSession.getMemberId());
             return false;
         }
-
         return true;
     }
 }
