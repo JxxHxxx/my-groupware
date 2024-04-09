@@ -4,6 +4,8 @@ package com.jxx.vacation.api.vacation.application;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
+import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
+import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.vacation.domain.entity.*;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
 import static com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator.*;
+import static com.jxx.vacation.core.message.body.vendor.confirm.ApprovalLineLifecycle.BEFORE_CREATE;
 import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.*;
 
@@ -67,6 +70,14 @@ class VacationServiceTest {
         organizationRepository.deleteAll();
     }
 
+    @DisplayName("휴가 생성 통합 테스트" +
+            "1. 휴가 신청을 정상적으로 마칠 경우 응답과 함께 비동기로 결재 서버에 결재 문서 초안을 위해 MessageQ 를 전달한다." +
+            "2. 이에 따라 3가지를 검증한다. (1) 휴가 신청 응답 (2) 엔티티 저장 여부 (3) 비동기 메시지 검증" +
+            "3. (1) 휴가 신청 응답 구조는 VacationServiceResponse 참고 " +
+            "   (2) 저장된 휴가 엔티티의 차감 여부를 나타내는 LeaveDeduct 필드는 DEDUCT" +
+            "   (3) 메시지 결재 문서 상태를 의미하는 ConfirmStatus = CREATE, " +
+            " 결재 라인 생성 주기를 의미하는 APPROVAL_LIFE_CYCLE = BEFORE_CREATE " +
+            " 결재 문서 ID 값은 'VAC' + companyId + vacationId 를 따른다.")
     @Test
     void create_vacation_success_case() {
         String memberId = "T0001";
@@ -84,17 +95,34 @@ class VacationServiceTest {
             List<MessageQ> messages = messageQRepository.findWithLimit(1);
             return !messages.isEmpty(); // 비어있지 않으면 호출되었단느 의미임
         });
-
         // THEN
         List<VacationServiceResponse> responses = vacationService.readByRequesterId(memberId);
+
+        // 응답 검증
         assertThat(responses).extracting("vacationDuration.startDateTime")
                 .contains(LocalDateTime.of(2024, 3, 1, 0, 0));
         assertThat(responses).extracting("vacationDuration.endDateTime")
                 .contains(LocalDateTime.of(2024, 3, 4, 0, 0));
+        assertThat(responses).extracting("vacationStatus")
+                .containsExactly(VacationStatus.CREATE);
+        assertThat(responses).extracting("requesterId")
+                .containsExactly(memberId);
 
+        // 저장된 엔티티 검증
+        Long vacationId = responses.get(0).vacationId();
+        Vacation savedVacation = vacationRepository.findById(vacationId).get();
+        assertThat(savedVacation).isNotNull();
+        assertThat(savedVacation.getLeaveDeduct()).isEqualTo(LeaveDeduct.DEDUCT);
+
+        // messageQ 검증
         List<MessageQ> messages = messageQRepository.findWithLimit(1);
+        String confirmDocumentId = ConfirmDocumentIdGenerator.execute(memberLeave.receiveCompanyId(), vacationId);
+
         assertThat(messages).isNotEmpty();
-        assertThat(messages).extracting("body.requester_id").contains(memberId);
+        assertThat(messages).extracting("body.requester_id").containsExactly(memberId);
+        assertThat(messages).extracting("body.confirm_document_id").containsExactly(confirmDocumentId);
+        assertThat(messages).extracting("body.confirm_status").containsExactly(ConfirmStatus.CREATE.name());
+        assertThat(messages).extracting("body.approval_line_life_cycle").containsExactly(BEFORE_CREATE.name());
     }
 
     @DisplayName("휴가 신청이 되지 않을 경우,")
@@ -179,6 +207,7 @@ class VacationServiceTest {
                         LocalDateTime.of(9999, 3, 1, 0, 0),
                         LocalDateTime.of(9999, 3, 4, 0, 0)))
                 .deducted(true)
+                .leaveDeduct(LeaveDeduct.DEDUCT)
                 .requesterId("T0001")
                 .companyId("TJX")
                 .vacationStatus(VacationStatus.CREATE)
@@ -214,6 +243,7 @@ class VacationServiceTest {
                         LocalDateTime.of(9999, 3, 1, 0, 0),
                         LocalDateTime.of(9999, 3, 4, 0, 0)))
                 .deducted(true)
+                .leaveDeduct(LeaveDeduct.DEDUCT)
                 .requesterId("T0001")
                 .companyId("TJX")
                 .vacationStatus(vacationStatus)
