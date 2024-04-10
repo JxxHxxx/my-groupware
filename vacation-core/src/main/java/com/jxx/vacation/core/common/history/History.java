@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 public class History {
 
     @Column(name = "EXECUTOR")
-    @Comment("실행자")
+    @Comment("발행자")
     private String executor;
 
     @Column(name = "EXECUTE_TIME")
-    @Comment("실행 시간")
+    @Comment("발행 시간")
     private LocalDateTime executeTime;
 
     @Column(name = "TASK_TYPE")
@@ -28,9 +28,21 @@ public class History {
     @Enumerated(value = EnumType.STRING)
     private TaskType taskType;
 
-    public History(String executor, TaskType taskType) {
+    protected History(String executor, LocalDateTime executeTime, TaskType taskType) {
         this.executor = executor;
-        this.executeTime = LocalDateTime.now();
+        this.executeTime = executeTime;
         this.taskType = taskType;
+    }
+
+    public static History insert(String executor) {
+        return new History(executor, LocalDateTime.now(), TaskType.I);
+    }
+
+    public static History update(String executor) {
+        return new History(executor, LocalDateTime.now(), TaskType.U);
+    }
+
+    public static History delete(String executor) {
+        return new History(executor, LocalDateTime.now(), TaskType.D);
     }
 }

@@ -3,6 +3,7 @@ package com.jxx.vacation.core.vacation.domain.entity;
 import com.jxx.vacation.core.common.history.History;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "JXX_VACATION_HIST", indexes = @Index(name = "IDX_VACATION_HIST_VACATION_ID", columnList = "VACATION_ID"))
+
 public class VacationHistory {
 
     @Id
@@ -49,4 +52,15 @@ public class VacationHistory {
 
     @Embedded
     private History history;
+
+    public VacationHistory(Vacation vacation, History history) {
+        this.vacationId = vacation.getId();
+        this.requesterId = vacation.getRequesterId();
+        this.companyId = vacation.getCompanyId();
+        this.vacationDuration = vacation.getVacationDuration();
+        this.leaveDeduct = vacation.getLeaveDeduct();
+        this.vacationStatus = vacation.getVacationStatus();
+        this.createTime = vacation.getCreateTime();
+        this.history = history;
+    }
 }

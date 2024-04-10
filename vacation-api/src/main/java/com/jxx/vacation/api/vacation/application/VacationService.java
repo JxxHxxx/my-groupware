@@ -8,11 +8,15 @@ import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.api.vacation.query.VacationDynamicMapper;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
+import com.jxx.vacation.core.common.history.History;
+import com.jxx.vacation.core.common.history.TaskType;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
+import com.jxx.vacation.core.vacation.infra.VacationHistRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
+
 import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +36,7 @@ public class VacationService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final VacationRepository vacationRepository;
+    private final VacationHistRepository vacationHistRepository;
     private final MemberLeaveRepository memberLeaveRepository;
     private final FamilyOccasionPolicyRepository familyOccasionPolicyRepository;
     private final VacationDynamicMapper vacationDynamicMapper;
@@ -62,6 +67,8 @@ public class VacationService {
         }
 
         final Vacation savedVacation = vacationRepository.save(vacation);
+        vacationHistRepository.save(new VacationHistory(vacation, History.insert(vacation.getRequesterId())));
+
         if (savedVacation.successRequest()) {
             eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, vacationManager.receiveVacationDate(), requesterId));
         }
@@ -134,7 +141,10 @@ public class VacationService {
         // call to another server api
         ConfirmDocumentRaiseResponse response = function.apply(vacation, memberLeave);
 
-        vacationManager.raise(response.confirmStatus());
+        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
+        Vacation riseVacation = vacationManager.raise(response.confirmStatus());
+        vacationHistRepository.save(new VacationHistory(riseVacation, History.update(vacation.getRequesterId())));
+
         return new VacationServiceResponse(vacation.getId(),
                 vacation.getRequesterId(),
                 memberLeave.getName(),
@@ -151,7 +161,10 @@ public class VacationService {
 
         VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
         vacationManager.validateMemberActive();
-        vacationManager.cancel();
+        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
+        Vacation cancelVacation = vacationManager.cancel();
+        vacationHistRepository.save(new VacationHistory(cancelVacation, History.update(vacation.getRequesterId())));
+
 
         return createVacationServiceResponse(vacation, memberLeave);
     }
@@ -169,7 +182,9 @@ public class VacationService {
 
         VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
         vacationManager.validateMemberActive();
-        vacationManager.update(form.vacationDuration());
+        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
+        Vacation updatedVacation = vacationManager.update(form.vacationDuration());
+        vacationHistRepository.save(new VacationHistory(updatedVacation, History.update(vacation.getRequesterId())));
 
         return createVacationServiceResponse(vacation, memberLeave);
     }
@@ -208,6 +223,7 @@ public class VacationService {
         }
 
         vacation.changeVacationStatus(vacationStatus);
+        vacationHistRepository.save(new VacationHistory(vacation, History.update(vacation.getRequesterId())));
 
         return new VacationServiceResponse(
                 vacation.getId(),

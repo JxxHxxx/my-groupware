@@ -100,17 +100,17 @@ public class VacationManager {
     }
 
     // 상신
-    public void raise(ConfirmStatus confirmStatus) {
+    public Vacation raise(ConfirmStatus confirmStatus) {
         if (ConfirmStatus.RAISE.equals(confirmStatus)) { //결재 문서의 상태가 상신이면
             vacation.changeVacationStatus(REQUEST); // 휴가의 상태도 변경해라.
         } else {
             throw new IllegalArgumentException("결재가 상신되지 않았습니다.");
         }
-        ;
+        return vacation;
     }
 
-    public void raise(String confirmStatus) {
-        raise(ConfirmStatus.valueOf(confirmStatus));
+    public Vacation raise(String confirmStatus) {
+        return raise(ConfirmStatus.valueOf(confirmStatus));
     }
 
     public float receiveVacationDate() {
@@ -144,18 +144,20 @@ public class VacationManager {
     }
 
     // 휴가 취소 (결재 문서를 취소)
-    public void cancel() {
+    public Vacation cancel() {
         if (!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {
             throw new IllegalArgumentException("취소 불가능>.<");
         }
         vacation.changeVacationStatus(CANCELED);
+        return vacation;
     }
 
     // 휴가 수정
-    public void update(VacationDuration vacationDuration) {
+    public Vacation update(VacationDuration vacationDuration) {
         if (!CREATE.equals(vacation.getVacationStatus())) {
             throw new IllegalArgumentException("수정 불가능>.<");
         }
         vacation.updateVacationDuration(vacationDuration);
+        return vacation;
     }
 }
