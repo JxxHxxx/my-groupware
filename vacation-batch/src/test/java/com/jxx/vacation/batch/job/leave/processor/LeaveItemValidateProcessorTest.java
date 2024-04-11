@@ -28,6 +28,7 @@ class LeaveItemValidateProcessorTest {
         LocalDateTime vacationEndDateTime = LocalDateTime.of(2025, 12, 13, 0,0,0);
         LeaveItem leaveItem = new LeaveItem(
                 "U00013",
+                LocalDateTime.now(),
                 true,
                 15f,
                 15f,
@@ -61,6 +62,7 @@ class LeaveItemValidateProcessorTest {
         LocalDateTime vacationEndDateTime = LocalDateTime.of(2025, 12, 13, 0,0,0);
         LeaveItem leaveItem = new LeaveItem(
                 "U00013",
+                LocalDateTime.now(),
                 true,
                 15f,
                 15f,

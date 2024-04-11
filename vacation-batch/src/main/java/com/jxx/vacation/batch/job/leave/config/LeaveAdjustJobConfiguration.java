@@ -70,6 +70,7 @@ public class LeaveAdjustJobConfiguration {
     public JdbcCursorItemReader<LeaveItem> itemReader() {
         String sql = "SELECT " +
                 "JMLM.MEMBER_PK , " +
+                "JVM.CREATE_TIME , " +
                 "JMLM.REMAINING_LEAVE , " +
                 "JMLM.TOTAL_LEAVE , " +
                 "JMLM.NAME ," +
@@ -168,6 +169,42 @@ public class LeaveAdjustJobConfiguration {
     @StepScope
     @Bean(name = "vacationStatusChangeWriter")
     public JdbcBatchItemWriter<LeaveItem> vacationStatusChangeWriter() {
+        String sql = "INSERT INTO JXX_VACATION_HIST " +
+                "(COMPANY_ID, " +
+                "CREATE_TIME, " +
+                "EXECUTE_TIME, " +
+                "EXECUTOR, " +
+                "TASK_TYPE, " +
+                "LEAVE_DEDUCT, " +
+                "REQUESTER_ID, " +
+                "END_DATE_TIME, " +
+                "START_DATE_TIME, " +
+                "VACATION_TYPE, " +
+                "VACATION_ID, " +
+                "VACATION_STATUS) VALUES " +
+                "(:companyId," +
+                ":createTime," + // 휴가 생성 시간 박아야됨 RowMapper 부터 변경해야함...
+                "CURRENT_TIMESTAMP," +
+                "'JXX-BATCH'," +
+                "'U'," +
+                ":leaveDeduct," +
+                ":memberId," +
+                ":endDateTime," +
+                ":startDateTime," +
+                ":vacationType," +
+                ":vacationId," +
+                ":vacationStatus)";
+
+        return new JdbcBatchItemWriterBuilder<LeaveItem>()
+                .dataSource(dataSource)
+                .sql(sql)
+                .beanMapped()
+                .build();
+    }
+
+    @StepScope
+    @Bean(name = "vacationHistoryWriter")
+    public JdbcBatchItemWriter<LeaveItem> vacationHistoryWriter() {
         String sql = "UPDATE JXX_VACATION_MASTER JVM" +
                 "   SET JVM.VACATION_STATUS =:vacationStatus  " +
                 "   WHERE JVM.VACATION_ID =:vacationId ";
@@ -186,7 +223,8 @@ public class LeaveAdjustJobConfiguration {
                 .delegates(
                         List.of(leaveAdjustWriter(),
                                 leaveHistoryWriter(),
-                                vacationStatusChangeWriter())
+                                vacationStatusChangeWriter(),
+                                vacationHistoryWriter())
                 )
                 .build();
     }

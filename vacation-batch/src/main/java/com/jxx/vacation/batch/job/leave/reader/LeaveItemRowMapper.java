@@ -8,15 +8,23 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter nanoFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     @Override
     public LeaveItem mapRow(ResultSet rs, int rowNum) throws SQLException {
 
         String memberPk = rs.getString("MEMBER_PK");
+        LocalDateTime createTime = null;
+        try {
+            createTime = LocalDateTime.parse(rs.getString("CREATE_TIME"), nanoFormatter);
+        } catch (DateTimeParseException e) {
+            createTime = LocalDateTime.parse(rs.getString("CREATE_TIME"), formatter);
+        }
         boolean memberActive = rs.getBoolean("MEMBER_ACTIVE");
         float totalLeave = rs.getFloat("TOTAL_LEAVE");
         float remainingLeave = rs.getFloat("REMAINING_LEAVE");
@@ -35,6 +43,7 @@ public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
         boolean orgActive = rs.getBoolean("ORG_ACTIVE");
 
         return new LeaveItem(memberPk,
+                createTime,
                 memberActive,
                 totalLeave,
                 remainingLeave,
