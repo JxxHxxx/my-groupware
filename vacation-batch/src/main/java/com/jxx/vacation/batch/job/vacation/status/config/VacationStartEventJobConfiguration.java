@@ -1,6 +1,5 @@
 package com.jxx.vacation.batch.job.vacation.status.config;
 
-import com.jxx.vacation.batch.job.leave.item.LeaveItem;
 import com.jxx.vacation.batch.job.vacation.status.item.VacationItem;
 import com.jxx.vacation.batch.job.vacation.status.processor.VacationOngoingProcessor;
 import com.jxx.vacation.batch.job.vacation.status.reader.VacationItemRowMapper;
@@ -33,27 +32,29 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 /**
  * 휴가 시작 설정 배치
  * APPROVED -> ONGOING
+ *
+ * 리팩토링 - 클래스명 의믜가 불분명 한듯... VacationStatusManage -> VacationStartEventJob
  */
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class VacationStatusManageJobConfiguration {
+public class VacationStartEventJobConfiguration {
 
-    private static final String JOB_NAME = "vacation.status-manage.job";
+    private static final String JOB_NAME = "vacation.start.job";
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 
     @Bean(name = JOB_NAME)
-    public Job vacationStatusManageJob(JobRepository jobRepository) {
+    public Job vacationStartEventJob(JobRepository jobRepository) {
         return new JobBuilder(JOB_NAME, jobRepository)
                 .start(step(jobRepository))
                 .build();
     }
 
-    @Bean(name = "vacation.status-manager.step")
+    @Bean(name = "vacation.start.step")
     public Step step(JobRepository jobRepository) {
-        return new StepBuilder("vacation.status-manager.step", jobRepository)
+        return new StepBuilder("vacation.start.step", jobRepository)
                 .<VacationItem, VacationItem> chunk(10, transactionManager)
                 .reader(itemReader())
                 .processor(itemProcessor())

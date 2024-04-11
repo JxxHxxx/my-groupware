@@ -10,7 +10,7 @@ import org.springframework.batch.core.*;
 import static org.assertj.core.api.Assertions.*;
 
 
-class VacationStatusManageJobParametersValidatorTest {
+class VacationStartEventJobParametersValidatorTest {
 
     @DisplayName("vacation_status_manage_job 잡 파라미터 검증 시 " +
             "jobName, run.id, processDate 3가지 파라미터가 모두 할당되어 있다면" +
@@ -18,7 +18,7 @@ class VacationStatusManageJobParametersValidatorTest {
     @Test
     void vacation_status_manage_job_parameter_validate_success_case() throws JobParametersInvalidException {
         //given
-        JobParametersValidator parametersValidator = new VacationStatusManageJobParametersValidator();
+        JobParametersValidator parametersValidator = new VacationStartEventJobParametersValidator();
         //when
         JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
         jobParametersBuilder.addJobParameter(JxxJobParameter.JOB_PARMA_JOB_NAME.keyName(), new JobParameter("TEST_JOB_NAME", String.class));
@@ -37,7 +37,7 @@ class VacationStatusManageJobParametersValidatorTest {
     @Test
     void vacation_status_manage_job_parameter_validate_fail_case() {
         //given
-        JobParametersValidator parametersValidator = new VacationStatusManageJobParametersValidator();
+        JobParametersValidator parametersValidator = new VacationStartEventJobParametersValidator();
 
         //when run-id 파라미터가 존재하지 않는 상황
         JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();

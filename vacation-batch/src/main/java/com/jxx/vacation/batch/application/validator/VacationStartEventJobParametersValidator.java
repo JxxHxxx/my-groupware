@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Slf4j
-@Service("vacation.status-manage.job.parameter-validator")
-public class VacationStatusManageJobParametersValidator implements JobParametersValidator {
+@Service("vacation.start.job.parameter-validator")
+public class VacationStartEventJobParametersValidator implements JobParametersValidator {
 
     @Override
     public void validate(JobParameters parameters) {

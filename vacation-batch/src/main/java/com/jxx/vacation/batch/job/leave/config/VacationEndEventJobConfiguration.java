@@ -14,7 +14,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.JobContext;
 import org.springframework.batch.core.scope.context.JobSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -36,20 +35,22 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
  * 1. 휴가 상태 ONGOING -> COMPLETED (진행중인 휴가 -> 종료 상태로 변경)
  * 2. MemberLeave RemainingLeave 차감 (잔여일차 소진한 휴가만큼 차감)
  * 3. 2번에 따른 MemberLeave History 생성
+ *
+ * 리팩토링 - VacationEndEventJob
  */
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class LeaveAdjustJobConfiguration {
+public class VacationEndEventJobConfiguration {
 
-    private static final String JOB_NAME = "leave.adjust.job";
+    private static final String JOB_NAME = "vacation.end.job";
     private static final Long EXECUTE_DATE_TIME_ADJUST_VALUE = -1l;
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 
     @Bean(name = JOB_NAME)
-    public Job leaveAdjustJob(JobRepository jobRepository) {
+    public Job VacationEndEventJob(JobRepository jobRepository) {
         return new JobBuilder(JOB_NAME, jobRepository)
                 .start(step(jobRepository))
                 .build();
@@ -57,7 +58,7 @@ public class LeaveAdjustJobConfiguration {
 
     @Bean
     public Step step(JobRepository jobRepository) {
-        return new StepBuilder("leave.adjust.step", jobRepository)
+        return new StepBuilder("vacation.end.step", jobRepository)
                 .<LeaveItem, LeaveItem>chunk(100, transactionManager)
                 .reader(itemReader())
                 .processor(itemProcessor())
@@ -224,8 +225,7 @@ public class LeaveAdjustJobConfiguration {
                         List.of(leaveAdjustWriter(),
                                 leaveHistoryWriter(),
                                 vacationStatusChangeWriter(),
-                                leaveAdjustHistoryWriter())
-                )
+                                leaveAdjustHistoryWriter()))
                 .build();
     }
 

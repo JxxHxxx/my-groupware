@@ -10,7 +10,7 @@ import org.springframework.batch.core.*;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class LeaveAdjustJobParametersValidatorTest {
+class VacationEndEventJobParametersValidatorTest {
 
 
     @DisplayName("leave.adjust.job 잡 파라미터 검증 시 " +
@@ -19,7 +19,7 @@ class LeaveAdjustJobParametersValidatorTest {
     @Test
     void leave_adjust_job_parameter_validate_success_case() throws JobParametersInvalidException {
         //given
-        JobParametersValidator parametersValidator = new LeaveAdjustJobParametersValidator();
+        JobParametersValidator parametersValidator = new VacationEndEventJobParametersValidator();
         //when
         JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
         jobParametersBuilder.addJobParameter(JxxJobParameter.JOB_PARMA_JOB_NAME.keyName(), new JobParameter("TEST_JOB_NAME", String.class));
@@ -38,7 +38,7 @@ class LeaveAdjustJobParametersValidatorTest {
     @Test
     void leave_adjust_job_parameter_validate_fail_case() {
         //given
-        JobParametersValidator parametersValidator = new LeaveAdjustJobParametersValidator();
+        JobParametersValidator parametersValidator = new VacationEndEventJobParametersValidator();
 
         //when executeDateTime 파라미터가 존재하지 않는 상황
         JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
