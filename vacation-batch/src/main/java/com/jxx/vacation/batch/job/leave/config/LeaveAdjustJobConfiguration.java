@@ -203,8 +203,8 @@ public class LeaveAdjustJobConfiguration {
     }
 
     @StepScope
-    @Bean(name = "vacationHistoryWriter")
-    public JdbcBatchItemWriter<LeaveItem> vacationHistoryWriter() {
+    @Bean(name = "leaveAdjustHistoryWriter")
+    public JdbcBatchItemWriter<LeaveItem> leaveAdjustHistoryWriter() {
         String sql = "UPDATE JXX_VACATION_MASTER JVM" +
                 "   SET JVM.VACATION_STATUS =:vacationStatus  " +
                 "   WHERE JVM.VACATION_ID =:vacationId ";
@@ -224,7 +224,7 @@ public class LeaveAdjustJobConfiguration {
                         List.of(leaveAdjustWriter(),
                                 leaveHistoryWriter(),
                                 vacationStatusChangeWriter(),
-                                vacationHistoryWriter())
+                                leaveAdjustHistoryWriter())
                 )
                 .build();
     }

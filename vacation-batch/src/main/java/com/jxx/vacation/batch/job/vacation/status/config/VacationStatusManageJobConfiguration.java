@@ -1,6 +1,6 @@
 package com.jxx.vacation.batch.job.vacation.status.config;
 
-import com.jxx.vacation.batch.job.parameters.JxxJobParameter;
+import com.jxx.vacation.batch.job.leave.item.LeaveItem;
 import com.jxx.vacation.batch.job.vacation.status.item.VacationItem;
 import com.jxx.vacation.batch.job.vacation.status.processor.VacationOngoingProcessor;
 import com.jxx.vacation.batch.job.vacation.status.reader.VacationItemRowMapper;
@@ -18,11 +18,15 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.batch.item.support.builder.CompositeItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+
+import java.util.List;
 
 import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 
@@ -53,7 +57,7 @@ public class VacationStatusManageJobConfiguration {
                 .<VacationItem, VacationItem> chunk(10, transactionManager)
                 .reader(itemReader())
                 .processor(itemProcessor())
-                .writer(itemWriter())
+                .writer(vacationItemWriter())
                 .build();
     }
 
@@ -83,13 +87,59 @@ public class VacationStatusManageJobConfiguration {
     }
 
     @StepScope
+    @Bean(name = "compositeVacationItemWriter")
+    public CompositeItemWriter<VacationItem> compositeVacationItemWriter() {
+        return new CompositeItemWriterBuilder<VacationItem>()
+                .delegates(List.of(
+                        vacationItemWriter(),
+                        vacationStatusManageHistoryWriter()))
+                .build();
+    }
+
+    @StepScope
     @Bean("vacationItemJdbcWriter")
-    public JdbcBatchItemWriter<VacationItem> itemWriter() {
+    public JdbcBatchItemWriter<VacationItem> vacationItemWriter() {
         return new JdbcBatchItemWriterBuilder<VacationItem>()
                 .dataSource(dataSource)
                 .sql("UPDATE JXX_VACATION_MASTER JVM " +
                         "   SET VACATION_STATUS=:vacationStatus " +
                         "   WHERE JVM.VACATION_ID=:vacationId")
+                .beanMapped()
+                .build();
+    }
+
+    @StepScope
+    @Bean("vacationStatusManageHistoryWriter")
+    public JdbcBatchItemWriter<VacationItem> vacationStatusManageHistoryWriter() {
+        String sql = "INSERT INTO JXX_VACATION_HIST " +
+                "(COMPANY_ID, " +
+                "CREATE_TIME, " +
+                "EXECUTE_TIME, " +
+                "EXECUTOR, " +
+                "TASK_TYPE, " +
+                "LEAVE_DEDUCT, " +
+                "REQUESTER_ID, " +
+                "END_DATE_TIME, " +
+                "START_DATE_TIME, " +
+                "VACATION_TYPE, " +
+                "VACATION_ID, " +
+                "VACATION_STATUS) VALUES " +
+                "(:companyId," +
+                ":createTime," + // 휴가 생성 시간 박아야됨 RowMapper 부터 변경해야함...
+                "CURRENT_TIMESTAMP," +
+                "'JXX-BATCH'," +
+                "'U'," +
+                ":leaveDeduct," +
+                ":requesterId," +
+                ":endDateTime," +
+                ":startDateTime," +
+                ":vacationType," +
+                ":vacationId," +
+                ":vacationStatus)";
+
+        return new JdbcBatchItemWriterBuilder<VacationItem>()
+                .dataSource(dataSource)
+                .sql(sql)
                 .beanMapped()
                 .build();
     }
