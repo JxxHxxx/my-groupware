@@ -19,3 +19,20 @@ Content-Type: application/json
   "memberId": "U00001",
   "password": "U00001"
 }
+
+### 휴가 유형 정책 추가
+POST http://localhost:8080/admin/vacations/family-occasion-policies
+Content-Type: application/json
+
+[
+  {
+    "companyId": "JXX",
+    "vacationType" : "CHILD_BIRTH_SELF",
+    "vacationDay" : 14
+  },
+  {
+    "companyId": "JXX",
+    "vacationType" : "CHILD_BIRTH_SPOUSE",
+    "vacationDay" : 7
+  }
+]

@@ -2,8 +2,8 @@ package com.jxx.vacation.api.vacation.dto.request;
 
 import java.util.List;
 
-public record FamilyOccasionPolicyRequest(
+public record CompanyVacationTypePolicyRequest(
         String adminId,
-        List<FamilyOccasionPolicyForm> form
+        List<CompanyVacationTypePolicyForm> form
 ) {
 }

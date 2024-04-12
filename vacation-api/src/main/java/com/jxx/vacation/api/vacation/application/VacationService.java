@@ -9,10 +9,9 @@ import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.api.vacation.query.VacationDynamicMapper;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.common.history.History;
-import com.jxx.vacation.core.common.history.TaskType;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
-import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
+import com.jxx.vacation.core.vacation.infra.CompanyVacationTypePolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.VacationHistRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
@@ -38,7 +37,7 @@ public class VacationService {
     private final VacationRepository vacationRepository;
     private final VacationHistRepository vacationHistRepository;
     private final MemberLeaveRepository memberLeaveRepository;
-    private final FamilyOccasionPolicyRepository familyOccasionPolicyRepository;
+    private final CompanyVacationTypePolicyRepository companyVacationTypePolicyRepository;
     private final VacationDynamicMapper vacationDynamicMapper;
 
     /**
@@ -199,7 +198,7 @@ public class VacationService {
     }
 
     public List<FamilyOccasionPolicyResponse> findFamilyOccasionPoliciesByCompanyId(String companyId) {
-        List<FamilyOccasionPolicy> policies = familyOccasionPolicyRepository.findByCompanyId(companyId);
+        List<CompanyVacationTypePolicy> policies = companyVacationTypePolicyRepository.findByCompanyId(companyId);
 
         return policies.stream()
                 .map(policy -> new FamilyOccasionPolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))

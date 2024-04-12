@@ -6,13 +6,14 @@ import java.util.List;
 
 /**
  * 필드 type 은 휴가 유형을 나타냄 P:개인 F:가족경조 S:그외
+ * description must be unique
  */
 @Getter
 public enum VacationType {
 
     MORE_DAY("1일 이상의 연차", "P"),
     HALF_MORNING("반차-오전", "P"),
-    HALF_AFTERNOON("반차-오전", "P"),
+    HALF_AFTERNOON("반차-오후", "P"),
 
     MARRIAGE_SELF("본인의 결혼", "F"),
     MARRIAGE_CHILD("자녀의 결혼", "F"),

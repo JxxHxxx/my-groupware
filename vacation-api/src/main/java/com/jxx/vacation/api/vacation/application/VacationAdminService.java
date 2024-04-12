@@ -3,11 +3,13 @@ package com.jxx.vacation.api.vacation.application;
 import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
-import com.jxx.vacation.api.vacation.dto.request.FamilyOccasionPolicyForm;
+import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyForm;
+import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyRequest;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.listener.CommonVacationCreateEvent;
+import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.vacation.domain.entity.*;
-import com.jxx.vacation.core.vacation.infra.FamilyOccasionPolicyRepository;
+import com.jxx.vacation.core.vacation.infra.CompanyVacationTypePolicyRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VacationAdminService {
 
-    private final FamilyOccasionPolicyRepository familyOccasionPolicyRepository;
+    private final CompanyVacationTypePolicyRepository companyVacationTypePolicyRepository;
     private final MemberLeaveRepository memberLeaveRepository;
     private final VacationRepository vacationRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -33,15 +35,17 @@ public class VacationAdminService {
     private static final String COMMON_VACATION_DEPARTMENT_CODE = "ALL";
 
     @Transactional
-    public List<FamilyOccasionPolicyResponse> addFamilyOccasionPolicies(List<FamilyOccasionPolicyForm> forms) {
-        List<FamilyOccasionPolicy> policies = forms.stream()
-                .map(form -> new FamilyOccasionPolicy(
+    public List<FamilyOccasionPolicyResponse> addCompanyVacationTypePolicies(CompanyVacationTypePolicyRequest policyRequest) {
+        List<CompanyVacationTypePolicyForm> forms = policyRequest.form();
+        List<CompanyVacationTypePolicy> policies = forms.stream()
+                .map(form -> new CompanyVacationTypePolicy(
                         form.companyId(),
                         VacationType.valueOf(form.vacationType()),
-                        form.vacationDay()))
+                        form.vacationDay(),
+                        new Creator(policyRequest.adminId(),"ADMIN-API")))
                 .toList();
 
-        List<FamilyOccasionPolicy> savedPolicies = familyOccasionPolicyRepository.saveAll(policies);
+        List<CompanyVacationTypePolicy> savedPolicies = companyVacationTypePolicyRepository.saveAll(policies);
         return savedPolicies.stream()
                 .map(policy -> new FamilyOccasionPolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
                 .toList();

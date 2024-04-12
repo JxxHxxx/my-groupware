@@ -5,10 +5,12 @@ import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.vacation.application.VacationAdminService;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
-import com.jxx.vacation.api.vacation.dto.request.FamilyOccasionPolicyRequest;
+import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyForm;
+import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyRequest;
 import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +48,11 @@ public class VacationAdminController {
 
     //
     @PostMapping("/admin/vacations/family-occasion-policies")
-    public ResponseEntity<?> addFamilyOccasionPolicies(@RequestBody FamilyOccasionPolicyRequest request) {
+    public ResponseEntity<?> addCompanyVacationTypePolicies(@RequestBody List<CompanyVacationTypePolicyForm> form, HttpServletRequest httpRequest) {
+        UserSession userSession = authService.getUserSession(httpRequest);
+        CompanyVacationTypePolicyRequest request = new CompanyVacationTypePolicyRequest(userSession.getMemberId(), form);
         // 관리자 처리 로직
-        List<FamilyOccasionPolicyResponse> responses = vacationAdminService.addFamilyOccasionPolicies(request.form());
+        List<FamilyOccasionPolicyResponse> responses = vacationAdminService.addCompanyVacationTypePolicies(request);
 
         return ResponseEntity.ok(new ResponseResult<>(200, "경조 정책 생성 완료", responses));
     }
