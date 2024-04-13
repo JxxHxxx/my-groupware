@@ -1,13 +1,16 @@
 package com.jxx.vacation.api.vacation.application;
 
+import com.jxx.vacation.api.excel.application.CompanyVacationTypePolicyExcelReader;
+import com.jxx.vacation.api.excel.application.ExcelReader;
 import com.jxx.vacation.api.vacation.application.function.ConfirmRaiseApiAdapter;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
-import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
+import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
 import com.jxx.vacation.api.vacation.query.VacationDynamicMapper;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
+import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.common.history.History;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
@@ -23,6 +26,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -196,19 +201,6 @@ public class VacationService {
                 vacation.getVacationDuration(),
                 vacation.getVacationStatus());
     }
-
-    public List<FamilyOccasionPolicyResponse> findFamilyOccasionPoliciesByCompanyId(String companyId) {
-        List<CompanyVacationTypePolicy> policies = companyVacationTypePolicyRepository.findByCompanyId(companyId);
-
-        return policies.stream()
-                .map(policy -> new FamilyOccasionPolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
-                .toList();
-    }
-
-    public List<DepartmentVacationProjection> searchVacations(VacationSearchCondition condition) {
-        return vacationDynamicMapper.search(condition);
-    }
-    
     
     // 여기 추가 처리해야함
     @Transactional
@@ -231,4 +223,28 @@ public class VacationService {
                 vacation.getVacationDuration(),
                 vacation.getVacationStatus());
     }
+
+    @Transactional
+    public void setCompanyVacationPolicies(InputStream inputStream, String memberId) throws IOException {
+        ExcelReader<CompanyVacationTypePolicy> excelReader = new CompanyVacationTypePolicyExcelReader(inputStream);
+        List<CompanyVacationTypePolicy> vacationTypePolicies = excelReader.readAllRow();
+        vacationTypePolicies.stream().forEach(vtp -> vtp.setCreator(new Creator(memberId,"API")));
+        companyVacationTypePolicyRepository.saveAll(vacationTypePolicies);
+    }
+
+    public List<VacationTypePolicyResponse> findCompanyVacationTypePolicies(String companyId) {
+        List<CompanyVacationTypePolicy> policies = companyVacationTypePolicyRepository.findByCompanyId(companyId);
+
+        return policies.stream()
+                .map(policy -> new VacationTypePolicyResponse(
+                        policy.getCompanyId(),
+                        policy.getVacationType(),
+                        policy.getVacationDay()))
+                .toList();
+    }
+
+    public List<DepartmentVacationProjection> searchVacations(VacationSearchCondition condition) {
+        return vacationDynamicMapper.search(condition);
+    }
+
 }

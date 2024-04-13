@@ -21,7 +21,7 @@ public enum VacationType {
     CHILD_BIRTH_SPOUSE("배우자의 출산", "F"),
 
     REVERSE_FORCES("예비군 훈련", "F"),
-    DEATH_GRAND_PARENT_SELF("부모의 사망", "F"),
+    DEATH_GRAND_PARENT_SELF("조부모의 사망", "F"),
     DEATH_PARENT_SELF("부모의 사망", "F"),
     DEATH_SIBLING_SELF("본인 형제자매의 사망", "F"),
     DEATH_SPOUSE("배우자의 사망", "F"),

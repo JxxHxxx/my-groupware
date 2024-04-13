@@ -1,8 +1,9 @@
 package com.jxx.vacation.api.excel.application;
 
+import com.jxx.vacation.api.excel.ExcelFileReadException;
+import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.vacation.domain.entity.CompanyVacationTypePolicy;
 import com.jxx.vacation.core.vacation.domain.entity.VacationType;
-import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 
@@ -13,17 +14,20 @@ import java.util.*;
 @Slf4j
 public class CompanyVacationTypePolicyExcelReader implements ExcelReader<CompanyVacationTypePolicy>{
 
+    private static final List<String> COLUMN_NAMES = List.of("회사코드", "휴가유형", "휴가일수");
+    private static final String PURPOSE = "휴가 정책 조회";
+    private static final String SHEET_NAME = "특별 휴가 정책";
+
     private final Sheet sheet;
     private final int lastRowNum;
-    private static final List<String> columnNames = List.of("회사코드", "휴가유형", "휴가일수");
 
     public CompanyVacationTypePolicyExcelReader(InputStream inputStream) throws IOException {
         Workbook workbook = WorkbookFactory.create(inputStream);
         try {
-            this.sheet = workbook.getSheet("특별 휴가 정책");
+            this.sheet = workbook.getSheet(SHEET_NAME);
         } catch (NullPointerException e) {
             log.warn("특별 휴가 정책 시트가 존재하지 않습니다.");
-            throw new VacationClientException("특별 휴가 정책 시트가 존재하지 않습니다.");
+            throw new ExcelFileReadException(PURPOSE, "특별 휴가 정책 시트가 존재하지 않습니다.", e);
         }
         this.lastRowNum = sheet.getLastRowNum();
         validateColumnNames();
@@ -31,11 +35,11 @@ public class CompanyVacationTypePolicyExcelReader implements ExcelReader<Company
 
     private void validateColumnNames() {
         Row row = sheet.getRow(0);
-        int columnNameSize = columnNames.size();
+        int columnNameSize = COLUMN_NAMES.size();
         for (int columnNameIndex = 0; columnNameIndex < columnNameSize; columnNameIndex++) {
             Cell cell = row.getCell(columnNameIndex);
-            if (!columnNames.get(columnNameIndex).equals(cell.getStringCellValue())) {
-                throw new VacationClientException("올바른 형식이 아닙니다.");
+            if (!COLUMN_NAMES.get(columnNameIndex).equals(cell.getStringCellValue())) {
+                throw new ExcelFileReadException(PURPOSE, "올바른 형식이 아닙니다.");
             }
         }
     }
@@ -50,7 +54,7 @@ public class CompanyVacationTypePolicyExcelReader implements ExcelReader<Company
         VacationType vacationType = Arrays.stream(VacationType.values())
                 .filter(vt -> vt.getDescription().equals(vacationTypeDescription))
                 .findFirst()
-                .orElseThrow(() -> new VacationClientException(vacationTypeDescription + " 휴가 유형은 존재하지 않습니다."));
+                .orElseThrow(() -> new ExcelFileReadException(PURPOSE, vacationTypeDescription + " 휴가 유형은 존재하지 않습니다."));
 
         float vacationDay = (float) row.getCell(2).getNumericCellValue();
 

@@ -1,6 +1,7 @@
 package com.jxx.vacation.api.vacation.presentation;
 
 import com.jxx.vacation.api.common.web.ServerCommunicationException;
+import com.jxx.vacation.api.excel.ExcelFileReadException;
 import com.jxx.vacation.api.member.presentation.UnAuthenticationException;
 import com.jxx.vacation.api.vacation.dto.response.ClientExceptionResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
@@ -42,6 +43,14 @@ public class VacationApiExceptionHandler {
     public ResponseEntity<?> handleServerServiceException(ConnectException exception) {
         return ResponseEntity.internalServerError()
                 .body(new ResponseResult<>(500, exception.getMessage(), null));
+
+    }
+
+    @ExceptionHandler(ExcelFileReadException.class)
+    public ResponseEntity<?> handleExcelFileReadException(ExcelFileReadException exception) {
+        log.error("[{}][{}]", exception.purpose(), exception.getMessage());
+        return ResponseEntity.badRequest()
+                .body(new ResponseResult<>(400, exception.getMessage(), exception.purpose()));
 
     }
 }

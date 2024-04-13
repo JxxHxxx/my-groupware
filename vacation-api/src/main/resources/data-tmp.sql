@@ -960,3 +960,30 @@ SELECT MEMBER_PK, ENTERED_DATE, EXPERIENCE_YEARS, IS_ACTIVE, MEMBER_ID, NAME, RE
 FROM JXX_MEMBER_LEAVE_MASTER JMLM;
 
 
+-- vacation type code
+CREATE TABLE `jxx_company_vacation_type_policy_code` (
+    `COMPANY_VACATION_TYPE_POLICY_CODE_PK` bigint NOT NULL AUTO_INCREMENT COMMENT '경조 휴가 정책 PK',
+    `VACATION_TYPE_CODE` varchar(50) DEFAULT NULL COMMENT '휴가(경조) 유형 코드',
+    `VACATION_TYPE_NAME` varchar(50) DEFAULT NULL COMMENT '휴가(경조) 유형 명',
+    `DETAIL_TYPE` varchar(10) DEFAULT NULL COMMENT '세부 유형',
+    PRIMARY KEY (`COMPANY_VACATION_TYPE_POLICY_CODE_PK`),
+    UNIQUE KEY `IDX_VACATION_TYPE` (`VACATION_TYPE_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO jxx_company_vacation_type_policy_code
+(VACATION_TYPE_CODE, VACATION_TYPE_NAME, DETAIL_TYPE)
+values
+    ('MORE_DAY', '1일 이상의 연차', 'P'),
+    ('HALF_MORNING', '반차-오전', 'P'),
+    ('HALF_AFTERNOON', '반차-오후', 'P'),
+    ('MARRIAGE_SELF', '본인의 결혼', 'F'),
+    ('MARRIAGE_CHILD', '자녀의 결혼', 'F'),
+    ('CHILD_BIRTH_SELF', '본인의 출산', 'F'),
+    ('CHILD_BIRTH_SPOUSE', '배우자의 출산', 'F'),
+    ('REVERSE_FORCES', '예비군 훈련', 'F'),
+    ('DEATH_GRAND_PARENT_SELF', '조부모의 사망', 'F'),
+    ('DEATH_PARENT_SELF', '부모의 사망', 'F'),
+    ('DEATH_SIBLING_SELF', '본인 형제자매의 사망', 'F'),
+    ('DEATH_SPOUSE', '배우자의 사망', 'F'),
+    ('DEATH_CHILD', '자녀의 사망', 'F'),
+    ('COMMON_VACATION', '공동 연차', 'C');

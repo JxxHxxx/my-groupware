@@ -5,7 +5,7 @@ import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
 import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyRequest;
-import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
+import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.listener.CommonVacationCreateEvent;
 import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.vacation.domain.entity.*;
@@ -35,7 +35,7 @@ public class VacationAdminService {
     private static final String COMMON_VACATION_DEPARTMENT_CODE = "ALL";
 
     @Transactional
-    public List<FamilyOccasionPolicyResponse> addCompanyVacationTypePolicies(CompanyVacationTypePolicyRequest policyRequest) {
+    public List<VacationTypePolicyResponse> addCompanyVacationTypePolicies(CompanyVacationTypePolicyRequest policyRequest) {
         List<CompanyVacationTypePolicyForm> forms = policyRequest.form();
         List<CompanyVacationTypePolicy> policies = forms.stream()
                 .map(form -> new CompanyVacationTypePolicy(
@@ -47,7 +47,7 @@ public class VacationAdminService {
 
         List<CompanyVacationTypePolicy> savedPolicies = companyVacationTypePolicyRepository.saveAll(policies);
         return savedPolicies.stream()
-                .map(policy -> new FamilyOccasionPolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
+                .map(policy -> new VacationTypePolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
                 .toList();
 
     }

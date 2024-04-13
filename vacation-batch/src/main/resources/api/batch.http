@@ -1,4 +1,4 @@
-### 휴가 상태 ONGING
+### 휴가 시작일에 돌아야 하는 배치 휴가 상태 APPROVE -> ONGING
 POST http://localhost:8070/batch/job/run
 Content-Type: application/json
 
@@ -16,8 +16,8 @@ Content-Type: application/json
 
 {
   "properties": {
-    "run.id": "ADMIN20240403-003",
-    "processDate": "2024-04-03 00:00:00"
+    "run.id": "ADMIN20240407-001",
+    "processDate": "2024-04-07 00:00:00"
   }
 }
 

@@ -39,4 +39,8 @@ public class CompanyVacationTypePolicy {
         this.vacationDay = vacationDay;
         this.creator = creator;
     }
+
+    public void setCreator(Creator creator) {
+        this.creator = creator;
+    }
 }

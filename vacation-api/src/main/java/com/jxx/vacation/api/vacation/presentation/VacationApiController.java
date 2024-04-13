@@ -1,21 +1,24 @@
 package com.jxx.vacation.api.vacation.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jxx.vacation.api.member.application.AuthService;
+import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.vacation.application.VacationService;
 import com.jxx.vacation.api.vacation.dto.request.ConfirmStatusChangeRequest;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
-import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
-import com.jxx.vacation.api.vacation.dto.response.FamilyOccasionPolicyResponse;
+import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
 import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +27,7 @@ import java.util.List;
 public class VacationApiController {
 
     private final VacationService vacationService;
+    private final AuthService authService;
 
     /*** 휴가 작성 API, 결재 서버에는 결재 데이터 생성
      * 결재 서버에서 결재 문서 ID 값을 가져와야 함 */
@@ -85,7 +89,7 @@ public class VacationApiController {
 
     @GetMapping("/api/vacations/family-occasion-policies")
     public ResponseEntity<?> readFamilyOccasionPolicies(@RequestParam("companyId") String companyId) {
-        List<FamilyOccasionPolicyResponse> responses = vacationService.findFamilyOccasionPoliciesByCompanyId(companyId);
+        List<VacationTypePolicyResponse> responses = vacationService.findCompanyVacationTypePolicies(companyId);
         return ResponseEntity.ok(responses);
     }
     @GetMapping("/api/vacations")
@@ -105,4 +109,14 @@ public class VacationApiController {
         VacationServiceResponse response = vacationService.fetchVacationStatus(vacationId, request.vacationStatus());
         return ResponseEntity.ok(new ResponseResult<>(200, "요청 완료", response));
     }
+
+    @PostMapping("/api/vacations/set-vacation-type-policy")
+    public ResponseEntity<?> setCompanyVacationPolicies(@RequestParam("file") MultipartFile file, HttpServletRequest httpRequest) throws IOException {
+        UserSession userSession = authService.getUserSession(httpRequest);
+        vacationService.setCompanyVacationPolicies(file.getInputStream(), userSession.getMemberId());
+        return ResponseEntity.ok(200);
+    }
+
+    // JSON 버전
+
 }
