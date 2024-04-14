@@ -5,6 +5,7 @@ import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.vacation.application.VacationService;
 import com.jxx.vacation.api.vacation.dto.request.ConfirmStatusChangeRequest;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.vacation.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
@@ -118,5 +119,11 @@ public class VacationApiController {
     }
 
     // JSON 버전
+    @PostMapping("/api/vacations/set-vacation-type-policy-v2")
+    public ResponseEntity<?> setCompanyVacationPolicies(@RequestBody List<VacationTypePolicyForm> forms, HttpServletRequest httpRequest) throws IOException {
+        UserSession userSession = authService.getUserSession(httpRequest);
+        vacationService.setCompanyVacationPolicies(forms, userSession.getMemberId());
+        return ResponseEntity.ok(200);
+    }
 
 }

@@ -232,6 +232,20 @@ public class VacationService {
         companyVacationTypePolicyRepository.saveAll(vacationTypePolicies);
     }
 
+    @Transactional
+    public void setCompanyVacationPolicies(List<VacationTypePolicyForm> forms, String memberId) throws IOException {
+        List<CompanyVacationTypePolicy> vacationTypePolicies = forms.stream()
+                .map(form -> CompanyVacationTypePolicy.builder()
+                        .vacationType(VacationType.valueOf(form.vacationType()))
+                        .vacationDay(form.vacationDay())
+                        .creator(new Creator(memberId, "API"))
+                        .companyId(form.companyId())
+                        .build())
+                .toList();
+
+        companyVacationTypePolicyRepository.saveAll(vacationTypePolicies);
+    }
+
     public List<VacationTypePolicyResponse> findCompanyVacationTypePolicies(String companyId) {
         List<CompanyVacationTypePolicy> policies = companyVacationTypePolicyRepository.findByCompanyId(companyId);
 
