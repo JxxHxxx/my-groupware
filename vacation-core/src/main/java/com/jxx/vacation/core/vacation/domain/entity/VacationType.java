@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.List;
 
 /**
- * 필드 type 은 휴가 유형을 나타냄 P:개인 F:가족경조 S:그외
+ * 필드 type 은 휴가 유형을 나타냄 P:개인 F:가족경조 C:그외
  * description must be unique
  */
 @Getter
@@ -38,4 +38,10 @@ public enum VacationType {
     }
 
     public static final List<VacationType> HALF_VACATION_TYPE = List.of(HALF_MORNING, HALF_AFTERNOON);
+
+    public static final List<String> DEDUCT_TYPE = List.of("P", "C");
+
+    protected boolean deductType() {
+        return DEDUCT_TYPE.contains(type);
+    }
 }

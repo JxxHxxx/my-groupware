@@ -60,8 +60,12 @@ public class Vacation {
         this.createTime = LocalDateTime.now();
     }
 
-    public static Vacation createVacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, companyId, leaveDeduct, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
+    public static Vacation createDeductVacation(String requesterId, String companyId, VacationDuration vacationDuration) {
+        return new Vacation(requesterId, companyId, LeaveDeduct.DEDUCT, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
+    }
+
+    public static Vacation createNotDeductVacation(String requesterId, String companyId, VacationDuration vacationDuration) {
+        return new Vacation(requesterId, companyId, LeaveDeduct.NOT_DEDUCT, vacationDuration, !DEDUCTED_DEFAULT_VALUE, CREATE);
     }
 
     public void changeVacationStatus(VacationStatus vacationStatus) {

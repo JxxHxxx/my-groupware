@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -40,10 +41,13 @@ public class VacationDuration {
     }
 
     public float calculateDate() {
-        return ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
+        long vacationDateCount = ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
+        long notWorkingDateCount = countNotWorkingDate();
+        return vacationDateCount - notWorkingDateCount;
     }
 
-    public void isInVacationDate(LocalDateTime localDateTime) {
+    // already
+    public void isAlreadyInVacationDate(LocalDateTime localDateTime) {
         boolean isLocalDateTimeBetweenVacationDuration = (localDateTime.isAfter(startDateTime) && localDateTime.isBefore(endDateTime))
                 || localDateTime.isEqual(startDateTime) || localDateTime.isEqual(endDateTime);
 
@@ -63,5 +67,18 @@ public class VacationDuration {
 
         return dates;
     }
+
+    public boolean isDeductVacationType() {
+        return vacationType.deductType();
+    }
+
+    // 휴일, 공휴일...
+    public long countNotWorkingDate() {
+        List<LocalDateTime> vacationDateTimes = receiveVacationDateTimes();
+        return vacationDateTimes.stream()
+                .filter(vacationDateTime -> vacationDateTime.getDayOfWeek().equals(DayOfWeek.SATURDAY) || vacationDateTime.getDayOfWeek().equals(DayOfWeek.SUNDAY))
+                .count();
+    }
+
 
 }

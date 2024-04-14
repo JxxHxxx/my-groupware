@@ -48,6 +48,11 @@ class VacationServiceTest {
 
     @BeforeEach
     void beforeEach() {
+        vacationRepository.deleteAll();
+        memberLeaveRepository.deleteAll();
+        organizationRepository.deleteAll();
+        messageQRepository.deleteAll();
+
         Organization organization = new Organization("O0001", "TJX", "TJ0001", "테스트부서", "TOP", "최상위부서");
         MemberLeave memberLeave = MemberLeave.builder()
                 .memberId("T0001")
@@ -68,6 +73,7 @@ class VacationServiceTest {
         vacationRepository.deleteAll();
         memberLeaveRepository.deleteAll();
         organizationRepository.deleteAll();
+        messageQRepository.deleteAll();
     }
 
     @DisplayName("휴가 생성 통합 테스트" +
@@ -120,12 +126,14 @@ class VacationServiceTest {
 
         assertThat(messages).isNotEmpty();
         assertThat(messages).extracting("body.requester_id").containsExactly(memberId);
+        // 이유 찾아야됨
         assertThat(messages).extracting("body.confirm_document_id").containsExactly(confirmDocumentId);
         assertThat(messages).extracting("body.confirm_status").containsExactly(ConfirmStatus.CREATE.name());
         assertThat(messages).extracting("body.approval_line_life_cycle").containsExactly(BEFORE_CREATE.name());
     }
 
-    @DisplayName("휴가 신청이 되지 않을 경우,")
+    @DisplayName("차감 일 수가 잔여 연차일을 초과할 경우, VacationClientException 예외가 발생하고" +
+            " 휴가 엔티티는 생성되지 않는다.")
     @Test
     void create_vacation_success_fail() {
         String memberId = "T0001";
@@ -133,7 +141,7 @@ class VacationServiceTest {
         RequestVacationForm vacationForm = new RequestVacationForm(
                 memberLeave.getMemberId(), new VacationDuration(VacationType.MORE_DAY,
                 LocalDateTime.of(2024, 3, 1, 0, 0),
-                LocalDateTime.of(2024, 3, 17, 0, 0)));
+                LocalDateTime.of(2024, 3, 30, 0, 0)));
 
         assertThatThrownBy(() -> vacationService.createVacation(vacationForm))
                 .isInstanceOf(VacationClientException.class);

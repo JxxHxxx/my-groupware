@@ -4,6 +4,7 @@ import com.jxx.vacation.api.excel.application.CompanyVacationTypePolicyExcelRead
 import com.jxx.vacation.api.excel.application.ExcelReader;
 import com.jxx.vacation.api.vacation.application.function.ConfirmRaiseApiAdapter;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.vacation.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
@@ -57,7 +58,6 @@ public class VacationService {
                 .orElseThrow(() -> new VacationClientException("requesterId " + requesterId + " not found", requesterId));
 
         VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
-        vacationManager.validateMemberActive(); // 활성화 된 사용자인지 검증
 
         List<Vacation> requestingVacations = vacationRepository.findAllByRequesterId(requesterId);
         // 신청일이 이미 휴가로 지정되었거나
@@ -69,6 +69,8 @@ public class VacationService {
             // TODO 매번 연산하는것보다 DB에 박아버리는것도 나쁘지 않을듯.
             vacationManager.validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(requestingVacations);
         }
+
+        // 주말 검증해야됨
 
         final Vacation savedVacation = vacationRepository.save(vacation);
         vacationHistRepository.save(new VacationHistory(vacation, History.insert(vacation.getRequesterId())));

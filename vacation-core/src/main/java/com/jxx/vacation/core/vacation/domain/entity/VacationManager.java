@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
-import static com.jxx.vacation.core.vacation.domain.entity.VacationType.*;
 
 @Slf4j
 public class VacationManager {
@@ -31,27 +30,46 @@ public class VacationManager {
         return new VacationManager(vacation, memberLeave);
     }
 
+    // create
     private VacationManager(VacationDuration vacationDuration, MemberLeave memberLeave) {
         this.memberLeave = memberLeave;
         this.vacation = create(vacationDuration);
         this.vacationDate = VacationCalculator.getVacationDuration(this.vacation);
+
+        validateMemberActive();
     }
 
+    // update
     private VacationManager(Vacation vacation, MemberLeave memberLeave) {
         this.vacationDate = VacationCalculator.getVacationDuration(vacation);
         this.memberLeave = memberLeave;
         this.vacation = vacation;
+
+        validateMemberActive();
     }
 
     protected Vacation create(VacationDuration vacationDuration) {
-        String requesterId = memberLeave.getMemberId();
-        String companyId = memberLeave.receiveCompanyId();
-        return Vacation
-                .createVacation(requesterId, companyId, LeaveDeduct.DEDUCT, vacationDuration);
+        return decideDeduct(vacationDuration, memberLeave.getMemberId(), memberLeave.receiveCompanyId());
+    }
+
+    private Vacation decideDeduct(VacationDuration vacationDuration, String requesterId, String companyId) {
+        return vacationDuration.isDeductVacationType() ?
+                Vacation.createDeductVacation(requesterId, companyId, vacationDuration) :
+                Vacation.createNotDeductVacation(requesterId, companyId, vacationDuration);
     }
 
     public boolean validateMemberActive() {
-        return validateMemberActive(memberLeave, vacation);
+        Organization organization = memberLeave.getOrganization();
+        try {
+            memberLeave.checkActive();
+            organization.checkActive();
+
+        } catch (InactiveException e) {
+            log.warn("MESSAGE:{}", e.getMessage(), e);
+            vacation.changeVacationStatus(FAIL);
+            return false;
+        }
+        return true;
     }
 
     public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> requestVacations) {
@@ -87,7 +105,7 @@ public class VacationManager {
 
         for (VacationDuration vacationDuration : confirmingAndOngoingVacationDurations) {
             for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
-                vacationDuration.isInVacationDate(requestVacationDateTime);
+                vacationDuration.isAlreadyInVacationDate(requestVacationDateTime);
             }
         }
     }
@@ -128,20 +146,6 @@ public class VacationManager {
         return this.memberLeave;
     }
 
-    protected boolean validateMemberActive(MemberLeave memberLeave, Vacation vacation) {
-        Organization organization = memberLeave.getOrganization();
-        try {
-            memberLeave.checkActive();
-            organization.checkActive();
-
-        } catch (InactiveException e) {
-            log.warn("MESSAGE:{}", e.getMessage(), e);
-            vacation.changeVacationStatus(FAIL);
-            return false;
-        }
-
-        return true;
-    }
 
     // 휴가 취소 (결재 문서를 취소)
     public Vacation cancel() {
