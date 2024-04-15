@@ -1,6 +1,7 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
+import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,10 +49,10 @@ public class VacationDuration {
         vacation.addVacationDuration(this);
     }
 
-    public VacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, Float useLeaveValue) {
+    public VacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, LeaveDeduct leaveDeduct) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.useLeaveValue = useLeaveValue;
+        this.useLeaveValue = VacationCalculator.calculateUseLeaveValue(leaveDeduct, startDateTime, endDateTime);
     }
 
     public float calculateDate() {

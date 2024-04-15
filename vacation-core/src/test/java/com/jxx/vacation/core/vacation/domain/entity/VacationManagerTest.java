@@ -61,7 +61,7 @@ class VacationManagerTest {
         LocalDateTime endDate2 = LocalDateTime.of(2024, 3, 3, 0, 0);
         List<VacationDuration> vacationDuration2 = List.of(new VacationDuration(startDate2, endDate2, 2f));
 
-        Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, vacationDuration2, true, vacationStatus);
+        Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, VacationType.MORE_DAY, vacationStatus);
 
         //WHEN - THEN
         assertThatThrownBy(() -> vacationManager.validateVacationDatesAreDuplicated(List.of(existedVacation)))
@@ -90,7 +90,7 @@ class VacationManagerTest {
 
 
         //WHEN - THEN
-        Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, vacationDuration2, true, vacationStatus);
+        Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, VacationType.MORE_DAY, vacationStatus);
 
         assertThatCode(() -> vacationManager.validateVacationDatesAreDuplicated(List.of(existedVacation)))
                 .doesNotThrowAnyException();
@@ -115,28 +115,16 @@ class VacationManagerTest {
 
         Vacation vacation1 = Vacation.builder()
                 .vacationStatus(VacationStatus.APPROVED)
-                .vacationDurations(List.of(new VacationDuration(
-                        LocalDateTime.of(2024, 6, 1, 0, 0),
-                        LocalDateTime.of(2024, 6, 4, 0, 0),
-                        4f)))
                 .requesterId("T0001")
                 .build();
 
         Vacation vacation2 = Vacation.builder()
                 .vacationStatus(VacationStatus.REQUEST)
-                .vacationDurations(List.of(new VacationDuration(
-                        LocalDateTime.of(2024, 5, 1, 0, 0),
-                        LocalDateTime.of(2024, 5, 4, 0, 0),
-                        4f)))
                 .requesterId("T0001")
                 .build();
 
         Vacation vacation3 = Vacation.builder()
                 .vacationStatus(VacationStatus.REQUEST)
-                .vacationDurations(List.of(new VacationDuration(
-                        LocalDateTime.of(2024, 6, 1, 0, 0),
-                        LocalDateTime.of(2024, 6, 4, 0, 0),
-                        4f)))
                 .requesterId("T0001")
                 .build();
 
@@ -162,32 +150,20 @@ class VacationManagerTest {
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
-        VacationManager vacationManager = VacationManager.create(vacationDuration, VacationType.MORE_DAY, memberLeave);
+        VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
 
         Vacation vacation1 = Vacation.builder()
                 .vacationStatus(VacationStatus.APPROVED)
-                .vacationDurations(List.of(new VacationDuration(
-                        LocalDateTime.of(2024, 6, 1, 0, 0),
-                        LocalDateTime.of(2024, 6, 4, 0, 0),
-                        4f)))
                 .requesterId("T0001")
                 .build();
 
         Vacation vacation2 = Vacation.builder()
                 .vacationStatus(VacationStatus.REQUEST)
-                .vacationDurations(List.of(new VacationDuration(
-                        LocalDateTime.of(2024, 6, 1, 0, 0),
-                        LocalDateTime.of(2024, 6, 4, 0, 0),
-                        4f)))
                 .requesterId("T0001")
                 .build();
 
         Vacation vacation3 = Vacation.builder()
                 .vacationStatus(VacationStatus.REQUEST)
-                .vacationDurations(List.of(new VacationDuration(
-                        LocalDateTime.of(2024, 6, 1, 0, 0),
-                        LocalDateTime.of(2024, 6, 4, 0, 0),
-                        4f)))
                 .requesterId("T0001")
                 .build();
 

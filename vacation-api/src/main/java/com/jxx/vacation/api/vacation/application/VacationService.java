@@ -62,8 +62,7 @@ public class VacationService {
 
         Vacation vacation = vacationManager.getVacation();
         List<VacationDuration> vacationDurations = vacationForm.requestVacationDurations().stream()
-                .map(rvd -> new VacationDuration(rvd.startDateTime(), rvd.endDateTime(),
-                        VacationCalculator.calculateUseLeaveValue(vacationForm.leaveDeduct(), rvd.startDateTime(), rvd.endDateTime())))
+                .map(rvd -> new VacationDuration(rvd.startDateTime(), rvd.endDateTime(), vacationForm.leaveDeduct()))
                 .toList();
 
         for (VacationDuration vacationDuration : vacationDurations) {

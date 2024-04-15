@@ -78,14 +78,6 @@ public class Vacation {
         this.createTime = LocalDateTime.now();
     }
 
-    protected Vacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationStatus vacationStatus) {
-        this.requesterId = requesterId;
-        this.companyId = companyId;
-        this.leaveDeduct = leaveDeduct;
-        this.vacationStatus = vacationStatus;
-        this.createTime = LocalDateTime.now();
-    }
-
     public boolean isDeductVacationType() {
         return vacationType.deductType();
     }
