@@ -1,10 +1,13 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
+import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
@@ -13,13 +16,9 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Table(name = "JXX_VACATION_MASTER", indexes = {
-        @Index(name = "IDX_REQUESTER_ID", columnList = "REQUESTER_ID"),
-        @Index(name = "IDX_START_DATE_TIME", columnList = "START_DATE_TIME"),
-        @Index(name = "IDX_END_DATE_TIME", columnList = "END_DATE_TIME")
+        @Index(name = "IDX_REQUESTER_ID", columnList = "REQUESTER_ID")
 })
 public class Vacation {
-
-    private final static boolean DEDUCTED_DEFAULT_VALUE = true;
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VACATION_ID")
@@ -34,8 +33,6 @@ public class Vacation {
     @Comment(value = "회사 식별자")
     private String companyId;
 
-    @Embedded
-    private VacationDuration vacationDuration;
     @Column(name = "LEAVE_DEDUCT", nullable = false)
     @Comment(value = "연차 차감 여부")
     @Enumerated(EnumType.STRING)
@@ -45,27 +42,59 @@ public class Vacation {
     @Enumerated(value = EnumType.STRING)
     private VacationStatus vacationStatus;
 
+    @Column(name = "VACATION_TYPE", nullable = false)
+    @Comment(value = "연차 유형")
+    @Enumerated(value = EnumType.STRING)
+    private VacationType vacationType;
+
     @Column(name = "CREATE_TIME", nullable = false)
     @Comment(value = "레코드 생성 시간")
     private LocalDateTime createTime;
 
+    @OneToMany(mappedBy = "vacation")
+    List<VacationDuration> vacationDurations = new ArrayList<>();
+
+    public float useLeaveValueSum() {
+        List<Float> vacationDates = vacationDurations.stream()
+                .map(vd -> vd.getUseLeaveValue())
+                .toList();
+
+        Float useLeaveValue = 0F;
+        for (Float vacationDate : vacationDates) {
+            useLeaveValue += vacationDate;
+        }
+
+        return useLeaveValue;
+    }
 
     @Builder
-    public Vacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationDuration vacationDuration, boolean deducted, VacationStatus vacationStatus) {
+    public Vacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationType vacationType,
+                    VacationStatus vacationStatus) {
         this.requesterId = requesterId;
         this.companyId = companyId;
         this.leaveDeduct = leaveDeduct;
-        this.vacationDuration = vacationDuration;
+        this.vacationType = vacationType;
         this.vacationStatus = vacationStatus;
         this.createTime = LocalDateTime.now();
     }
 
-    public static Vacation createDeductVacation(String requesterId, String companyId, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, companyId, LeaveDeduct.DEDUCT, vacationDuration, DEDUCTED_DEFAULT_VALUE, CREATE);
+    protected Vacation(String requesterId, String companyId, LeaveDeduct leaveDeduct, VacationStatus vacationStatus) {
+        this.requesterId = requesterId;
+        this.companyId = companyId;
+        this.leaveDeduct = leaveDeduct;
+        this.vacationStatus = vacationStatus;
+        this.createTime = LocalDateTime.now();
     }
 
-    public static Vacation createNotDeductVacation(String requesterId, String companyId, VacationDuration vacationDuration) {
-        return new Vacation(requesterId, companyId, LeaveDeduct.NOT_DEDUCT, vacationDuration, !DEDUCTED_DEFAULT_VALUE, CREATE);
+    public boolean isDeductVacationType() {
+        return vacationType.deductType();
+    }
+    public static Vacation createDeductVacation(String requesterId, String companyId, VacationType vacationType) {
+        return new Vacation(requesterId, companyId, LeaveDeduct.DEDUCT, vacationType, CREATE);
+    }
+
+    public static Vacation createNotDeductVacation(String requesterId, String companyId, VacationType vacationType) {
+        return new Vacation(requesterId, companyId, LeaveDeduct.NOT_DEDUCT, vacationType, CREATE);
     }
 
     public void changeVacationStatus(VacationStatus vacationStatus) {
@@ -77,7 +106,7 @@ public class Vacation {
     }
 
     public VacationType vacationType() {
-        return this.getVacationDuration().getVacationType();
+        return this.vacationType;
     }
 
     public boolean isMoreThanDayVacation(){
@@ -85,15 +114,29 @@ public class Vacation {
         return vacationType.equals(VacationType.MORE_DAY);
     }
 
-    protected void updateVacationDuration(VacationDuration vacationDuration) {
-        this.vacationDuration = new VacationDuration(
-                vacationDuration.getVacationType(),
-                vacationDuration.getStartDateTime(),
-                vacationDuration.getEndDateTime());
+    public void addAllVacationDuration(List<VacationDuration> vacationDuration) {
+        vacationDurations.addAll(vacationDuration);
     }
 
-    public VacationType receiveVacationType() {
-        return vacationDuration.getVacationType();
+    public List<VacationDurationDto> receiveVacationDurationDto() {
+        return vacationDurations.stream()
+                .map(vd -> new VacationDurationDto(vd.getId(),vd.getStartDateTime(), vd.getEndDateTime(), vd.getUseLeaveValue()))
+                .toList();
     }
+
+    public void addVacationDuration(VacationDuration vacationDuration) {
+        vacationDurations.add(vacationDuration);
+    }
+
+    public Float getTotalUseLeaveValue() {
+        return vacationDurations.stream().map(vd -> vd.getUseLeaveValue()).reduce((prev, now) -> prev + now).get();
+    }
+
+//    protected void updateVacationDuration(List<VacationDuration> vacationDurations) {
+//        this.vacationDuration = new VacationDuration(
+//                vacationDuration.getVacationType(),
+//                vacationDuration.getStartDateTime(),
+//                vacationDuration.getEndDateTime());
+//    }
 }
 

@@ -35,8 +35,6 @@ public class VacationHistory {
     @Comment(value = "회사 식별자")
     private String companyId;
 
-    @Embedded
-    private VacationDuration vacationDuration;
     @Column(name = "LEAVE_DEDUCT", nullable = false)
     @Comment(value = "연차 차감 여부")
     @Enumerated(EnumType.STRING)
@@ -57,7 +55,6 @@ public class VacationHistory {
         this.vacationId = vacation.getId();
         this.requesterId = vacation.getRequesterId();
         this.companyId = vacation.getCompanyId();
-        this.vacationDuration = vacation.getVacationDuration();
         this.leaveDeduct = vacation.getLeaveDeduct();
         this.vacationStatus = vacation.getVacationStatus();
         this.createTime = vacation.getCreateTime();

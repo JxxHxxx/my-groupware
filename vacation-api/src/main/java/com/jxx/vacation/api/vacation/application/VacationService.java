@@ -3,9 +3,11 @@ package com.jxx.vacation.api.vacation.application;
 import com.jxx.vacation.api.excel.application.CompanyVacationTypePolicyExcelReader;
 import com.jxx.vacation.api.excel.application.ExcelReader;
 import com.jxx.vacation.api.vacation.application.function.ConfirmRaiseApiAdapter;
+import com.jxx.vacation.core.vacation.domain.RequestVacationDuration;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
+import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
 import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.listener.VacationCreatedEvent;
@@ -15,10 +17,8 @@ import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.common.history.History;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
-import com.jxx.vacation.core.vacation.infra.CompanyVacationTypePolicyRepository;
-import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
-import com.jxx.vacation.core.vacation.infra.VacationHistRepository;
-import com.jxx.vacation.core.vacation.infra.VacationRepository;
+import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
+import com.jxx.vacation.core.vacation.infra.*;
 
 import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +41,7 @@ public class VacationService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final VacationRepository vacationRepository;
+    private final VacationDurationRepository vacationDurationRepository;
     private final VacationHistRepository vacationHistRepository;
     private final MemberLeaveRepository memberLeaveRepository;
     private final CompanyVacationTypePolicyRepository companyVacationTypePolicyRepository;
@@ -57,26 +58,34 @@ public class VacationService {
         MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
                 .orElseThrow(() -> new VacationClientException("requesterId " + requesterId + " not found", requesterId));
 
-        VacationManager vacationManager = VacationManager.createVacation(vacationForm.vacationDuration(), memberLeave);
+        VacationManager vacationManager = VacationManager.create(memberLeave, vacationForm.vacationType(), vacationForm.leaveDeduct());
+
+        Vacation vacation = vacationManager.getVacation();
+        List<VacationDuration> vacationDurations = vacationForm.requestVacationDurations().stream()
+                .map(rvd -> new VacationDuration(rvd.startDateTime(), rvd.endDateTime(),
+                        VacationCalculator.calculateUseLeaveValue(vacationForm.leaveDeduct(), rvd.startDateTime(), rvd.endDateTime())))
+                .toList();
+
+        for (VacationDuration vacationDuration : vacationDurations) {
+            vacationDuration.mappingVacation(vacation);
+        }
+        vacationDurationRepository.saveAll(vacationDurations);
+        final Vacation savedVacation = vacationRepository.save(vacation);
 
         List<Vacation> requestingVacations = vacationRepository.findAllByRequesterId(requesterId);
         // 신청일이 이미 휴가로 지정되었거나
         vacationManager.validateVacationDatesAreDuplicated(requestingVacations);
         // TODO 근무일이 아닐 때 휴가를 신청했는지 검증 (테이블 필드 추가 필요)
 
-        Vacation vacation = vacationManager.getVacation();
         if (LeaveDeduct.isLeaveDeductVacation(vacation.getLeaveDeduct())) {
             // TODO 매번 연산하는것보다 DB에 박아버리는것도 나쁘지 않을듯.
             vacationManager.validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(requestingVacations);
         }
 
-        // 주말 검증해야됨
-
-        final Vacation savedVacation = vacationRepository.save(vacation);
         vacationHistRepository.save(new VacationHistory(vacation, History.insert(vacation.getRequesterId())));
-
+        Float totalUseLeaveValue = savedVacation.getTotalUseLeaveValue();
         if (savedVacation.successRequest()) {
-            eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, vacationManager.receiveVacationDate(), requesterId));
+            eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, totalUseLeaveValue, requesterId));
         }
         return createVacationServiceResponse(savedVacation, memberLeave);
     }
@@ -88,18 +97,21 @@ public class VacationService {
         }
     }
 
-
     public VacationServiceResponse readOne(String requesterId, Long vacationId) {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
         Vacation findVacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
 
+        List<VacationDurationDto> vacationDurationDto = findVacation.getVacationDurations().stream()
+                .map(vd -> new VacationDurationDto(vd.getId(), vd.getStartDateTime(), vd.getEndDateTime(), vd.getUseLeaveValue()))
+                .toList();
+
         return new VacationServiceResponse(
                 findVacation.getId(),
                 findVacation.getRequesterId(),
                 memberLeave.getName(),
-                findVacation.getVacationDuration(),
+                vacationDurationDto,
                 findVacation.getVacationStatus());
     }
 
@@ -108,12 +120,13 @@ public class VacationService {
                 .orElseThrow(() -> new IllegalArgumentException("조건에 해당하는 레코드가 존재하지 않습니다."));
         List<Vacation> oneRequesterVacations = vacationRepository.findAllByRequesterId(requesterId);
 
+
         return oneRequesterVacations.stream()
                 .map(vacation -> new VacationServiceResponse(
                         vacation.getId(),
                         vacation.getRequesterId(),
                         memberLeave.getName(),
-                        vacation.getVacationDuration(),
+                        vacation.receiveVacationDurationDto(),
                         vacation.getVacationStatus()
                 )).toList();
     }
@@ -138,7 +151,7 @@ public class VacationService {
             VacationServiceResponse response = new VacationServiceResponse(vacation.getId(),
                     vacation.getRequesterId(),
                     memberLeave.getName(),
-                    vacation.getVacationDuration(),
+                    vacation.receiveVacationDurationDto(),
                     vacation.getVacationStatus());
             return response;
         }
@@ -154,7 +167,7 @@ public class VacationService {
         return new VacationServiceResponse(vacation.getId(),
                 vacation.getRequesterId(),
                 memberLeave.getName(),
-                vacation.getVacationDuration(),
+                vacation.receiveVacationDurationDto(),
                 vacation.getVacationStatus());
     }
 
@@ -179,31 +192,30 @@ public class VacationService {
      * 수정 시, 메시지 큐 UPDATE 플래그로 날라가야 함
      */
 
-    @Transactional
-    public VacationServiceResponse updateVacation(Long vacationId, RequestVacationForm form) {
-        Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow();
-        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(vacation.getRequesterId())
-                .orElseThrow();
-
-        VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
-        vacationManager.validateMemberActive();
-        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
-        Vacation updatedVacation = vacationManager.update(form.vacationDuration());
-        vacationHistRepository.save(new VacationHistory(updatedVacation, History.update(vacation.getRequesterId())));
-
-        return createVacationServiceResponse(vacation, memberLeave);
-    }
-
+//    @Transactional
+//    public VacationServiceResponse updateVacation(Long vacationId, RequestVacationForm form) {
+//        Vacation vacation = vacationRepository.findById(vacationId)
+//                .orElseThrow();
+//        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(vacation.getRequesterId())
+//                .orElseThrow();
+//
+//        VacationManager vacationManager = VacationManager.updateVacation(vacation, memberLeave);
+//        vacationManager.validateMemberActive();
+//        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
+//        Vacation updatedVacation = vacationManager.update(form.vacationDuration());
+//        vacationHistRepository.save(new VacationHistory(updatedVacation, History.update(vacation.getRequesterId())));
+//
+//        return createVacationServiceResponse(vacation, memberLeave);
+//    }
     private static VacationServiceResponse createVacationServiceResponse(Vacation vacation, MemberLeave memberLeave) {
         return new VacationServiceResponse(
                 vacation.getId(),
                 vacation.getRequesterId(),
                 memberLeave.getName(),
-                vacation.getVacationDuration(),
+                vacation.receiveVacationDurationDto(),
                 vacation.getVacationStatus());
     }
-    
+
     // 여기 추가 처리해야함
     @Transactional
     public VacationServiceResponse fetchVacationStatus(Long vacationId, VacationStatus vacationStatus) {
@@ -222,7 +234,7 @@ public class VacationService {
                 vacation.getId(),
                 vacation.getRequesterId(),
                 null,
-                vacation.getVacationDuration(),
+                vacation.receiveVacationDurationDto(),
                 vacation.getVacationStatus());
     }
 
@@ -230,7 +242,7 @@ public class VacationService {
     public void setCompanyVacationPolicies(InputStream inputStream, String memberId) throws IOException {
         ExcelReader<CompanyVacationTypePolicy> excelReader = new CompanyVacationTypePolicyExcelReader(inputStream);
         List<CompanyVacationTypePolicy> vacationTypePolicies = excelReader.readAllRow();
-        vacationTypePolicies.stream().forEach(vtp -> vtp.setCreator(new Creator(memberId,"API")));
+        vacationTypePolicies.stream().forEach(vtp -> vtp.setCreator(new Creator(memberId, "API")));
         companyVacationTypePolicyRepository.saveAll(vacationTypePolicies);
     }
 

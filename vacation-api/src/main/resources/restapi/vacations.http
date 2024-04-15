@@ -27,12 +27,15 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "U00100",
-  "vacationDuration": {
-    "vacationType": "MORE_DAY",
-    "startDateTime": "2024-03-26T00:00",
-    "endDateTime": "2024-03-27T00:00"
-  }
+  "requesterId": "U00101",
+  "vacationType" : "MORE_DAY",
+  "leaveDeduct" : "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-03-26T00:00",
+      "endDateTime": "2024-03-28T00:00"
+    }
+  ]
 }
 
 ###

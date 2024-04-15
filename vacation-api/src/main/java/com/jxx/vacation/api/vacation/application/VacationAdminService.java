@@ -59,16 +59,15 @@ public class VacationAdminService {
         UserSession userSession = vacationServiceForm.userSession();
         CommonVacationForm commonVacationForm = vacationServiceForm.commonVacationForm();
         List<LocalDate> vacationDates = commonVacationForm.vacationDates();
-        boolean deducted = vacationServiceForm.commonVacationForm().deducted();
 
         List<Vacation> vacations = new ArrayList<>();
         for (LocalDate vacationDate : vacationDates) {
             Vacation commonVacation = Vacation.builder()
-                    .deducted(deducted)
                     .vacationStatus(VacationStatus.CREATE)
+                    .vacationType(VacationType.COMMON_VACATION)
                     .requesterId(userSession.getMemberId()) // check
                     .companyId(commonVacationForm.companyId())
-                    .vacationDuration(new VacationDuration(VacationType.COMMON_VACATION, vacationDate.atStartOfDay(), vacationDate.atTime(23, 59, 59)))
+//                    .vacationDurations(List.of(new VacationDuration(vacationDate.atStartOfDay(), vacationDate.atTime(23, 59, 59), 1f)))
                     .build();
 
             vacations.add(commonVacation);
