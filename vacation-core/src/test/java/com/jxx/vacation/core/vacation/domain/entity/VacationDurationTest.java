@@ -16,17 +16,17 @@ class VacationDurationTest {
     @Test
     void calculate() {
         LocalDateTime today = LocalDateTime.now();
-        VacationDuration vd1 = new VacationDuration(VacationType.MORE_DAY, today, today);
+        VacationDuration vd1 = new VacationDuration(today, today, LeaveDeduct.DEDUCT);
         assertThat(vd1.calculateDate()).isEqualTo(1l);
 
 
-        VacationDuration vd2 = new VacationDuration(VacationType.MORE_DAY, today, today.plusDays(1l));
+        VacationDuration vd2 = new VacationDuration(today, today.plusDays(1l), LeaveDeduct.DEDUCT);
         assertThat(vd2.calculateDate()).isEqualTo(2l);
 
         LocalDateTime start = LocalDateTime.of(2024, 2, 29, 0, 0);
         LocalDateTime end = LocalDateTime.of(2024, 3, 1, 0, 0);
 
-        VacationDuration vd3 = new VacationDuration(VacationType.MORE_DAY, start, end);
+        VacationDuration vd3 = new VacationDuration(start, end, LeaveDeduct.DEDUCT);
         assertThat(vd3.calculateDate()).isEqualTo(2l);
     }
 
@@ -37,7 +37,7 @@ class VacationDurationTest {
         LocalDateTime start = LocalDateTime.of(2024, 2, 29, 0, 0);
         LocalDateTime end = LocalDateTime.of(2024, 3, 3, 0, 0);
 
-        VacationDuration vd3 = new VacationDuration(VacationType.MORE_DAY, start, end);
+        VacationDuration vd3 = new VacationDuration(start, end, LeaveDeduct.DEDUCT);
         assertThat(vd3.calculateDate()).isEqualTo(2l);
     }
 
@@ -45,7 +45,7 @@ class VacationDurationTest {
     void isInVacationDate() {
         LocalDateTime startDate = LocalDateTime.of(2024, 2, 28, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 1, 0, 0);
-        VacationDuration vacationDuration = new VacationDuration(VacationType.MORE_DAY, startDate, endDate);
+        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT);
         LocalDateTime betweenDate = LocalDateTime.of(2024, 2, 29, 0, 0);
 
         assertThatThrownBy(() -> vacationDuration.isAlreadyInVacationDate(betweenDate))
@@ -56,7 +56,7 @@ class VacationDurationTest {
     void receiveVacationDateTimes() {
         LocalDateTime startDate = LocalDateTime.of(2024, 2, 28, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 1, 0, 0);
-        VacationDuration vacationDuration = new VacationDuration(VacationType.MORE_DAY, startDate, endDate);
+        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT);
 
         List<LocalDateTime> localDateTimes = vacationDuration.receiveVacationDateTimes();
 

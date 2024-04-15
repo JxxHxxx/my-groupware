@@ -106,10 +106,6 @@ public class Vacation {
         return vacationType.equals(VacationType.MORE_DAY);
     }
 
-    public void addAllVacationDuration(List<VacationDuration> vacationDuration) {
-        vacationDurations.addAll(vacationDuration);
-    }
-
     public List<VacationDurationDto> receiveVacationDurationDto() {
         return vacationDurations.stream()
                 .map(vd -> new VacationDurationDto(vd.getId(),vd.getStartDateTime(), vd.getEndDateTime(), vd.getUseLeaveValue()))

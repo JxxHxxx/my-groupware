@@ -57,13 +57,9 @@ class VacationEventListenerTest {
                 .enteredDate(LocalDate.of(2023, 5, 12))
                 .organization(new Organization("JXX","JX사","J001", "IT팀"))
                 .build();
+
         Vacation vacation = Vacation.builder()
-                .requesterId("U00100")
-                .vacationDuration(new VacationDuration(VacationType.MORE_DAY,
-                        LocalDateTime.of(2023, 5, 15, 0, 0),
-                        LocalDateTime.of(2023, 5, 17, 0, 0)))
                 .vacationStatus(VacationStatus.CREATE)
-                .deducted(true)
                 .leaveDeduct(LeaveDeduct.DEDUCT)
                 .build();
 

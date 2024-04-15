@@ -17,11 +17,8 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 @Slf4j
 @Getter
 public class VacationManager {
-    private Float vacationDate;
     private final MemberLeave memberLeave;
     private final Vacation vacation; // 영속화가 보장되어 있지 않으니 주의
-    private List<VacationDuration> vacationDurations;
-
 
     /**
      * 해당 메서드로 생성 시 Vacation 영속화된 상태가 아니니 주의
@@ -53,11 +50,8 @@ public class VacationManager {
 
     // update
     private VacationManager(Vacation vacation, MemberLeave memberLeave) {
-        this.vacationDate = VacationCalculator.getVacationDuration(vacation);
         this.memberLeave = memberLeave;
         this.vacation = vacation;
-        this.vacationDurations = vacation.getVacationDurations();
-
         validateMemberActive();
     }
 
@@ -85,11 +79,11 @@ public class VacationManager {
         return true;
     }
 
-    public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> requestVacations) {
+    public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> alreadyRequestVacations) {
         Float remainingLeave = memberLeave.receiveRemainingLeave();
 
         // 현재 REQUEST, APPROVED 상태의 휴가 신청일 총 합
-        List<Float> vacationDays = requestVacations.stream()
+        List<Float> vacationDays = alreadyRequestVacations.stream()
                 .filter(vacation -> CONFIRMING_GROUP.contains(vacation.getVacationStatus()))
                 .map(vacation -> vacation.useLeaveValueSum())
                 .toList();
@@ -168,12 +162,6 @@ public class VacationManager {
         return raise(ConfirmStatus.valueOf(confirmStatus));
     }
 
-    public float receiveVacationDate() {
-        if (Objects.isNull(vacationDate)) {
-            throw new IllegalStateException("");
-        }
-        return vacationDate;
-    }
     // 휴가 취소 (결재 문서를 취소)
     public Vacation cancel() {
         if (!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {

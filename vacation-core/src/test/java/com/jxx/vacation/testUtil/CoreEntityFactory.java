@@ -20,6 +20,7 @@ public class CoreEntityFactory {
     public static MemberLeave defaultMemberLeave(Organization organization) {
         return MemberLeave.builder()
                 .memberId("T0001")
+                .isActive(true)
                 .name("나재헌")
                 .experienceYears(1)
                 .enteredDate(LocalDate.of(2023, 8, 16))

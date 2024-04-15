@@ -8,6 +8,7 @@ import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
+import com.jxx.vacation.core.vacation.domain.RequestVacationDuration;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ import static org.awaitility.Awaitility.*;
 
 @Slf4j
 @SpringBootTest
+@Transactional
 class VacationServiceTest {
 
     @Autowired
@@ -89,9 +92,12 @@ class VacationServiceTest {
         String memberId = "T0001";
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
         RequestVacationForm vacationForm = new RequestVacationForm(
-                memberLeave.getMemberId(), new VacationDuration(VacationType.MORE_DAY,
-                LocalDateTime.of(2024, 3, 1, 0, 0),
-                LocalDateTime.of(2024, 3, 4, 0, 0)));
+                memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
+                List.of(new RequestVacationDuration(
+                        LocalDateTime.of(2024, 3, 1, 0, 0),
+                        LocalDateTime.of(2024, 3, 5, 0, 0))
+                )
+        );
 
         // WHEN
         vacationService.createVacation(vacationForm);
@@ -105,10 +111,13 @@ class VacationServiceTest {
         List<VacationServiceResponse> responses = vacationService.readByRequesterId(memberId);
 
         // 응답 검증
-        assertThat(responses).extracting("vacationDuration.startDateTime")
-                .contains(LocalDateTime.of(2024, 3, 1, 0, 0));
-        assertThat(responses).extracting("vacationDuration.endDateTime")
-                .contains(LocalDateTime.of(2024, 3, 4, 0, 0));
+
+        assertThat(responses).extracting(response -> response.vacationDuration().stream().map(dto -> dto.startDateTime()).toList())
+                .contains(List.of(LocalDateTime.of(2024, 3, 1, 0, 0)));
+
+        assertThat(responses).extracting(response -> response.vacationDuration().stream().map(dto -> dto.endDateTime()).toList())
+                .contains(List.of(LocalDateTime.of(2024, 3, 5, 0, 0)));
+
         assertThat(responses).extracting("vacationStatus")
                 .containsExactly(VacationStatus.CREATE);
         assertThat(responses).extracting("requesterId")
@@ -139,9 +148,12 @@ class VacationServiceTest {
         String memberId = "T0001";
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
         RequestVacationForm vacationForm = new RequestVacationForm(
-                memberLeave.getMemberId(), new VacationDuration(VacationType.MORE_DAY,
-                LocalDateTime.of(2024, 3, 1, 0, 0),
-                LocalDateTime.of(2024, 3, 30, 0, 0)));
+                memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
+                List.of(new RequestVacationDuration(
+                        LocalDateTime.of(2024, 3, 1, 0, 0),
+                        LocalDateTime.of(2024, 3, 30, 0, 0))
+                )
+        );
 
         assertThatThrownBy(() -> vacationService.createVacation(vacationForm))
                 .isInstanceOf(VacationClientException.class);
@@ -159,9 +171,12 @@ class VacationServiceTest {
         MemberLeave retireMember = memberLeaveRepository.save(memberLeave);
 
         RequestVacationForm vacationForm = new RequestVacationForm(
-                retireMember.getMemberId(), new VacationDuration(VacationType.MORE_DAY,
-                LocalDateTime.of(9999, 3, 1, 0, 0),
-                LocalDateTime.of(9999, 3, 4, 0, 0)));
+                memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
+                List.of(new RequestVacationDuration(
+                        LocalDateTime.of(2024, 3, 1, 0, 0),
+                        LocalDateTime.of(2024, 3, 5, 0, 0))
+                )
+        );
 
         VacationServiceResponse response = vacationService.createVacation(vacationForm);
 
@@ -181,9 +196,12 @@ class VacationServiceTest {
         String memberId = "T0001";
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
         RequestVacationForm vacationForm = new RequestVacationForm(
-                memberLeave.getMemberId(), new VacationDuration(VacationType.MORE_DAY,
-                LocalDateTime.of(9999, 3, 1, 0, 0),
-                LocalDateTime.of(9999, 3, 4, 0, 0)));
+                memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
+                List.of(new RequestVacationDuration(
+                        LocalDateTime.of(2024, 3, 1, 0, 0),
+                        LocalDateTime.of(2024, 3, 5, 0, 0))
+                )
+        );
 
 
         VacationServiceResponse vacation = vacationService.createVacation(vacationForm);
@@ -211,14 +229,11 @@ class VacationServiceTest {
         memberLeaveRepository.save(memberLeave);
         //휴가 생성
         Vacation vacation = Vacation.builder()
-                .vacationDuration(new VacationDuration(VacationType.MORE_DAY,
-                        LocalDateTime.of(9999, 3, 1, 0, 0),
-                        LocalDateTime.of(9999, 3, 4, 0, 0)))
-                .deducted(true)
                 .leaveDeduct(LeaveDeduct.DEDUCT)
                 .requesterId("T0001")
                 .companyId("TJX")
                 .vacationStatus(VacationStatus.CREATE)
+                .vacationType(VacationType.MORE_DAY)
                 .build();
         Vacation savedVacation = vacationRepository.save(vacation);
 
@@ -238,7 +253,7 @@ class VacationServiceTest {
             "그외 상태에서 상신을 보낼 경우 " +
             "VacationClientException 예외가 발생한다.")
     @ParameterizedTest
-    @EnumSource(names = {"REQUEST", "REJECT", "APPROVED", "CANCELED","ONGOING", "COMPLETED", "FAIL", "ERROR"})
+    @EnumSource(names = {"REQUEST", "REJECT", "APPROVED", "CANCELED", "ONGOING", "COMPLETED", "FAIL", "ERROR"})
     void raise_vacation_fail_raise_impossible_status(VacationStatus vacationStatus) {
         //given
         //사용자 생성
@@ -247,14 +262,11 @@ class VacationServiceTest {
         memberLeaveRepository.save(memberLeave);
         //휴가 생성
         Vacation vacation = Vacation.builder()
-                .vacationDuration(new VacationDuration(VacationType.MORE_DAY,
-                        LocalDateTime.of(9999, 3, 1, 0, 0),
-                        LocalDateTime.of(9999, 3, 4, 0, 0)))
-                .deducted(true)
                 .leaveDeduct(LeaveDeduct.DEDUCT)
                 .requesterId("T0001")
                 .companyId("TJX")
                 .vacationStatus(vacationStatus)
+                .vacationType(VacationType.MORE_DAY)
                 .build();
         Vacation savedVacation = vacationRepository.save(vacation);
 
