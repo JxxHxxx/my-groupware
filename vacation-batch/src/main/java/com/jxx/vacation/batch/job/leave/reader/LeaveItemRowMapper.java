@@ -41,6 +41,7 @@ public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
         String companyId = rs.getString("COMPANY_ID");
         String departmentId = rs.getString("DEPARTMENT_ID");
         boolean orgActive = rs.getBoolean("ORG_ACTIVE");
+        String lastDuration = rs.getString("LAST_DURATION");
 
         return new LeaveItem(memberPk,
                 createTime,
@@ -59,6 +60,7 @@ public class LeaveItemRowMapper implements RowMapper<LeaveItem> {
                 endDateTime,
                 companyId,
                 departmentId,
-                orgActive);
+                orgActive,
+                lastDuration);
     }
 }

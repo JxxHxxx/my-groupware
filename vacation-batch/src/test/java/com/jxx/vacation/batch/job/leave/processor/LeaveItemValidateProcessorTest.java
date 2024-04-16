@@ -44,7 +44,8 @@ class LeaveItemValidateProcessorTest {
                 vacationEndDateTime,
                 "JXX",
                 "departId",
-                true);
+                true,
+                "Y");
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
         //then
@@ -81,7 +82,8 @@ class LeaveItemValidateProcessorTest {
                 vacationEndDateTime,
                 "JXX",
                 "departId",
-                true);
+                true,
+                "Y");
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
         //then

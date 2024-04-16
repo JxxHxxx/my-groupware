@@ -1,6 +1,8 @@
 package com.jxx.vacation.batch.job.leave.config;
 
 
+import com.jxx.vacation.batch.job.leave.item.LeaveItem;
+import com.jxx.vacation.batch.job.leave.reader.LeaveItemReaderFactory;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.OrganizationRepository;
@@ -10,12 +12,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
+import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -65,7 +69,7 @@ class VacationEndEventJobConfigurationTest {
 
         Vacation vacation = Vacation.builder()
                 .leaveDeduct(LeaveDeduct.DEDUCT)
-                .vacationDuration(new VacationDuration(VacationType.MORE_DAY, LocalDateTime.now(),LocalDateTime.now()))
+                .vacationType(VacationType.MORE_DAY)
                 .vacationStatus(VacationStatus.CREATE)
                 .requesterId(memberLeave.getMemberId())
                 .companyId(organization.getCompanyId())
@@ -81,7 +85,7 @@ class VacationEndEventJobConfigurationTest {
     }
 
     @Test
-    public void testJob() throws Exception {
+    void testJob() throws Exception {
         Job job = context.getBean("vacation.end.job", Job.class);
         jobLauncherTestUtils.setJob(job);
 

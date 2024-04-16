@@ -17,6 +17,8 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
         String memberId = item.getMemberId();
         String vacationStatus = item.getVacationStatus();
         Long vacationId = item.getVacationId();
+        String lastDuration = item.getLastDuration();
+
         if (!memberOrgActive) {
             log.info("[PROCESS VID:{}][FILTER][memberId:{} inactive][member {}, org {}]", vacationId, memberId, item.isMemberActive(), item.isOrgActive());
             return null;
@@ -25,6 +27,9 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
             return null;
         } else if (!LeaveDeduct.DEDUCT.equals(LeaveDeduct.valueOf(item.getLeaveDeduct()))) {
             log.info("[PROCESS VID:{}][FILTER][memberId:{} companyId:{}][is set deducted value false]", vacationId, memberId, item.getCompanyId());
+            return null;
+        } else if (!"Y".equals(lastDuration)) {
+            log.info("[PROCESS VID:{}][FILTER][memberId:{} lastDuration:{}][lastDuration is Not Y]", vacationId, memberId, item.getLastDuration());
             return null;
         }
 

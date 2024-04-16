@@ -39,6 +39,10 @@ public class VacationDuration {
     @Comment(value = "사용 연차")
     private Float useLeaveValue;
 
+    @Column(name = "LAST_DURATION", nullable = false)
+    @Comment(value = "마지막 기간 여부(N:마지막X/Y:마지막O)")
+    private String lastDuration;
+
     @ManyToOne
     @JoinColumn(name = "VACATION_ID", referencedColumnName = "VACATION_ID",
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -49,10 +53,26 @@ public class VacationDuration {
         vacation.addVacationDuration(this);
     }
 
+    public void changeLastDuration() {
+        this.lastDuration = "Y";
+    }
+
+
+
+    /**
+     * 휴가 종료일이 과거일수록 인덱스를 앞으로 위치시키기 위함
+     * 예를 들어 요소 A(종료일 2024-04-15),요소 B(종료일 2024-04-18),요소 C(종료일 2024-04-17)
+     * 이면 A,C,B 순으로 정렬된다.
+     */
+    public int sortByEndDateTime(VacationDuration vacationDuration) {
+        return this.endDateTime.isAfter(vacationDuration.getEndDateTime()) ? 1 : -1;
+    }
+
     public VacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, LeaveDeduct leaveDeduct) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.useLeaveValue = VacationCalculator.calculateUseLeaveValue(leaveDeduct, startDateTime, endDateTime);
+        this.lastDuration = "N";
     }
 
     public float calculateDate() {
