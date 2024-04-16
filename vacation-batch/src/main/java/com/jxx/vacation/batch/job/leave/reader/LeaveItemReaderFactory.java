@@ -36,7 +36,8 @@ public class LeaveItemReaderFactory {
                 "JVD.END_DATE_TIME , " +
                 "JOM.COMPANY_ID, " +
                 "JOM.DEPARTMENT_ID , " +
-                "JOM.IS_ACTIVE AS 'ORG_ACTIVE'," +
+                "JOM.IS_ACTIVE AS 'ORG_ACTIVE', " +
+                "JVD.USE_LEAVE_VALUE, " +
                 "JVD.LAST_DURATION FROM JXX_MEMBER_LEAVE_MASTER JMLM " +
                 " JOIN JXX_ORGANIZATION_MASTER JOM " +
                 " ON JMLM.COMPANY_ID = JOM.COMPANY_ID AND JMLM.DEPARTMENT_ID = JOM.DEPARTMENT_ID " +

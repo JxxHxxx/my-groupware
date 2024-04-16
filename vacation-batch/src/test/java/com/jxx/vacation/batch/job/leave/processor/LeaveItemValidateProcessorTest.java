@@ -45,6 +45,7 @@ class LeaveItemValidateProcessorTest {
                 "JXX",
                 "departId",
                 true,
+                2f,
                 "Y");
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
@@ -54,7 +55,7 @@ class LeaveItemValidateProcessorTest {
 
     @DisplayName("vacationStatus = ONGOING 일 때 " +
             "LeaveItemValidateProcessor 를 실행할 경우" +
-            "vacationStatus = COMPLETED, DeductedAmount 는 휴가 일 수 만큼으로 변경된다.")
+            "vacationStatus = COMPLETED 이다.")
     @Test
     void leave_item_validate_success() throws Exception {
         //given
@@ -83,11 +84,12 @@ class LeaveItemValidateProcessorTest {
                 "JXX",
                 "departId",
                 true,
+                2f,
                 "Y");
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
         //then
         assertThat(processedItem.getVacationStatus()).isEqualTo("COMPLETED");
-        assertThat(processedItem.getDeductedAmount()).isEqualTo(2f);
+        assertThat(processedItem.getUseLeaveValue()).isEqualTo(2f);
     }
 }

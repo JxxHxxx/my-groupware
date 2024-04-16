@@ -83,7 +83,7 @@ public class VacationEndEventJobConfiguration {
     @Bean(name = "leaveAdjustWriter")
     public JdbcBatchItemWriter<LeaveItem> leaveAdjustWriter() {
         String sql = "UPDATE JXX_MEMBER_LEAVE_MASTER JLM" +
-                "   SET JLM.REMAINING_LEAVE = JLM.REMAINING_LEAVE -:deductedAmount  " +
+                "   SET JLM.REMAINING_LEAVE = JLM.REMAINING_LEAVE -:useLeaveValue  " +
                 "   WHERE JLM.MEMBER_PK =:memberPk ";
 
         return new JdbcBatchItemWriterBuilder<LeaveItem>()
@@ -116,7 +116,7 @@ public class VacationEndEventJobConfiguration {
                 ":enteredDate, " +
                 ":experienceYears, " +
                 ":memberActive, " +
-                ":remainingLeave -:deductedAmount, " +
+                ":remainingLeave -:useLeaveValue, " +
                 ":totalLeave, " +
                 ":memberId, " +
                 ":memberPk, " +

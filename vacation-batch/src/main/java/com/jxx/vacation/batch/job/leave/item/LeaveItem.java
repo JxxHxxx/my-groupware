@@ -1,9 +1,5 @@
 package com.jxx.vacation.batch.job.leave.item;
 
-import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
-import com.jxx.vacation.core.vacation.domain.entity.VacationDuration;
-import com.jxx.vacation.core.vacation.domain.entity.VacationType;
-import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -32,11 +28,11 @@ public class LeaveItem {
     private final String companyId;
     private final String departmentId;
     private final boolean orgActive;
-    private Float deductedAmount;
+    private final Float useLeaveValue;
     private final String lastDuration;
 
     public LeaveItem(String memberPk, LocalDateTime createTime, boolean memberActive, Float totalLeave, Float remainingLeave, String name, String memberId, Integer experienceYears, LocalDate enteredDate,
-                     Long vacationId, String leaveDeduct, String vacationStatus, String vacationType, LocalDateTime startDateTime, LocalDateTime endDateTime, String companyId, String departmentId, boolean orgActive, String lastDuration) {
+                     Long vacationId, String leaveDeduct, String vacationStatus, String vacationType, LocalDateTime startDateTime, LocalDateTime endDateTime, String companyId, String departmentId, boolean orgActive, Float useLeaveValue, String lastDuration) {
         this.memberPk = memberPk;
         this.createTime = createTime;
         this.memberActive = memberActive;
@@ -56,20 +52,11 @@ public class LeaveItem {
         this.departmentId = departmentId;
         this.orgActive = orgActive;
         this.lastDuration = lastDuration;
-        this.deductedAmount = 0f;
+        this.useLeaveValue = useLeaveValue;
     }
 
     public boolean checkMemberOrgActive() {
         return memberActive && orgActive ? true : false;
-    }
-
-    public void calculateDeductAmount() {
-        VacationDuration vacationDuration = new VacationDuration(startDateTime, endDateTime, LeaveDeduct.valueOf(leaveDeduct));
-        deductedAmount = VacationCalculator.getVacationDuration(VacationType.valueOf(vacationType), vacationDuration, LeaveDeduct.valueOf(leaveDeduct));
-    }
-
-    public void updateVacationStatusToError() {
-        this.vacationStatus = "ERROR";
     }
 
     public void updateVacationStatusToCompleted() {
