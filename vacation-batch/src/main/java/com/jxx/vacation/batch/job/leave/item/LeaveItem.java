@@ -63,7 +63,7 @@ public class LeaveItem {
     }
 
     public void calculateDeductAmount() {
-        VacationDuration vacationDuration = new VacationDuration(startDateTime, endDateTime, 4f);
+        VacationDuration vacationDuration = new VacationDuration(startDateTime, endDateTime, LeaveDeduct.valueOf(leaveDeduct));
         deductedAmount = VacationCalculator.getVacationDuration(VacationType.valueOf(vacationType), vacationDuration, LeaveDeduct.valueOf(leaveDeduct));
     }
 
