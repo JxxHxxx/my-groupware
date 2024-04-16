@@ -71,8 +71,19 @@ public class VacationStartEventJobConfiguration {
         return new JdbcCursorItemReaderBuilder<VacationItem>()
                 .fetchSize(100)
                 .dataSource(dataSource)
-                .sql("SELECT * FROM JXX_VACATION_MASTER JVM " +
-                    "   WHERE START_DATE_TIME = ? ")
+                .sql("SELECT " +
+                        "JVM.VACATION_ID , " +
+                        "JVM.LEAVE_DEDUCT , " +
+                        "JVM.CREATE_TIME , " +
+                        "JVM.REQUESTER_ID , " +
+                        "JVD.START_DATE_TIME , " +
+                        "JVD.END_DATE_TIME, " +
+                        "JVM.VACATION_TYPE , " +
+                        "JVM.COMPANY_ID , " +
+                        "JVM.VACATION_STATUS " +
+                        "FROM JXX_VACATION_MASTER JVM " +
+                        "JOIN JXX_VACATION_DURATION JVD ON JVM.VACATION_ID  = JVD.VACATION_ID " +
+                        "WHERE START_DATE_TIME = ?")
                 .rowMapper(new VacationItemRowMapper())
                 .name("vacationItemJdbcReader")
                 .preparedStatementSetter(preparedStatement -> preparedStatement.setString(1, processDate))
@@ -120,8 +131,6 @@ public class VacationStartEventJobConfiguration {
                 "TASK_TYPE, " +
                 "LEAVE_DEDUCT, " +
                 "REQUESTER_ID, " +
-                "END_DATE_TIME, " +
-                "START_DATE_TIME, " +
                 "VACATION_TYPE, " +
                 "VACATION_ID, " +
                 "VACATION_STATUS) VALUES " +
@@ -132,8 +141,6 @@ public class VacationStartEventJobConfiguration {
                 "'U'," +
                 ":leaveDeduct," +
                 ":requesterId," +
-                ":endDateTime," +
-                ":startDateTime," +
                 ":vacationType," +
                 ":vacationId," +
                 ":vacationStatus)";
