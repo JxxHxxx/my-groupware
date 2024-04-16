@@ -10,6 +10,7 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 @Slf4j
 public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, LeaveItem> {
 
+    // LeaveDeduct.DEDUCT 일 떄만 차감하도록 변경해야함
     @Override
     public LeaveItem process(LeaveItem item) throws Exception {
         boolean memberOrgActive = item.checkMemberOrgActive();

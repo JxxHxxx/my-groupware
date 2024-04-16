@@ -53,8 +53,8 @@ public class VacationDuration {
         vacation.addVacationDuration(this);
     }
 
-    public void changeLastDuration() {
-        this.lastDuration = "Y";
+    public void setLastDuration(String lastDuration) {
+        this.lastDuration = lastDuration.toUpperCase();
     }
 
 

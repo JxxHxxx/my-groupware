@@ -7,8 +7,8 @@ Content-Type: application/json
 {
   "companyId" :  "JXX",
   "mustApproval" : false,
-  "deducted" :  false,
-  "vacationDates" : ["2024-06-09"]
+  "deducted" :  true,
+  "vacationDates" : ["2024-06-10"]
 }
 
 ### 로그인

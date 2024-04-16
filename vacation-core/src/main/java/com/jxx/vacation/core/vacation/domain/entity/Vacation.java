@@ -112,7 +112,7 @@ public class Vacation {
                 .toList();
     }
 
-    public void addVacationDuration(VacationDuration vacationDuration) {
+    protected void addVacationDuration(VacationDuration vacationDuration) {
         vacationDurations.add(vacationDuration);
     }
 

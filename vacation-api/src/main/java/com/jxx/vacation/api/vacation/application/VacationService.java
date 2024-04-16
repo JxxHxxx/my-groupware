@@ -3,7 +3,6 @@ package com.jxx.vacation.api.vacation.application;
 import com.jxx.vacation.api.excel.application.CompanyVacationTypePolicyExcelReader;
 import com.jxx.vacation.api.excel.application.ExcelReader;
 import com.jxx.vacation.api.vacation.application.function.ConfirmRaiseApiAdapter;
-import com.jxx.vacation.core.vacation.domain.RequestVacationDuration;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
@@ -17,7 +16,6 @@ import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.common.history.History;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
-import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import com.jxx.vacation.core.vacation.infra.*;
 
 import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
@@ -29,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -73,7 +70,7 @@ public class VacationService {
         // 혼란스러울 수 있기에 주석...
         int lastVacationDurationIndex = vacationDurations.size() - 1;
         VacationDuration lastVacationDuration = vacationDurations.get(lastVacationDurationIndex);
-        lastVacationDuration.changeLastDuration();
+        lastVacationDuration.setLastDuration("Y");
 
         for (VacationDuration vacationDuration : vacationDurations) {
             vacationDuration.mappingVacation(vacation);
