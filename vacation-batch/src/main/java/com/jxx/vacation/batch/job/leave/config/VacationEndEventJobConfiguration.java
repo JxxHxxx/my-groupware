@@ -2,6 +2,7 @@ package com.jxx.vacation.batch.job.leave.config;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
 import com.jxx.vacation.batch.job.leave.processor.LeaveItemValidateProcessor;
+import com.jxx.vacation.batch.job.leave.reader.LeaveItemReaderFactory;
 import com.jxx.vacation.batch.job.leave.reader.LeaveItemRowMapper;
 import com.jxx.vacation.core.common.converter.LocalDateTimeConverter;
 import lombok.RequiredArgsConstructor;
@@ -69,44 +70,7 @@ public class VacationEndEventJobConfiguration {
     @StepScope
     @Bean(name = "leaveItemReader")
     public JdbcCursorItemReader<LeaveItem> itemReader() {
-        String sql = "SELECT " +
-                "JMLM.MEMBER_PK , " +
-                "JVM.CREATE_TIME , " +
-                "JMLM.REMAINING_LEAVE , " +
-                "JMLM.TOTAL_LEAVE , " +
-                "JMLM.NAME ," +
-                "JMLM.MEMBER_ID ," +
-                "JMLM.EXPERIENCE_YEARS ," +
-                "JMLM.IS_ACTIVE AS 'MEMBER_ACTIVE', " +
-                "JMLM.ENTERED_DATE , " +
-                "JVM.VACATION_ID , " +
-                "JVM.LEAVE_DEDUCT , " +
-                "JVM.VACATION_STATUS , " +
-                "JVM.VACATION_TYPE , " +
-                "JVM.START_DATE_TIME , " +
-                "JVM.END_DATE_TIME , " +
-                "JOM.COMPANY_ID, " +
-                "JOM.DEPARTMENT_ID , " +
-                "JOM.IS_ACTIVE AS 'ORG_ACTIVE' FROM JXX_MEMBER_LEAVE_MASTER JMLM " +
-                " JOIN JXX_ORGANIZATION_MASTER JOM " +
-                " ON JMLM.COMPANY_ID = JOM.COMPANY_ID AND JMLM.DEPARTMENT_ID = JOM.DEPARTMENT_ID " +
-                " JOIN JXX_VACATION_MASTER JVM " +
-                " ON JMLM.MEMBER_ID = JVM.REQUESTER_ID " +
-                " WHERE JVM.END_DATE_TIME = ? ;";
-
-        JobContext context = JobSynchronizationManager.getContext();
-
-        String executeDateTime = String.valueOf(context.getJobParameters().get(JOB_PARAM_EXECUTE_DATE_TIME.keyName()));
-        String endDateTime = LocalDateTimeConverter.adjustDateTime(executeDateTime, EXECUTE_DATE_TIME_ADJUST_VALUE);
-
-        return new JdbcCursorItemReaderBuilder<LeaveItem>()
-                .name("leaveItemReader")
-                .dataSource(dataSource)
-                .fetchSize(3)
-                .sql(sql)
-                .rowMapper(new LeaveItemRowMapper())
-                .preparedStatementSetter(ps -> ps.setString(1, endDateTime))
-                .build();
+        return new LeaveItemReaderFactory().leaveItemReader(dataSource);
     }
 
     @StepScope
@@ -178,8 +142,6 @@ public class VacationEndEventJobConfiguration {
                 "TASK_TYPE, " +
                 "LEAVE_DEDUCT, " +
                 "REQUESTER_ID, " +
-                "END_DATE_TIME, " +
-                "START_DATE_TIME, " +
                 "VACATION_TYPE, " +
                 "VACATION_ID, " +
                 "VACATION_STATUS) VALUES " +
@@ -190,8 +152,6 @@ public class VacationEndEventJobConfiguration {
                 "'U'," +
                 ":leaveDeduct," +
                 ":memberId," +
-                ":endDateTime," +
-                ":startDateTime," +
                 ":vacationType," +
                 ":vacationId," +
                 ":vacationStatus)";

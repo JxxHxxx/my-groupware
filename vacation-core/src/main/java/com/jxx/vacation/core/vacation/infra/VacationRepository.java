@@ -21,20 +21,20 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
      * 	WHERE COMPANY_ID = 'SPY' AND DEPARTMENT_ID = 'SPY01001');
      */
 
-    @Query("select new com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection" +
-            "(v.id, " +
-            "v.requesterId, " +
-            "m.name, " +
-            "m.organization.companyName, " +
-            "m.organization.companyId, " +
-            "m.organization.departmentName, " +
-            "m.organization.departmentId, " +
-            "v.vacationDuration.startDateTime, " +
-            "v.vacationDuration.endDateTime, " +
-            "v.vacationDuration.vacationType, " +
-            "v.vacationStatus) from Vacation v inner join MemberLeave m on v.requesterId = m.memberId " +
-            "where v.requesterId in (select m2.memberId from MemberLeave m2 " +
-            "where m2.organization.companyId =:companyId " +
-            "and m2.organization.departmentId =:departmentId and m2.isActive = true )")
-    List<DepartmentVacationProjection> findDepartmentVacation(@Param("companyId") String companyId, @Param("departmentId") String departmentId);
+//    @Query("select new com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection" +
+//            "(v.id, " +
+//            "v.requesterId, " +
+//            "m.name, " +
+//            "m.organization.companyName, " +
+//            "m.organization.companyId, " +
+//            "m.organization.departmentName, " +
+//            "m.organization.departmentId, " +
+//            "v.vacationDuration.startDateTime, " +
+//            "v.vacationDuration.endDateTime, " +
+//            "v.vacationType, " +
+//            "v.vacationStatus) from Vacation v inner join MemberLeave m on v.requesterId = m.memberId " +
+//            "where v.requesterId in (select m2.memberId from MemberLeave m2 " +
+//            "where m2.organization.companyId =:companyId " +
+//            "and m2.organization.departmentId =:departmentId and m2.isActive = true )")
+//    List<DepartmentVacationProjection> findDepartmentVacation(@Param("companyId") String companyId, @Param("departmentId") String departmentId);
 }

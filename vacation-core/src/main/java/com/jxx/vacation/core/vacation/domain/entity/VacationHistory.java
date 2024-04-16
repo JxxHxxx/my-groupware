@@ -35,8 +35,6 @@ public class VacationHistory {
     @Comment(value = "회사 식별자")
     private String companyId;
 
-    @Embedded
-    private VacationDuration vacationDuration;
     @Column(name = "LEAVE_DEDUCT", nullable = false)
     @Comment(value = "연차 차감 여부")
     @Enumerated(EnumType.STRING)
@@ -45,6 +43,10 @@ public class VacationHistory {
     @Comment(value = "휴가 신청 상태")
     @Enumerated(value = EnumType.STRING)
     private VacationStatus vacationStatus;
+    @Column(name = "VACATION_TYPE", nullable = false)
+    @Comment(value = "연차 유형")
+    @Enumerated(value = EnumType.STRING)
+    private VacationType vacationType;
 
     @Column(name = "CREATE_TIME", nullable = false)
     @Comment(value = "레코드 생성 시간")
@@ -57,10 +59,10 @@ public class VacationHistory {
         this.vacationId = vacation.getId();
         this.requesterId = vacation.getRequesterId();
         this.companyId = vacation.getCompanyId();
-        this.vacationDuration = vacation.getVacationDuration();
         this.leaveDeduct = vacation.getLeaveDeduct();
         this.vacationStatus = vacation.getVacationStatus();
         this.createTime = vacation.getCreateTime();
+        this.vacationType = vacation.getVacationType();
         this.history = history;
     }
 }

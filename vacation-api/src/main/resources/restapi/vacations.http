@@ -7,12 +7,15 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "U00130",
-  "vacationDuration": {
-    "vacationType": "MORE_DAY",
-    "startDateTime": "2024-03-11T00:00",
-    "endDateTime": "2024-03-12T00:00"
-  }
+  "requesterId": "SPY00011",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-04-19T00:00",
+      "endDateTime": "2024-04-19T00:00"
+    }
+  ]
 }
 
 
@@ -27,12 +30,23 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "U00100",
-  "vacationDuration": {
-    "vacationType": "MORE_DAY",
-    "startDateTime": "2024-03-26T00:00",
-    "endDateTime": "2024-03-27T00:00"
-  }
+  "requesterId": "U00050",
+  "vacationType" : "MORE_DAY",
+  "leaveDeduct" : "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-04-19T00:00",
+      "endDateTime": "2024-04-19T00:00"
+    },
+    {
+      "startDateTime": "2024-04-24T00:00",
+      "endDateTime": "2024-04-24T00:00"
+    },
+    {
+      "startDateTime": "2024-04-22T00:00",
+      "endDateTime": "2024-04-22T00:00"
+    }
+  ]
 }
 
 ###

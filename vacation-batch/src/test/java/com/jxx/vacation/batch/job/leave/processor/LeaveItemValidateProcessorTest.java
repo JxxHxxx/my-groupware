@@ -44,7 +44,8 @@ class LeaveItemValidateProcessorTest {
                 vacationEndDateTime,
                 "JXX",
                 "departId",
-                true);
+                true,
+                "Y");
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
         //then
@@ -58,8 +59,11 @@ class LeaveItemValidateProcessorTest {
     void leave_item_validate_success() throws Exception {
         //given
         String vacationStatus = "ONGOING";
-        LocalDateTime vacationStartDateTime = LocalDateTime.of(2025, 12, 12, 0, 0,0);
-        LocalDateTime vacationEndDateTime = LocalDateTime.of(2025, 12, 13, 0,0,0);
+
+        //목요일
+        LocalDateTime vacationStartDateTime = LocalDateTime.of(2025, 12, 11, 0, 0,0);
+        //금요일
+        LocalDateTime vacationEndDateTime = LocalDateTime.of(2025, 12, 12, 0,0,0);
         LeaveItem leaveItem = new LeaveItem(
                 "U00013",
                 LocalDateTime.now(),
@@ -78,7 +82,8 @@ class LeaveItemValidateProcessorTest {
                 vacationEndDateTime,
                 "JXX",
                 "departId",
-                true);
+                true,
+                "Y");
         //when
         LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
         //then

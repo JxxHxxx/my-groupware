@@ -16,7 +16,6 @@ public class LeaveItem {
 
     private final String memberPk;
     private final LocalDateTime createTime;
-
     private final boolean memberActive;
     private final Float totalLeave;
     private final Float remainingLeave;
@@ -34,9 +33,10 @@ public class LeaveItem {
     private final String departmentId;
     private final boolean orgActive;
     private Float deductedAmount;
+    private final String lastDuration;
 
     public LeaveItem(String memberPk, LocalDateTime createTime, boolean memberActive, Float totalLeave, Float remainingLeave, String name, String memberId, Integer experienceYears, LocalDate enteredDate,
-                     Long vacationId, String leaveDeduct, String vacationStatus, String vacationType, LocalDateTime startDateTime, LocalDateTime endDateTime, String companyId, String departmentId, boolean orgActive) {
+                     Long vacationId, String leaveDeduct, String vacationStatus, String vacationType, LocalDateTime startDateTime, LocalDateTime endDateTime, String companyId, String departmentId, boolean orgActive, String lastDuration) {
         this.memberPk = memberPk;
         this.createTime = createTime;
         this.memberActive = memberActive;
@@ -55,6 +55,7 @@ public class LeaveItem {
         this.companyId = companyId;
         this.departmentId = departmentId;
         this.orgActive = orgActive;
+        this.lastDuration = lastDuration;
         this.deductedAmount = 0f;
     }
 
@@ -63,8 +64,8 @@ public class LeaveItem {
     }
 
     public void calculateDeductAmount() {
-        VacationDuration vacationDuration = new VacationDuration(VacationType.valueOf(vacationType), startDateTime, endDateTime);
-        deductedAmount = VacationCalculator.getVacationDuration(vacationDuration, LeaveDeduct.valueOf(leaveDeduct));
+        VacationDuration vacationDuration = new VacationDuration(startDateTime, endDateTime, LeaveDeduct.valueOf(leaveDeduct));
+        deductedAmount = VacationCalculator.getVacationDuration(VacationType.valueOf(vacationType), vacationDuration, LeaveDeduct.valueOf(leaveDeduct));
     }
 
     public void updateVacationStatusToError() {

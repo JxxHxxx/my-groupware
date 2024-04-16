@@ -4,58 +4,65 @@ import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
 @Slf4j
+@Getter
 public class VacationManager {
-    private final float vacationDate;
     private final MemberLeave memberLeave;
     private final Vacation vacation; // 영속화가 보장되어 있지 않으니 주의
-
 
     /**
      * 해당 메서드로 생성 시 Vacation 영속화된 상태가 아니니 주의
      */
-    public static VacationManager createVacation(VacationDuration vacationDuration, MemberLeave memberLeave) {
-        return new VacationManager(vacationDuration, memberLeave);
+    public static VacationManager create(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
+        return new VacationManager(memberLeave, vacationType, leaveDeduct);
     }
+    private VacationManager(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
+        this.memberLeave = memberLeave;
+        this.vacation = createVacation(vacationType, leaveDeduct);
+        validateMemberActive();
+    }
+
+    // Vacation Duration
+    public Vacation createVacation(VacationType vacationType, LeaveDeduct leaveDeduct) {
+        return Vacation.builder()
+                .vacationType(vacationType)
+                .vacationStatus(CREATE)
+                .leaveDeduct(leaveDeduct)
+                .requesterId(memberLeave.getMemberId())
+                .companyId(memberLeave.receiveCompanyId())
+                .build();
+    }
+
 
     public static VacationManager updateVacation(Vacation vacation, MemberLeave memberLeave) {
         return new VacationManager(vacation, memberLeave);
     }
 
-    // create
-    private VacationManager(VacationDuration vacationDuration, MemberLeave memberLeave) {
-        this.memberLeave = memberLeave;
-        this.vacation = create(vacationDuration);
-        this.vacationDate = VacationCalculator.getVacationDuration(this.vacation);
-
-        validateMemberActive();
-    }
-
     // update
     private VacationManager(Vacation vacation, MemberLeave memberLeave) {
-        this.vacationDate = VacationCalculator.getVacationDuration(vacation);
         this.memberLeave = memberLeave;
         this.vacation = vacation;
-
         validateMemberActive();
     }
 
-    protected Vacation create(VacationDuration vacationDuration) {
-        return decideDeduct(vacationDuration, memberLeave.getMemberId(), memberLeave.receiveCompanyId());
+    protected Vacation create(VacationType vacationType) {
+        return decideDeduct(vacationType, memberLeave.getMemberId(), memberLeave.receiveCompanyId());
     }
 
-    private Vacation decideDeduct(VacationDuration vacationDuration, String requesterId, String companyId) {
-        return vacationDuration.isDeductVacationType() ?
-                Vacation.createDeductVacation(requesterId, companyId, vacationDuration) :
-                Vacation.createNotDeductVacation(requesterId, companyId, vacationDuration);
+    private Vacation decideDeduct(VacationType vacationType, String requesterId, String companyId) {
+        return VacationType.DEDUCT_TYPE.contains(vacationType.getType()) ?
+                Vacation.createDeductVacation(requesterId, companyId, vacationType) :
+                Vacation.createNotDeductVacation(requesterId, companyId, vacationType);
     }
 
     public boolean validateMemberActive() {
@@ -72,13 +79,13 @@ public class VacationManager {
         return true;
     }
 
-    public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> requestVacations) {
+    public void validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(List<Vacation> alreadyRequestVacations) {
         Float remainingLeave = memberLeave.receiveRemainingLeave();
 
         // 현재 REQUEST, APPROVED 상태의 휴가 신청일 총 합
-        List<Float> vacationDays = requestVacations.stream()
+        List<Float> vacationDays = alreadyRequestVacations.stream()
                 .filter(vacation -> CONFIRMING_GROUP.contains(vacation.getVacationStatus()))
-                .map(vacation -> vacation.getVacationDuration().calculateDate())
+                .map(vacation -> vacation.useLeaveValueSum())
                 .toList();
 
         Float approvingVacationDate = 0F;
@@ -86,7 +93,7 @@ public class VacationManager {
             approvingVacationDate += vacationDay;
         }
         // 신청한 휴가 일 수
-        float requestVacationDate = vacation.getVacationDuration().calculateDate();
+        Float requestVacationDate = vacation.useLeaveValueSum();
 
         String clientId = memberLeave.getMemberId();
         if (remainingLeave - approvingVacationDate - requestVacationDate < 0) {
@@ -94,16 +101,40 @@ public class VacationManager {
         }
     }
 
+//    public void validateVacationDatesAreDuplicated(List<Vacation> requestVacations) {
+//        List<VacationDuration> confirmingAndOngoingVacationDurations = requestVacations.stream()
+//                .filter(vacation -> CONFIRMING_AND_ONGOING_GROUP.contains(vacation.getVacationStatus()))
+//                .map(vacation -> vacation.getVacationDuration())
+//                .toList();
+//
+//        VacationDuration requestVacationDuration = vacation.getVacationDuration();
+//        List<LocalDateTime> requestVacationDateTimes = requestVacationDuration.receiveVacationDateTimes();
+//
+//        for (VacationDuration vacationDuration : confirmingAndOngoingVacationDurations) {
+//            for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
+//                vacationDuration.isAlreadyInVacationDate(requestVacationDateTime);
+//            }
+//        }
+//    }
+
     public void validateVacationDatesAreDuplicated(List<Vacation> requestVacations) {
-        List<VacationDuration> confirmingAndOngoingVacationDurations = requestVacations.stream()
+        List<Vacation> afterConfirmingVacations = requestVacations.stream()
                 .filter(vacation -> CONFIRMING_AND_ONGOING_GROUP.contains(vacation.getVacationStatus()))
-                .map(vacation -> vacation.getVacationDuration())
                 .toList();
 
-        VacationDuration requestVacationDuration = vacation.getVacationDuration();
-        List<LocalDateTime> requestVacationDateTimes = requestVacationDuration.receiveVacationDateTimes();
+        List<VacationDuration> afterConfirmingVacationDurations = new ArrayList<>();
+        for (Vacation afterConfirmingVacation : afterConfirmingVacations) {
+            List<VacationDuration> vd = afterConfirmingVacation.getVacationDurations();
+            afterConfirmingVacationDurations.addAll(vd);
+        }
 
-        for (VacationDuration vacationDuration : confirmingAndOngoingVacationDurations) {
+        List<LocalDateTime> requestVacationDateTimes = new ArrayList<>();
+        List<VacationDuration> requestVacationDurations = vacation.getVacationDurations();
+        for (VacationDuration requestVacationDuration : requestVacationDurations) {
+            requestVacationDateTimes.addAll(requestVacationDuration.receiveVacationDateTimes());
+        }
+
+        for (VacationDuration vacationDuration : afterConfirmingVacationDurations) {
             for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
                 vacationDuration.isAlreadyInVacationDate(requestVacationDateTime);
             }
@@ -131,22 +162,6 @@ public class VacationManager {
         return raise(ConfirmStatus.valueOf(confirmStatus));
     }
 
-    public float receiveVacationDate() {
-        if (Objects.isNull(vacationDate)) {
-            throw new IllegalStateException("");
-        }
-        return vacationDate;
-    }
-
-    public Vacation getVacation() {
-        return this.vacation;
-    }
-
-    public MemberLeave getMemberLeave() {
-        return this.memberLeave;
-    }
-
-
     // 휴가 취소 (결재 문서를 취소)
     public Vacation cancel() {
         if (!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {
@@ -157,11 +172,11 @@ public class VacationManager {
     }
 
     // 휴가 수정
-    public Vacation update(VacationDuration vacationDuration) {
-        if (!CREATE.equals(vacation.getVacationStatus())) {
-            throw new IllegalArgumentException("수정 불가능>.<");
-        }
-        vacation.updateVacationDuration(vacationDuration);
-        return vacation;
-    }
+//    public Vacation update(VacationDuration vacationDuration) {
+//        if (!CREATE.equals(vacation.getVacationStatus())) {
+//            throw new IllegalArgumentException("수정 불가능>.<");
+//        }
+//        vacation.updateVacationDuration(vacationDuration);
+//        return vacation;
+//    }
 }
