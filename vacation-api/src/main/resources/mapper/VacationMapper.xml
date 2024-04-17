@@ -29,7 +29,7 @@
             <if test="companyId != null and companyId != ''">
                 AND ML.COMPANY_ID =#{companyId}
             </if>
-            <if test="companyId != null and companyId != ''">
+            <if test="departmentId != null and departmentId != ''">
                 AND ML.DEPARTMENT_ID =#{departmentId}
             </if>
             <if test="vacationStatus != null ">

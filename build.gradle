@@ -117,6 +117,8 @@ project(':vacation-api') {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'com.h2database:h2'
         testImplementation 'org.awaitility:awaitility:4.2.0'
+        testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.2'
+
     }
 }
 
