@@ -15,8 +15,8 @@
         O.COMPANY_ID,
         O.DEPARTMENT_NAME,
         O.DEPARTMENT_ID,
-        V.START_DATE_TIME,
-        V.END_DATE_TIME,
+        VD.START_DATE_TIME,
+        VD.END_DATE_TIME,
         V.VACATION_TYPE,
         V.VACATION_STATUS
         FROM JXX_MEMBER_LEAVE_MASTER AS ML
@@ -24,6 +24,7 @@
         ON ML.MEMBER_ID = V.REQUESTER_ID
         JOIN JXX_ORGANIZATION_MASTER AS O
         ON ML.COMPANY_ID = O.COMPANY_ID AND ML.DEPARTMENT_ID = O.DEPARTMENT_ID
+        JOIN JXX_VACATION_DURATION VD ON VD.VACATION_ID = V.VACATION_ID
         <where>
             <if test="companyId != null and companyId != ''">
                 AND ML.COMPANY_ID =#{companyId}
