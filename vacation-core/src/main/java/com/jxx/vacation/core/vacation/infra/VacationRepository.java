@@ -12,29 +12,8 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
 
     List<Vacation> findAllByRequesterId(String requesterId);
 
-    /**
-     * SELECT JMLM.NAME, JVM.START_DATE_TIME , JVM.END_DATE_TIME, JVM.VACATION_TYPE , JVM.VACATION_STATUS
-     * FROM JXX_VACATION_MASTER JVM
-     * INNER JOIN JXX_MEMBER_LEAVE_MASTER JMLM ON JVM.REQUESTER_ID = JMLM.MEMBER_ID
-     * WHERE REQUESTER_ID IN (
-     * 	SELECT MEMBER_ID FROM JXX_MEMBER_LEAVE_MASTER
-     * 	WHERE COMPANY_ID = 'SPY' AND DEPARTMENT_ID = 'SPY01001');
-     */
-
-//    @Query("select new com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection" +
-//            "(v.id, " +
-//            "v.requesterId, " +
-//            "m.name, " +
-//            "m.organization.companyName, " +
-//            "m.organization.companyId, " +
-//            "m.organization.departmentName, " +
-//            "m.organization.departmentId, " +
-//            "v.vacationDuration.startDateTime, " +
-//            "v.vacationDuration.endDateTime, " +
-//            "v.vacationType, " +
-//            "v.vacationStatus) from Vacation v inner join MemberLeave m on v.requesterId = m.memberId " +
-//            "where v.requesterId in (select m2.memberId from MemberLeave m2 " +
-//            "where m2.organization.companyId =:companyId " +
-//            "and m2.organization.departmentId =:departmentId and m2.isActive = true )")
-//    List<DepartmentVacationProjection> findDepartmentVacation(@Param("companyId") String companyId, @Param("departmentId") String departmentId);
+    @Query(value = "select v from Vacation v " +
+            "join fetch VacationDuration vd " +
+            "where v.companyId=:companyId and v.vacationType ='COMMON_VACATION'")
+    List<Vacation> findCommonVacation(@Param("companyId") String companyId);
 }

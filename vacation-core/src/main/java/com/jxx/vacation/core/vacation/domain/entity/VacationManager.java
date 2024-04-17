@@ -7,6 +7,7 @@ import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,13 @@ public class VacationManager {
     private final MemberLeave memberLeave;
     private final Vacation vacation; // 영속화가 보장되어 있지 않으니 주의
 
+    public static VacationDuration create(Vacation commonVacation, LocalDate commonVacationDate) {
+        VacationDuration commonVacationDuration = new VacationDuration(commonVacationDate.atStartOfDay(), commonVacationDate.atTime(23, 59, 59), commonVacation.getLeaveDeduct());
+        commonVacationDuration.setLastDuration("Y");
+        commonVacationDuration.mappingVacation(commonVacation);
+
+        return commonVacationDuration;
+    }
     /**
      * 해당 메서드로 생성 시 Vacation 영속화된 상태가 아니니 주의
      */

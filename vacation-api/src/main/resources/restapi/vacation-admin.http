@@ -5,10 +5,10 @@ POST localhost:8080/admin/vacations/set-common-vacation
 Content-Type: application/json
 
 {
-  "companyId" :  "JXX",
+  "companyId" :  "SPY",
   "mustApproval" : false,
   "deducted" :  true,
-  "vacationDates" : ["2024-06-10"]
+  "vacationDates" : ["2024-09-10", "2024-09-13"]
 }
 
 ### 로그인

@@ -7,6 +7,7 @@ import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
 import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyRequest;
+import com.jxx.vacation.api.vacation.dto.response.CommonVacationServiceResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,8 +35,8 @@ public class VacationAdminController {
         log.info("공동 연차를 등록합니다.");
         UserSession userSession = authService.getUserSession(httpRequest);
         CommonVacationServiceForm vacationServiceForm = new CommonVacationServiceForm(userSession, vacationForm);
-        int updateRows = vacationAdminService.assignCommonVacation(vacationServiceForm);
-        return ResponseEntity.ok("업데이트 된 로우  수" + updateRows);
+        CommonVacationServiceResponse response = vacationAdminService.assignCommonVacation(vacationServiceForm);
+        return ResponseEntity.ok(response);
     }
     // 공동 연차 수정 API
     @PatchMapping("/admin/vacations/update-common-vacation")
