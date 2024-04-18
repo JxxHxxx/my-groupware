@@ -14,7 +14,9 @@ public class CoreEntityFactory {
                 "O0001",
                 "TJX",
                 "T0001",
-                "테스트부서");
+                "테스트부서",
+                "T0000",
+                "상위부서");
 
     }
     public static MemberLeave defaultMemberLeave(Organization organization) {

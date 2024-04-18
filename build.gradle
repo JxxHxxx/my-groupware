@@ -67,7 +67,7 @@ subprojects {
 
         implementation 'org.springframework.boot:spring-boot-starter'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
+        testImplementation 'com.h2database:h2'
     }
 
     test {
@@ -85,12 +85,13 @@ project(':vacation-core') {
         runtimeOnly 'com.mysql:mysql-connector-j'
 
         implementation 'org.springframework.data:spring-data-envers'
-
+        implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2")
         // json 타입 컬럼을 사용하기 위한 프로젝트 START
         implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.7.0'
         implementation 'com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations'
         // json 타입 컬럼을 사용하기 위한 프로젝트 START END
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.2'
     }
 }
 
@@ -118,7 +119,6 @@ project(':vacation-api') {
         testImplementation 'com.h2database:h2'
         testImplementation 'org.awaitility:awaitility:4.2.0'
         testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.2'
-
     }
 }
 

@@ -46,15 +46,6 @@ public class Organization {
     @Column(name = "PARENET_DEPARTMENT_NAME", nullable = false)
     @Comment(value = "상위 부서 명")
     private String parentDepartmentName;
-
-    @Builder
-    public Organization(String companyId, String companyName, String departmentId, String departmentName) {
-        this.isActive = true;
-        this.companyId = companyId;
-        this.companyName = companyName;
-        this.departmentId = departmentId;
-        this.departmentName = departmentName;
-    }
     @Builder
     public Organization(String companyId, String companyName, String departmentId, String departmentName,
                         String parentDepartmentId, String parentDepartmentName) {

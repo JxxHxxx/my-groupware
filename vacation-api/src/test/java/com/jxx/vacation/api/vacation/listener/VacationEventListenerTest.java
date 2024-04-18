@@ -55,7 +55,7 @@ class VacationEventListenerTest {
                 .name("테스터")
                 .leave(new Leave(15f, 15f))
                 .enteredDate(LocalDate.of(2023, 5, 12))
-                .organization(new Organization("JXX","JX사","J001", "IT팀"))
+                .organization(new Organization("JXX","JX사","J001", "IT팀", "J000", "상위부서"))
                 .build();
 
         Vacation vacation = Vacation.builder()
