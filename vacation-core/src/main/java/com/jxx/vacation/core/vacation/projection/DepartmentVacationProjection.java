@@ -4,10 +4,12 @@ import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 import com.jxx.vacation.core.vacation.domain.entity.VacationType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
+@ToString
 @RequiredArgsConstructor
 public class DepartmentVacationProjection {
 

@@ -32,7 +32,7 @@
             <if test="departmentId != null and departmentId != ''">
                 AND ML.DEPARTMENT_ID =#{departmentId}
             </if>
-            <if test="vacationStatus != null ">
+            <if test='vacationStatus != null and !@org.springframework.util.CollectionUtils@isEmpty(vacationStatus)'>
                 AND V.VACATION_STATUS IN
                 <foreach item="vacationStatus" collection="vacationStatus" open="(" separator=","  close=")">
                     #{vacationStatus}
