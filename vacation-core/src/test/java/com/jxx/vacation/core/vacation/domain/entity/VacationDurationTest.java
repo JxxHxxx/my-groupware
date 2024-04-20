@@ -15,7 +15,8 @@ class VacationDurationTest {
 
     @Test
     void calculate() {
-        LocalDateTime today = LocalDateTime.now();
+        // 월요일
+        LocalDateTime today = LocalDateTime.of(2024, 4, 2, 0, 0, 0);
         VacationDuration vd1 = new VacationDuration(today, today, LeaveDeduct.DEDUCT);
         assertThat(vd1.calculateDate()).isEqualTo(1l);
 
