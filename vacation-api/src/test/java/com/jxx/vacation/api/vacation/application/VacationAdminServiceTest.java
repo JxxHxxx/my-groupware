@@ -71,9 +71,26 @@ class VacationAdminServiceTest {
         //when
         CommonVacationServiceResponse firstResponse = vacationAdminService.assignCommonVacation(serviceForm);
 
-        Assertions.assertThatThrownBy(() -> vacationAdminService.assignCommonVacation(serviceForm))
+        assertThatThrownBy(() -> vacationAdminService.assignCommonVacation(serviceForm))
                 .isInstanceOf(VacationClientException.class)
                 .hasMessageContaining("은 이미 공동 연차로 등록되어 있는 날짜입니다.");
+        //when
+
+        //then
+    }
+
+    @DisplayName("동일한 요일을 공동 연차로 중복 신청할 시, VacationClientException 발생한다.")
+    @Test
+    void assign_common_vacation_fail_cause_not_exist_company_Id() {
+        //given
+        UserSession userSession = new UserSession("JXX", "제이주식회사", "U00001", "이재헌", "J00001", "IT센터");
+        LocalDate vacationDate = LocalDate.of(2024, 4, 17);
+        CommonVacationForm notExistCompanyIdContainForm = new CommonVacationForm("XXX", false, false, List.of(vacationDate));
+        CommonVacationServiceForm serviceForm = new CommonVacationServiceForm(userSession, notExistCompanyIdContainForm);
+        //when
+        assertThatThrownBy(() -> vacationAdminService.assignCommonVacation(serviceForm))
+                .isInstanceOf(VacationClientException.class)
+                .hasMessageContaining("존재하지 않는 회사 코드");
         //when
 
         //then

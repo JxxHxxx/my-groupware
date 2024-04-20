@@ -1,6 +1,7 @@
 package com.jxx.vacation.api.vacation.application;
 
 import com.jxx.vacation.api.member.application.UserSession;
+import com.jxx.vacation.api.vacation.application.cache.SimpleCacheContext;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.CommonVacationServiceForm;
 import com.jxx.vacation.api.vacation.dto.request.CompanyVacationTypePolicyForm;
@@ -13,10 +14,7 @@ import com.jxx.vacation.core.common.Creator;
 import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
-import com.jxx.vacation.core.vacation.infra.CompanyVacationTypePolicyRepository;
-import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
-import com.jxx.vacation.core.vacation.infra.VacationDurationRepository;
-import com.jxx.vacation.core.vacation.infra.VacationRepository;
+import com.jxx.vacation.core.vacation.infra.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -68,14 +66,21 @@ public class VacationAdminService {
         UserSession userSession = vacationServiceForm.userSession();
         CommonVacationForm commonVacationForm = vacationServiceForm.commonVacationForm();
         List<LocalDate> vacationDates = commonVacationForm.vacationDates();
+
+        String companyId = commonVacationForm.companyId();
+        if (SimpleCacheContext.notExistCompany(companyId)) {
+            throw new VacationClientException("존재하지 않는 회사 코드 " + companyId +  " 입니다.");
+        }
+
         List<Vacation> findCommonVacation = vacationRepository.findCommonVacation(commonVacationForm.companyId());
 
-        // 중복 검증
+        // 중복 신청일 검증
         List<LocalDateTime> alreadyRequestedCommonVacationDates = findCommonVacation.stream()
                 .flatMap(cv -> cv.getVacationDurations().stream())
                 .filter(vd -> commonVacationForm.vacationDates().contains(vd.getStartDateTime().toLocalDate()))
                 .map(VacationDuration::getStartDateTime)
                 .toList();
+
         if (!alreadyRequestedCommonVacationDates.isEmpty()) {
             log.warn("중복 신청 날짜 {}", alreadyRequestedCommonVacationDates);
             throw new VacationClientException(alreadyRequestedCommonVacationDates + " 은 이미 공동 연차로 등록되어 있는 날짜입니다.", userSession.getMemberId());
@@ -84,7 +89,7 @@ public class VacationAdminService {
         final boolean mustApproval = commonVacationForm.mustApproval();
         final boolean deducted = commonVacationForm.deducted();
         LeaveDeduct leaveDeduct = decideLeaveDeduct(mustApproval, deducted);
-        // Vacation, VacationDuration INSERT start
+        // Vacation, VacationDuration INSERT start -- TODO VacationManager 에서 수행하도록 변경
         List<Vacation> vacations = new ArrayList<>();
         List<VacationDuration> vacationDurations = new ArrayList<>();
         for (LocalDate vacationDate : vacationDates) {
@@ -100,7 +105,7 @@ public class VacationAdminService {
                 commonVacation.changeVacationStatus(VacationStatus.NON_REQUIRED);
             }
 
-            VacationDuration vacationDuration = VacationManager.create(commonVacation, vacationDate);
+            VacationDuration vacationDuration = VacationManager.createCommonVacationDuration(commonVacation, vacationDate);
             vacationDurations.add(vacationDuration);
             vacations.add(commonVacation);
         }
@@ -121,24 +126,9 @@ public class VacationAdminService {
             publishVacationCreateEventMessageQ(savedVacations);
         }
 
-        List<VacationServiceResponse> responses = new ArrayList<>();
-        for (Vacation savedVacation : savedVacations) {
-            List<VacationDuration> savedVacationDurations = savedVacation.getVacationDurations();
-            List<VacationDurationDto> vacationDurationDto = savedVacationDurations.stream()
-                    .map(svd -> new VacationDurationDto(svd.getId(), svd.getStartDateTime(), svd.getEndDateTime(), svd.getUseLeaveValue()))
-                    .toList();
-
-            VacationServiceResponse response = new VacationServiceResponse(
-                    savedVacation.getId(),
-                    userSession.getMemberId(),
-                    userSession.getName(),
-                    vacationDurationDto,
-                    savedVacation.getVacationStatus());
-
-            responses.add(response);
-        }
-
-
+        List<VacationServiceResponse> responses = savedVacations.stream()
+                .map(savedVacation -> convertToResponse(userSession, savedVacation))
+                .toList();
         return new CommonVacationServiceResponse(leaveDeductedUserNum, totalUseLeaveValue, mustApproval, deducted,
                 leaveDeduct, responses);
     }
@@ -168,5 +158,19 @@ public class VacationAdminService {
 
             eventPublisher.publishEvent(commonVacationCreateEvent);
         }
+    }
+
+    private static VacationServiceResponse convertToResponse(UserSession userSession, Vacation savedVacation) {
+        List<VacationDuration> savedVacationDurations = savedVacation.getVacationDurations();
+        List<VacationDurationDto> vacationDurationDto = savedVacationDurations.stream()
+                .map(svd -> new VacationDurationDto(svd.getId(), svd.getStartDateTime(), svd.getEndDateTime(), svd.getUseLeaveValue()))
+                .toList();
+
+        return new VacationServiceResponse(
+                savedVacation.getId(),
+                userSession.getMemberId(),
+                userSession.getName(),
+                vacationDurationDto,
+                savedVacation.getVacationStatus());
     }
 }
