@@ -3,7 +3,6 @@ package com.jxx.vacation.core.vacation.domain.entity;
 import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
-import com.jxx.vacation.core.vacation.domain.service.VacationCalculator;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 
@@ -41,6 +39,14 @@ public class VacationManager {
         commonVacationDuration.mappingVacation(commonVacation);
 
         return commonVacationDuration;
+    }
+
+    public static List<LocalDateTime> findAlreadyEnrolledVacationDates(List<Vacation> findVacations, List<LocalDate> requestVacationDates) {
+        return findVacations.stream()
+                .flatMap(cv -> cv.getVacationDurations().stream())
+                .filter(vd -> requestVacationDates.contains(vd.getStartDateTime().toLocalDate()))
+                .map(VacationDuration::getStartDateTime)
+                .toList();
     }
 
     // Vacation Duration

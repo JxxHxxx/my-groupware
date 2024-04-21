@@ -59,7 +59,7 @@ public class VacationAdminService {
 
     }
 
-    // TODO 몇 명이 반영됐고 몇 일 반영 됐는지
+    // TODO Form 에서 LeaveDeduct Enum 을 받는 식으로 하자.
     @Transactional
     public CommonVacationServiceResponse assignCommonVacation(CommonVacationServiceForm vacationServiceForm) {
         // 검증 전역 관리자 혹은 사내 관리자 검증
@@ -73,17 +73,12 @@ public class VacationAdminService {
         }
 
         List<Vacation> findCommonVacation = vacationRepository.findCommonVacation(commonVacationForm.companyId());
-
         // 중복 신청일 검증
-        List<LocalDateTime> alreadyRequestedCommonVacationDates = findCommonVacation.stream()
-                .flatMap(cv -> cv.getVacationDurations().stream())
-                .filter(vd -> commonVacationForm.vacationDates().contains(vd.getStartDateTime().toLocalDate()))
-                .map(VacationDuration::getStartDateTime)
-                .toList();
+        List<LocalDateTime> alreadyEnrolledVacationDates = VacationManager.findAlreadyEnrolledVacationDates(findCommonVacation, commonVacationForm.vacationDates());
 
-        if (!alreadyRequestedCommonVacationDates.isEmpty()) {
-            log.warn("중복 신청 날짜 {}", alreadyRequestedCommonVacationDates);
-            throw new VacationClientException(alreadyRequestedCommonVacationDates + " 은 이미 공동 연차로 등록되어 있는 날짜입니다.", userSession.getMemberId());
+        if (!alreadyEnrolledVacationDates.isEmpty()) {
+            log.warn("중복 신청 날짜 {}", alreadyEnrolledVacationDates);
+            throw new VacationClientException(alreadyEnrolledVacationDates + " 은 이미 공동 연차로 등록되어 있는 날짜입니다.", userSession.getMemberId());
         }
 
         final boolean mustApproval = commonVacationForm.mustApproval();
