@@ -10,7 +10,7 @@ import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.query.VacationSearchCondition;
-import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
+import com.jxx.vacation.core.vacation.projection.VacationProjection;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +95,7 @@ public class VacationApiController {
     }
     @GetMapping("/api/vacations")
     public ResponseEntity<?> searchDepartmentVacation(@ModelAttribute VacationSearchCondition searchCondition) {
-        List<DepartmentVacationProjection> responses = vacationService.searchVacations(searchCondition);
+        List<VacationProjection> responses = vacationService.searchVacations(searchCondition);
         return ResponseEntity.ok(responses);
     }
 

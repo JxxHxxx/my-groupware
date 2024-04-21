@@ -6,7 +6,7 @@
 <mapper namespace="com.jxx.vacation.api.vacation.query.VacationDynamicMapper">
     <select id="search"
             parameterType="com.jxx.vacation.api.vacation.query.VacationSearchCondition"
-            resultType="com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection"
+            resultType="com.jxx.vacation.core.vacation.projection.VacationProjection"
     >
         SELECT V.VACATION_ID,
         V.REQUESTER_ID,
@@ -15,6 +15,7 @@
         O.COMPANY_ID,
         O.DEPARTMENT_NAME,
         O.DEPARTMENT_ID,
+        VD.VACATION_DURATION_ID,
         VD.START_DATE_TIME,
         VD.END_DATE_TIME,
         V.VACATION_TYPE,

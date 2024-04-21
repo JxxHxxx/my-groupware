@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public class DepartmentVacationProjection {
+public class VacationProjection {
 
     private final Long vacationId;
     private final String requesterId;
@@ -20,6 +20,7 @@ public class DepartmentVacationProjection {
     private final String companyId;
     private final String departmentName;
     private final String departmentId;
+    private final Long vacationDurationId;
     private final LocalDateTime startDateTime;
     private final LocalDateTime endDateTime;
     private final VacationType vacationType;

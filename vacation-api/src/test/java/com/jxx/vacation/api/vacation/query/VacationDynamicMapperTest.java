@@ -1,7 +1,7 @@
 package com.jxx.vacation.api.vacation.query;
 
 import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
-import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
+import com.jxx.vacation.core.vacation.projection.VacationProjection;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.mybatis.spring.boot.test.autoconfigure.AutoConfigureMybatis;
@@ -53,7 +53,7 @@ class VacationDynamicMapperTest {
         VacationSearchCondition cond = new VacationSearchCondition(
                 "JXX", null, "U00001",
                 vacationStatuses, null, null, null);
-        List<DepartmentVacationProjection> result = vacationDynamicMapper.search(cond);
+        List<VacationProjection> result = vacationDynamicMapper.search(cond);
         assertThat(result).extracting("vacationStatus").containsOnly(CREATE, ONGOING);
         assertThat(result).extracting("requesterId").containsOnly("U00001");
     }
@@ -65,7 +65,7 @@ class VacationDynamicMapperTest {
         VacationSearchCondition cond = new VacationSearchCondition(
                 "JXX", null, "U00001",
                 emptyCond, null, null, null);
-        List<DepartmentVacationProjection> result = vacationDynamicMapper.search(cond);
+        List<VacationProjection> result = vacationDynamicMapper.search(cond);
         assertThat(result).extracting("vacationStatus").contains(CREATE, ONGOING);
         assertThat(result.size()).isEqualTo(2);
     }
@@ -76,7 +76,7 @@ class VacationDynamicMapperTest {
         VacationSearchCondition cond = new VacationSearchCondition(
                 "JXX", null, "U00001",
                 null, null, null, null);
-        List<DepartmentVacationProjection> result = vacationDynamicMapper.search(cond);
+        List<VacationProjection> result = vacationDynamicMapper.search(cond);
         assertThat(result).extracting("vacationStatus").contains(CREATE, ONGOING);
         assertThat(result.size()).isEqualTo(2);
     }

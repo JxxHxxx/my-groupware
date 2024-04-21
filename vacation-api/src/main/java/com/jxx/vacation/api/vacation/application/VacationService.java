@@ -18,7 +18,7 @@ import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.*;
 
-import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
+import com.jxx.vacation.core.vacation.projection.VacationProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -278,7 +278,7 @@ public class VacationService {
                 .toList();
     }
 
-    public List<DepartmentVacationProjection> searchVacations(VacationSearchCondition condition) {
+    public List<VacationProjection> searchVacations(VacationSearchCondition condition) {
         return vacationDynamicMapper.search(condition);
     }
 

@@ -1,7 +1,6 @@
 package com.jxx.vacation.core.vacation.infra;
 
 import com.jxx.vacation.core.vacation.domain.entity.Vacation;
-import com.jxx.vacation.core.vacation.projection.DepartmentVacationProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
