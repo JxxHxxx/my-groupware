@@ -59,22 +59,8 @@ public class VacationService {
         VacationManager vacationManager = VacationManager.create(memberLeave, vacationForm.vacationType(), vacationForm.leaveDeduct());
 
         Vacation vacation = vacationManager.getVacation();
-        List<VacationDuration> vacationDurations = vacationForm.requestVacationDurations().stream()
-                .map(rvd -> new VacationDuration(rvd.startDateTime(), rvd.endDateTime(), vacationForm.leaveDeduct()))
-                .sorted(VacationDuration::sortByEndDateTime)
-                .toList();
-
-        log.info("vacationDurations", vacationDurations);
-
-        // lastVacationDuration 는 위 vacationDurations 요소이다. List는 참조값을 바라보기 때문에 요소를 꺼내서 변경해도 반영된다.
-        // 혼란스러울 수 있기에 주석...
-        int lastVacationDurationIndex = vacationDurations.size() - 1;
-        VacationDuration lastVacationDuration = vacationDurations.get(lastVacationDurationIndex);
-        lastVacationDuration.setLastDuration("Y");
-
-        for (VacationDuration vacationDuration : vacationDurations) {
-            vacationDuration.mappingVacation(vacation);
-        }
+        vacationManager.createVacationDurations(vacationForm.requestVacationDurations());
+        List<VacationDuration> vacationDurations = vacationManager.getVacationDurations();
 
         vacationDurationRepository.saveAll(vacationDurations);
         final Vacation savedVacation = vacationRepository.save(vacation);

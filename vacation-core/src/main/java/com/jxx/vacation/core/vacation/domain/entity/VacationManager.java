@@ -1,6 +1,7 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
 import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
+import com.jxx.vacation.core.vacation.domain.RequestVacationDuration;
 import com.jxx.vacation.core.vacation.domain.exeception.InactiveException;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import lombok.Getter;
@@ -18,10 +19,15 @@ import static com.jxx.vacation.core.vacation.domain.entity.VacationStatus.*;
 public class VacationManager {
     private final MemberLeave memberLeave;
     private final Vacation vacation; // 영속화가 보장되어 있지 않으니 주의
+    private List<VacationDuration> vacationDurations = new ArrayList<>();
 
     /**
      * 해당 메서드로 생성 시 Vacation 영속화된 상태가 아니니 주의
      */
+
+    public static VacationManager create(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
+        return new VacationManager(memberLeave, vacationType, leaveDeduct);
+    }
 
     private VacationManager(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
         this.memberLeave = memberLeave;
@@ -29,13 +35,41 @@ public class VacationManager {
         validateMemberActive();
     }
 
-    public static VacationManager create(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
-        return new VacationManager(memberLeave, vacationType, leaveDeduct);
+    public void createVacationDurations(List<RequestVacationDuration> requestVacationDurations) {
+        vacationDurations = requestVacationDurations.stream()
+                .map(requestVacationDuration -> {
+                    VacationDuration vacationDuration = new VacationDuration(
+                            requestVacationDuration.startDateTime(),
+                            requestVacationDuration.endDateTime(),
+                            vacation.getLeaveDeduct());
+                    vacationDuration.mappingVacation(vacation);
+                    return vacationDuration;
+                })
+                .sorted(VacationDuration::sortByEndDateTime)
+                .toList();
+
+        decideLastDuration();
+    }
+
+    private void decideLastDuration() {
+        int lastVacationDurationIndex = vacationDurations.size() - 1;
+        VacationDuration lastVacationDuration = vacationDurations.get(lastVacationDurationIndex);
+        lastVacationDuration.setLastDurationY();
+    }
+
+    private Vacation createVacation(VacationType vacationType, LeaveDeduct leaveDeduct) {
+        return Vacation.builder()
+                .vacationType(vacationType)
+                .vacationStatus(CREATE)
+                .leaveDeduct(leaveDeduct)
+                .requesterId(memberLeave.getMemberId())
+                .companyId(memberLeave.receiveCompanyId())
+                .build();
     }
 
     public static VacationDuration createCommonVacationDuration(Vacation commonVacation, LocalDate commonVacationDate) {
         VacationDuration commonVacationDuration = new VacationDuration(commonVacationDate.atStartOfDay(), commonVacationDate.atTime(23, 59, 59), commonVacation.getLeaveDeduct());
-        commonVacationDuration.setLastDuration("Y");
+        commonVacationDuration.setLastDurationY();
         commonVacationDuration.mappingVacation(commonVacation);
 
         return commonVacationDuration;
@@ -49,18 +83,6 @@ public class VacationManager {
                 .toList();
     }
 
-    // Vacation Duration
-    public Vacation createVacation(VacationType vacationType, LeaveDeduct leaveDeduct) {
-        return Vacation.builder()
-                .vacationType(vacationType)
-                .vacationStatus(CREATE)
-                .leaveDeduct(leaveDeduct)
-                .requesterId(memberLeave.getMemberId())
-                .companyId(memberLeave.receiveCompanyId())
-                .build();
-    }
-
-
     public static VacationManager updateVacation(Vacation vacation, MemberLeave memberLeave) {
         return new VacationManager(vacation, memberLeave);
     }
@@ -70,16 +92,6 @@ public class VacationManager {
         this.memberLeave = memberLeave;
         this.vacation = vacation;
         validateMemberActive();
-    }
-
-    protected Vacation create(VacationType vacationType) {
-        return decideDeduct(vacationType, memberLeave.getMemberId(), memberLeave.receiveCompanyId());
-    }
-
-    private Vacation decideDeduct(VacationType vacationType, String requesterId, String companyId) {
-        return VacationType.DEDUCT_TYPE.contains(vacationType.getType()) ?
-                Vacation.createDeductVacation(requesterId, companyId, vacationType) :
-                Vacation.createNotDeductVacation(requesterId, companyId, vacationType);
     }
 
     public boolean validateMemberActive() {
@@ -118,25 +130,20 @@ public class VacationManager {
         }
     }
 
-    public void validateVacationDatesAreDuplicated(List<Vacation> requestVacations) {
-        List<Vacation> afterConfirmingVacations = requestVacations.stream()
+    public void validateVacationDatesAreDuplicated(List<Vacation> createCompletedVacations) {
+        List<VacationDuration> requestCompletedVacationDurations = createCompletedVacations.stream()
                 .filter(vacation -> CONFIRMING_AND_ONGOING_GROUP.contains(vacation.getVacationStatus()))
+                .flatMap(requestCompletedVacation -> requestCompletedVacation.getVacationDurations().stream())
                 .toList();
 
-        List<VacationDuration> afterConfirmingVacationDurations = new ArrayList<>();
-        for (Vacation afterConfirmingVacation : afterConfirmingVacations) {
-            List<VacationDuration> vd = afterConfirmingVacation.getVacationDurations();
-            afterConfirmingVacationDurations.addAll(vd);
-        }
-
-        List<LocalDateTime> requestVacationDateTimes = new ArrayList<>();
+        List<LocalDateTime> requestingVacationDateTimes = new ArrayList<>();
         List<VacationDuration> requestVacationDurations = vacation.getVacationDurations();
         for (VacationDuration requestVacationDuration : requestVacationDurations) {
-            requestVacationDateTimes.addAll(requestVacationDuration.receiveVacationDateTimes());
+            requestingVacationDateTimes.addAll(requestVacationDuration.receiveVacationDateTimes());
         }
 
-        for (VacationDuration vacationDuration : afterConfirmingVacationDurations) {
-            for (LocalDateTime requestVacationDateTime : requestVacationDateTimes) {
+        for (VacationDuration vacationDuration : requestCompletedVacationDurations) {
+            for (LocalDateTime requestVacationDateTime : requestingVacationDateTimes) {
                 vacationDuration.isAlreadyInVacationDate(requestVacationDateTime);
             }
         }

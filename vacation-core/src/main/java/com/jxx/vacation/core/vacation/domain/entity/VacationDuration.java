@@ -22,7 +22,8 @@ import java.util.List;
 })
 public class VacationDuration {
 
-    private static long DATE_ADJUSTMENTS_VALUE = 1l;
+    private static final long DATE_ADJUSTMENTS_VALUE = 1l;
+    private static final String LAST_DURATION_YES_FLAG = "Y";
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VACATION_DURATION_ID")
@@ -53,8 +54,8 @@ public class VacationDuration {
         vacation.addVacationDuration(this);
     }
 
-    public void setLastDuration(String lastDuration) {
-        this.lastDuration = lastDuration.toUpperCase();
+    protected void setLastDurationY() {
+        this.lastDuration = LAST_DURATION_YES_FLAG;
     }
 
 

@@ -7,13 +7,13 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "SPY00011",
+  "requesterId": "SPY00160",
   "vacationType": "MORE_DAY",
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-04-19T00:00",
-      "endDateTime": "2024-04-19T00:00"
+      "startDateTime": "2024-05-02T00:00",
+      "endDateTime": "2024-05-03T00:00"
     }
   ]
 }
@@ -93,5 +93,5 @@ GET http://localhost:8080/api/vacations?companyId=SPY
 GET http://localhost:8080/api/vacations?companyId=SPY&departmentId=SPY00202&vacationStatus=CREATE,REQUEST
 
 ### 휴가 상신 (결재 서버 올라와있어야 함)
-POST http://localhost:8080/api/vacations/1210/raise
+POST http://localhost:8080/api/vacations/1230/raise
 Content-Type: application/json

@@ -79,7 +79,7 @@ class VacationAdminServiceTest {
         //then
     }
 
-    @DisplayName("동일한 요일을 공동 연차로 중복 신청할 시, VacationClientException 발생한다.")
+    @DisplayName("존재하지 않는 회사코드로 공동 연차 신청을 할 경우, VacationClientException 발생한다.")
     @Test
     void assign_common_vacation_fail_cause_not_exist_company_Id() {
         //given

@@ -26,29 +26,9 @@ class LeaveItemValidateProcessorTest {
         //given
         LocalDateTime vacationStartDateTime = LocalDateTime.of(2025, 12, 12, 0, 0,0);
         LocalDateTime vacationEndDateTime = LocalDateTime.of(2025, 12, 13, 0,0,0);
-        LeaveItem leaveItem = new LeaveItem(
-                "U00013",
-                LocalDateTime.now(),
-                true,
-                15f,
-                15f,
-                "이재헌",
-                "U00013",
-                2,
-                LocalDate.of(2023, 12, 12),
-                100l,
-                LeaveDeduct.DEDUCT.name(),
-                vacationStatus,
-                MORE_DAY.name(),
-                vacationStartDateTime,
-                vacationEndDateTime,
-                "JXX",
-                "departId",
-                true,
-                2f,
-                "Y");
+        LeaveItem notOngoingItem = createLeaveItem(vacationStatus, vacationStartDateTime, vacationEndDateTime);
         //when
-        LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
+        LeaveItem processedItem = leaveItemValidateProcessor.process(notOngoingItem);
         //then
         assertThat(processedItem).isNull();
     }
@@ -65,7 +45,16 @@ class LeaveItemValidateProcessorTest {
         LocalDateTime vacationStartDateTime = LocalDateTime.of(2025, 12, 11, 0, 0,0);
         //금요일
         LocalDateTime vacationEndDateTime = LocalDateTime.of(2025, 12, 12, 0,0,0);
-        LeaveItem leaveItem = new LeaveItem(
+        LeaveItem leaveItem = createLeaveItem(vacationStatus, vacationStartDateTime, vacationEndDateTime);
+        //when
+        LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
+        //then
+        assertThat(processedItem.getVacationStatus()).isEqualTo("COMPLETED");
+        assertThat(processedItem.getUseLeaveValue()).isEqualTo(2f);
+    }
+
+    private static LeaveItem createLeaveItem(String vacationStatus, LocalDateTime vacationStartDateTime, LocalDateTime vacationEndDateTime) {
+        return new LeaveItem(
                 "U00013",
                 LocalDateTime.now(),
                 true,
@@ -86,10 +75,5 @@ class LeaveItemValidateProcessorTest {
                 true,
                 2f,
                 "Y");
-        //when
-        LeaveItem processedItem = leaveItemValidateProcessor.process(leaveItem);
-        //then
-        assertThat(processedItem.getVacationStatus()).isEqualTo("COMPLETED");
-        assertThat(processedItem.getUseLeaveValue()).isEqualTo(2f);
     }
 }

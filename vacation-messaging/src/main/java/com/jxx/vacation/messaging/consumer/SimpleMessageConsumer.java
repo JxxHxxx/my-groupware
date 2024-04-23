@@ -39,7 +39,7 @@ public class SimpleMessageConsumer {
             @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
             @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
             @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
-            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel1")
+            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2")
     })
     public void consumeSentMessage2(List<Message<MessageQ>> message) {
         processes(message, "2");

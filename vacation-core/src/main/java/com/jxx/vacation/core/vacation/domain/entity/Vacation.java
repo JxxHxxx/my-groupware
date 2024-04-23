@@ -52,7 +52,7 @@ public class Vacation {
     private LocalDateTime createTime;
 
     @OneToMany(mappedBy = "vacation")
-    List<VacationDuration> vacationDurations = new ArrayList<>();
+    private List<VacationDuration> vacationDurations = new ArrayList<>();
 
     public float useLeaveValueSum() {
         List<Float> vacationDates = vacationDurations.stream()

@@ -67,4 +67,10 @@ class VacationDurationTest {
         assertThat(localDateTimes).contains(startDate, endDate, betweenDate);
     }
 
+    @DisplayName("")
+    @Test
+    void sortByEndDateTime() {
+
+    }
+
 }
