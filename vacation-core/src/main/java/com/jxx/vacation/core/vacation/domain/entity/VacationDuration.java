@@ -24,6 +24,8 @@ public class VacationDuration {
 
     private static final long DATE_ADJUSTMENTS_VALUE = 1l;
     private static final String LAST_DURATION_YES_FLAG = "Y";
+    private static final int PAST_FLAG = -1;
+    private static final int FUTURE_FLAG = 1;
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VACATION_DURATION_ID")
@@ -58,15 +60,20 @@ public class VacationDuration {
         this.lastDuration = LAST_DURATION_YES_FLAG;
     }
 
-
-
     /**
-     * 휴가 종료일이 과거일수록 인덱스를 앞으로 위치시키기 위함
-     * 예를 들어 요소 A(종료일 2024-04-15),요소 B(종료일 2024-04-18),요소 C(종료일 2024-04-17)
-     * 이면 A,C,B 순으로 정렬된다.
+     * 하나의 휴가에는 2개 이상의 기간이 존재할 수 있다.
+     * e.g) 에를 들어 주말에 일을 하지 않는 사용자라고 할 때
+     * 금요일, 월요일을 각각 기간으로 지정하여 연차로 신청할 수 있다.
+     *
+     * client 단에서 기간을 과거부터 보낸다는 보장이 없다. 다시 말해, 금, 월 순으로 요청을 보내는게 아니라 월, 금 순으로 보낼 수도 있다.
+     * 만약 과거순으로 보낸다는 보장이 없으면 하나의 휴가 중 마지막 기간을 의미하는 LastDuration 필드 값을 결정할 수 없다.
+     * 이에 따라 VacationDuration 을 Store 에 저장하기 전에 반드시 호출해야 한다.
+     *
+     * @param vacationDuration : 비교 대상
+     * @return 인자의 endDateTime 보다 미래라면 1 과거라면 -1
      */
-    public int sortByEndDateTime(VacationDuration vacationDuration) {
-        return this.endDateTime.isAfter(vacationDuration.getEndDateTime()) ? 1 : -1;
+    protected int reconciliationVacationDurations(VacationDuration vacationDuration) {
+        return endDateTime.isAfter(vacationDuration.getEndDateTime()) ? FUTURE_FLAG : PAST_FLAG;
     }
 
     public VacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, LeaveDeduct leaveDeduct) {

@@ -45,7 +45,7 @@ public class VacationManager {
                     vacationDuration.mappingVacation(vacation);
                     return vacationDuration;
                 })
-                .sorted(VacationDuration::sortByEndDateTime)
+                .sorted(VacationDuration::reconciliationVacationDurations)
                 .toList();
 
         decideLastDuration();
