@@ -1,5 +1,7 @@
 package com.jxx.vacation.messaging.configuration;
 
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -60,5 +62,9 @@ public class ThirdPartyDBConfiguration {
                 .password(approvalDbPassword)
                 .driverClassName(approvalDbDriverClassName)
                 .build();
+    }
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

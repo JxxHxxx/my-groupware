@@ -26,7 +26,7 @@ public class VacationApiExceptionHandler {
 
     @ExceptionHandler(VacationClientException.class)
     public ResponseEntity<?> handleVacationException(VacationClientException exception) {
-        log.error("[{}][{}]", exception.getClientId(), exception.getMessage());
+        log.error("[{}][{}]", exception.getClientId(), exception.getMessage(), exception);
         ClientExceptionResponse response = new ClientExceptionResponse(400, exception.getClientId(), exception.getMessage());
         return ResponseEntity.badRequest().body(response);
     }

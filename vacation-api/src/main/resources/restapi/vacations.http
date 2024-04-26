@@ -18,6 +18,85 @@ Content-Type: application/json
   ]
 }
 
+### 휴가 신청 2
+POST http://localhost:8080/api/vacations
+Content-Type: application/json
+
+{
+  "requesterId": "SPY00160",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-05-02T00:00",
+      "endDateTime": "2024-05-03T00:00"
+    }
+  ]
+}
+
+### 휴가 신청 3
+POST http://localhost:8080/api/vacations
+Content-Type: application/json
+
+{
+  "requesterId": "SPY00160",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-05-02T00:00",
+      "endDateTime": "2024-05-03T00:00"
+    }
+  ]
+}
+
+### 휴가 신청 4
+POST http://localhost:8080/api/vacations
+Content-Type: application/json
+
+{
+  "requesterId": "SPY00160",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-05-02T00:00",
+      "endDateTime": "2024-05-03T00:00"
+    }
+  ]
+}
+
+### 휴가 신청 5
+POST http://localhost:8080/api/vacations
+Content-Type: application/json
+
+{
+  "requesterId": "SPY00160",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-05-02T00:00",
+      "endDateTime": "2024-05-03T00:00"
+    }
+  ]
+}
+
+### 휴가 신청 6
+POST http://localhost:8080/api/vacations
+Content-Type: application/json
+
+{
+  "requesterId": "SPY00160",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
+  "requestVacationDurations": [
+    {
+      "startDateTime": "2024-05-02T00:00",
+      "endDateTime": "2024-05-03T00:00"
+    }
+  ]
+}
 
 
 ### 휴가 상신

@@ -1,6 +1,7 @@
 package com.jxx.vacation.messaging.consumer;
 
 import com.jxx.vacation.core.message.domain.MessageQ;
+import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.messaging.application.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +10,12 @@ import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.annotation.ServiceActivators;
 import org.springframework.messaging.Message;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// TODO : 예외 발생 시, 큰 문제가 생긴다.. 채널 수 만큼 입력됨
 
 @Slf4j
 @MessageEndpoint
@@ -21,37 +24,29 @@ public class SimpleMessageConsumer {
 
     @Qualifier("vacationMessageService")
     private final MessageService messageService;
-    @Transactional
+//    @Transactional
     @ServiceActivators({
-            @ServiceActivator(inputChannel = "sentQueueChannel1"), @ServiceActivator(inputChannel = "sentQueueChannel1"),
-            @ServiceActivator(inputChannel = "sentQueueChannel1"), @ServiceActivator(inputChannel = "sentQueueChannel1"),
-            @ServiceActivator(inputChannel = "sentQueueChannel1"), @ServiceActivator(inputChannel = "sentQueueChannel1"),
-            @ServiceActivator(inputChannel = "sentQueueChannel1"), @ServiceActivator(inputChannel = "sentQueueChannel1"),
-            @ServiceActivator(inputChannel = "sentQueueChannel1"), @ServiceActivator(inputChannel = "sentQueueChannel1")
+            @ServiceActivator(inputChannel = "sentQueueChannel1")
     })
     public void consumeSentMessage1(List<Message<MessageQ>> message) {
         processes(message, "1");
     }
 
-    @Transactional
     @ServiceActivators({
-            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
-            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
-            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
-            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2"),
-            @ServiceActivator(inputChannel = "sentQueueChannel2"), @ServiceActivator(inputChannel = "sentQueueChannel2")
+            @ServiceActivator(inputChannel = "sentQueueChannel2")
     })
     public void consumeSentMessage2(List<Message<MessageQ>> message) {
         processes(message, "2");
     }
 
-    private void processes(List<Message<MessageQ>> messages, String channelNum) {
+    public void processes(List<Message<MessageQ>> messages, String channelNum) {
         for (Message<MessageQ> message : messages) {
             messageService.process(message);
             log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HISTORY START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
                     "\nChannel:sentQueueChannel{}" +
                     "\nMessage:{}" +
                     "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HISTORY  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", channelNum, message);
+
         }
     }
 

@@ -28,6 +28,7 @@ public class VacationConfirmModel {
     private String departmentId;
     private String requesterId;
     private String approvalLineLifeCycle;
+    private Long contentPk;
 
     private VacationConfirmModel(String confirmStatus, String confirmDocumentId, String createSystem, LocalDateTime createTime, String documentType, String companyId,
                                 String departmentId, String requesterId, String approvalLineLifeCycle) {

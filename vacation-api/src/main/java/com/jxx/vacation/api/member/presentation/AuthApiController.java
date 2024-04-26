@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthApiController {
 
     private final AuthService authService;
-
     private static final String COOKIE_KEY_OF_USER_SESSION = "jxx-c-id";
     private static final String COOKIE_DEFAULT_PATH = "/";
 

@@ -1,8 +1,11 @@
 package com.jxx.vacation.core.message.body.vendor.confirm;
 
+import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jxx.vacation.core.message.MessageConst.CREATE_SYSTEM;
 import static com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus.*;
@@ -25,8 +28,18 @@ public class VacationConfirmMessageForm {
     private final LocalDateTime createTime;
     private final ApprovalLineLifecycle approvalLineLifeCycle;
 
-    private VacationConfirmMessageForm(ConfirmStatus confirmStatus, String requesterId, String companyId, String departmentId,
-                                       String createSystem, DocumentType documentType, float vacationDate, Long vacationId, ApprovalLineLifecycle approvalLineLifeCycle) {
+    private final String title;
+    private final String delegatorId;
+    private final String reason;
+    private final String requesterName;
+    private final String departmentName;
+    private final List<VacationDurationModel> vacationDurations;
+    
+    private VacationConfirmMessageForm(ConfirmStatus confirmStatus, String requesterId, String companyId,
+                                       String departmentId, String createSystem, DocumentType documentType,
+                                       float vacationDate, Long vacationId, ApprovalLineLifecycle approvalLineLifeCycle,
+                                       String title, String delegatorId, String reason, String requesterName, String departmentName,
+                                       List<VacationDurationModel> vacationDurations) {
         this.confirmStatus = confirmStatus;
         this.requesterId = requesterId;
         this.companyId = companyId;
@@ -37,9 +50,18 @@ public class VacationConfirmMessageForm {
         this.vacationId = vacationId;
         this.approvalLineLifeCycle = approvalLineLifeCycle;
         this.createTime = LocalDateTime.now();
+        this.title = title;
+        this.delegatorId = delegatorId;
+        this.reason = reason;
+        this.requesterName = requesterName;
+        this.departmentName = departmentName;
+        this.vacationDurations = vacationDurations;
     }
 
-    public static VacationConfirmMessageForm create(String requesterId, String companyId, String departmentId, float vacationDate, Long vacationId) {
+    public static VacationConfirmMessageForm create(String requesterId, String companyId, String departmentId,
+                                                    float vacationDate, Long vacationId, String title, String delegatorId,
+                                                    String reason, String requesterName, String departmentName,
+                                                    List<VacationDurationModel> vacationDurations) {
         return new VacationConfirmMessageForm(
                 CREATE,
                 requesterId,
@@ -49,6 +71,12 @@ public class VacationConfirmMessageForm {
                 DocumentType.VAC,
                 vacationDate,
                 vacationId,
-                ApprovalLineLifecycle.BEFORE_CREATE);
+                ApprovalLineLifecycle.BEFORE_CREATE,
+                title,
+                delegatorId,
+                reason,
+                requesterName,
+                departmentName,
+                vacationDurations);
     }
 }

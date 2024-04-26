@@ -7,5 +7,8 @@ public record VacationCreatedEvent(
         MemberLeave memberLeave,
         Vacation vacation,
         float vacationDate,
-        String requesterId) {
+        String title,
+        String delegatorId,
+        String reason
+) {
 }

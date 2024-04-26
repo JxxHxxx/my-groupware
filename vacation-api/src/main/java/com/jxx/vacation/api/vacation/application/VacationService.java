@@ -78,7 +78,14 @@ public class VacationService {
         vacationHistRepository.save(new VacationHistory(vacation, History.insert(vacation.getRequesterId())));
         Float totalUseLeaveValue = savedVacation.getTotalUseLeaveValue();
         if (savedVacation.successRequest()) {
-            eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, totalUseLeaveValue, requesterId));
+            eventPublisher.publishEvent(new VacationCreatedEvent(
+                    memberLeave,
+                    vacation,
+                    totalUseLeaveValue,
+                    vacationForm.title(),
+                    vacationForm.delegatorId(),
+                    vacationForm.reason())
+            );
         }
         return createVacationServiceResponse(savedVacation, memberLeave);
     }

@@ -1,16 +1,22 @@
 package com.jxx.vacation.messaging.application;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmContentModel;
 import com.jxx.vacation.core.message.domain.MessageProcessStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.domain.MessageQResult;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.message.infra.MessageQResultRepository;
+import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.messaging.infra.ConfirmDocumentRepository;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 
@@ -27,16 +33,27 @@ public class VacationMessageService implements MessageService<MessageQ>{
     private final MessageQRepository messageQRepository;
     private final MessageQResultRepository messageQResultRepository;
 
+    /**
+     * 롤백 처리 해야 함 둘 중 하나라도 실패하면..
+     */
+
+    @Transactional
     @Override
     public void process(Message<MessageQ> message) {
         MessageQ messageQ = message.getPayload();
         MessageProcessStatus sentMessageProcessStatus = null;
         try {
-            VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageQ.getBody());
-            confirmDocumentRepository.insert(vacationConfirmModel);
+            VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+            VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+            Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+            confirmDocumentRepository.insert(contentPk, confirm);
             sentMessageProcessStatus = SUCCESS;
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
             log.warn("메시지 변환 중 오류가 발생했습니다.", e);
+            sentMessageProcessStatus = FAIL;
+            throw new RuntimeException();
+        } catch (JsonProcessingException e) {
+            log.warn("문자열 파싱 중 오류가 발생했습니다.", e);
             sentMessageProcessStatus = FAIL;
         } finally {
             messageQRepository.deleteById(messageQ.getPk());
@@ -51,8 +68,10 @@ public class VacationMessageService implements MessageService<MessageQ>{
         MessageProcessStatus retryMessageProcessStatus = null;
         Long originalMessagePk = null;
         try {
-            VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageQ.getBody());
-            confirmDocumentRepository.insert(vacationConfirmModel);
+            VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+            VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+            Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+            confirmDocumentRepository.insert(contentPk, confirm);
             retryMessageProcessStatus = SUCCESS;
             originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
 
