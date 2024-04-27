@@ -13,8 +13,6 @@ public record RequestVacationForm(
         VacationType vacationType,
         LeaveDeduct leaveDeduct,
         List<RequestVacationDuration> requestVacationDurations,
-
-        // ADD
         String title,
         String reason,
         String requesterName,

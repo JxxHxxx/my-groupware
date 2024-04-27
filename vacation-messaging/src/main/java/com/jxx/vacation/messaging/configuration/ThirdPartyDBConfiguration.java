@@ -1,6 +1,5 @@
 package com.jxx.vacation.messaging.configuration;
 
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -9,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 
@@ -47,6 +48,12 @@ public class ThirdPartyDBConfiguration {
     private String approvalDbPassword;
     @Value("${3rd-party.datasource.approval.driver-class-name}")
     private String approvalDbDriverClassName;
+
+    @Bean(name = "transactionTemplate")
+    public TransactionTemplate transactionTemplate() {
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(approvalDataSource());
+        return new TransactionTemplate(transactionManager);
+    }
 
     @Bean(name = "approvalNamedParameterJdbcTemplate")
     public NamedParameterJdbcTemplate approvalNamedParameterJdbcTemplate() {
