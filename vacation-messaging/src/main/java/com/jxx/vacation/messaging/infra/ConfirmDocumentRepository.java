@@ -120,5 +120,40 @@ public class ConfirmDocumentRepository {
         };
         return approvalJdbcTemplate.queryForObject(sql, params, rowMapper);
     }
+
+    public VacationConfirmContentModel findById(Long confirmDocumentContentPk) {
+        String sql = "SELECT CONFIRM_DOCUMENT_CONTENT_PK, " +
+                "CONTENTS " +
+                "FROM JXX_CONFIRM_DOCUMENT_CONTENT_MASTER JCDCM " +
+                "WHERE JCDCM.CONFIRM_DOCUMENT_CONTENT_PK =(:confirmDocumentContentPk)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("confirmDocumentContentPk", confirmDocumentContentPk);
+
+        RowMapper<VacationConfirmContentModel> rowMapper = (rs, rowNum) -> {
+            ObjectMapper objectMapper = new ObjectMapper();
+            VacationConfirmContentModel contents = null;
+            try {
+                contents = objectMapper.readValue(rs.getString("CONTENTS"), VacationConfirmContentModel.class);
+            } catch (JsonProcessingException e) {
+            }
+            System.out.println("contents" + contents);
+
+            return contents;
+        };
+        return approvalJdbcTemplate.queryForObject(sql, params, rowMapper);
+    }
 }
+
+//}
+
+//            return new VacationConfirmContentModel(
+//                    String.valueOf(contents.get("title")),
+//                    String.valueOf(contents.get("delegator_id")),
+//                    String.valueOf(contents.get("reason")),
+//                    String.valueOf(contents.get("requester_id")),
+//                    String.valueOf(contents.get("requester_name")),
+//                    String.valueOf(contents.get("department_id")),
+//                    String.valueOf(contents.get("department_name")),
+//                    (ArrayList) contents.get("vacation_durations"));
+//        };
 

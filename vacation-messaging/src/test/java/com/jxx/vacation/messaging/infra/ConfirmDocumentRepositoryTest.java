@@ -2,6 +2,7 @@ package com.jxx.vacation.messaging.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jxx.vacation.core.message.MessageBodyBuilder;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmContentModel;
@@ -22,6 +23,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -81,5 +83,7 @@ class ConfirmDocumentRepositoryTest {
         String confirmDocumentId = vacationConfirmModel.getConfirmDocumentId();
         VacationConfirmModel findVacationConfirmModel = confirmDocumentRepository.findById(confirmDocumentId);
         assertThat(findVacationConfirmModel).isNotNull();
+        VacationConfirmContentModel contentModel = confirmDocumentRepository.findById(vacationConfirmModel.getContentPk());
+        assertThat(contentModel.getReason()).isEqualTo("휴가신청서");
     }
 }

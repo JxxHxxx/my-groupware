@@ -1,6 +1,8 @@
 package com.jxx.vacation.core.message.body.vendor.confirm;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,8 +13,6 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 public class VacationConfirmContentModel {
     private String title;
     private String delegatorId;
@@ -23,6 +23,30 @@ public class VacationConfirmContentModel {
     private String departmentName;
     private List<VacationDurationModel> vacationDurations;
 
+
+    public VacationConfirmContentModel() {
+    }
+
+    @JsonCreator
+    public VacationConfirmContentModel(@JsonProperty("title") String title,
+                                       @JsonProperty("delegator_id") String delegatorId,
+                                       @JsonProperty("reason") String reason,
+                                       @JsonProperty("requester_id") String requesterId,
+                                       @JsonProperty("requester_name") String requesterName,
+                                       @JsonProperty("department_id") String departmentId,
+                                       @JsonProperty("department_name") String departmentName,
+                                       @JsonProperty("vacation_durations") List<VacationDurationModel> vacationDurations) {
+        this.title = title;
+        this.delegatorId = delegatorId;
+        this.reason = reason;
+        this.requesterId = requesterId;
+        this.requesterName = requesterName;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
+        this.vacationDurations = vacationDurations;
+    }
+
+    // 우선권을 가지네
     public static VacationConfirmContentModel from(Map<String, Object> messageBody) {
         String title = (String) messageBody.get("title");
         String delegatorId = String.valueOf(messageBody.get("delegator_id"));
