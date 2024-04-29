@@ -96,7 +96,12 @@ class VacationServiceTest {
                 List.of(new RequestVacationDuration(
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
-                )
+                ), "휴가신청서",
+                "개인사정" ,
+                "이재헌" ,
+                "위임자ID" ,
+                "테스트 부서 ID" ,
+                "테스트 부서 명"
         );
 
         // WHEN
@@ -152,7 +157,12 @@ class VacationServiceTest {
                 List.of(new RequestVacationDuration(
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 30, 0, 0))
-                )
+                ), "휴가신청서",
+                "개인사정" ,
+                "이재헌" ,
+                "위임자ID" ,
+                "테스트 부서 ID" ,
+                "테스트 부서 명"
         );
 
         assertThatThrownBy(() -> vacationService.createVacation(vacationForm))
@@ -175,7 +185,12 @@ class VacationServiceTest {
                 List.of(new RequestVacationDuration(
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
-                )
+                ), "휴가신청서",
+                "개인사정" ,
+                "이재헌" ,
+                "위임자ID" ,
+                "테스트 부서 ID" ,
+                "테스트 부서 명"
         );
 
         VacationServiceResponse response = vacationService.createVacation(vacationForm);
@@ -200,7 +215,12 @@ class VacationServiceTest {
                 List.of(new RequestVacationDuration(
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
-                )
+                ), "휴가신청서",
+                "개인사정" ,
+                "이재헌" ,
+                "위임자ID" ,
+                "테스트 부서 ID" ,
+                "테스트 부서 명"
         );
 
 

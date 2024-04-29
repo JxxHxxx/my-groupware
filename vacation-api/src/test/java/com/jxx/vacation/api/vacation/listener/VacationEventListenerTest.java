@@ -64,7 +64,8 @@ class VacationEventListenerTest {
                 .build();
 
         //when - then
-        assertThatCode(() -> eventPublisher.publishEvent(new VacationCreatedEvent(memberLeave, vacation, 2f, "U00100")))
+        assertThatCode(() -> eventPublisher.publishEvent(new VacationCreatedEvent(
+                memberLeave, vacation, 2f, "U00100", "DELEGATOR_ID", "개인사정")))
                 .doesNotThrowAnyException();
     }
 
