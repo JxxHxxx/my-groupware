@@ -11,13 +11,18 @@ import com.jxx.vacation.messaging.infra.ConfirmDocumentRepository;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 
+import javax.sql.DataSource;
 import java.time.LocalDateTime;
 
 import static com.jxx.vacation.core.message.MessageConst.RETRY_HEADER;
@@ -25,50 +30,93 @@ import static com.jxx.vacation.core.message.domain.MessageProcessStatus.*;
 
 @Slf4j
 @Service(value = "vacationMessageService")
-@RequiredArgsConstructor
 public class VacationMessageService implements MessageService<MessageQ>{
 
     private final ConfirmDocumentRepository confirmDocumentRepository;
     private final MessageQRepository messageQRepository;
     private final MessageQResultRepository messageQResultRepository;
     private final TransactionTemplate transactionTemplate;
+    private final PlatformTransactionManager platformTransactionManager;
+
+    public VacationMessageService(ConfirmDocumentRepository confirmDocumentRepository, MessageQRepository messageQRepository,
+                                  MessageQResultRepository messageQResultRepository, TransactionTemplate transactionTemplate,
+                                  @Qualifier("approvalDataSource") DataSource dataSource) {
+        this.confirmDocumentRepository = confirmDocumentRepository;
+        this.messageQRepository = messageQRepository;
+        this.messageQResultRepository = messageQResultRepository;
+        this.transactionTemplate = transactionTemplate;
+        this.platformTransactionManager = new DataSourceTransactionManager(dataSource);
+    }
+
+/**
+     * 롤백 처리 해야 함 둘 중 하나라도 실패하면..
+     */
+
+//    @Override
+//    public void process(Message<MessageQ> message) {
+//        MessageQ messageQ = message.getPayload();
+//        MessageProcessStatus messageProcessStatus = messageQ.getMessageProcessStatus();
+//
+//        transactionTemplate.execute(new TransactionCallback<Void>() {
+//            MessageProcessStatus sentMessageProcessStatus = messageProcessStatus;
+//            public Void doInTransaction(TransactionStatus status) {
+//                try {
+//                    VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+//                    VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+//                    Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+//                    confirmDocumentRepository.insert(contentPk, confirm);
+//                    sentMessageProcessStatus = SUCCESS;
+//                } catch (RuntimeException e) {
+//                    status.setRollbackOnly();
+//                    sentMessageProcessStatus = FAIL;
+//                    log.error("메시지 변환 중 에러가 발생했습니다. 롤백합니다.", e);
+//                } catch (JsonProcessingException e) {
+//                    status.setRollbackOnly();
+//                    sentMessageProcessStatus = FAIL;
+//                    log.error("VacationConfirmContentModel 메시지 파싱 중 에러가 발생했습니다. 롤백합니다.", e);
+//                } finally {
+//                    messageQRepository.deleteById(messageQ.getPk());
+//                    MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
+//                    messageQResultRepository.save(messageQResult);
+//                }
+//                return null;
+//            }
+//        });
+//    }
 
     /**
-     * 롤백 처리 해야 함 둘 중 하나라도 실패하면..
+     * 트랜잭션 관리를 위한 테스트 메서드
+     * @param message
      */
 
     @Override
     public void process(Message<MessageQ> message) {
         MessageQ messageQ = message.getPayload();
         MessageProcessStatus messageProcessStatus = messageQ.getMessageProcessStatus();
+        MessageProcessStatus sentMessageProcessStatus = messageProcessStatus;
 
-        transactionTemplate.execute(new TransactionCallback<Void>() {
-            MessageProcessStatus sentMessageProcessStatus = messageProcessStatus;
-            public Void doInTransaction(TransactionStatus status) {
-                try {
-                    VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
-                    VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
-                    Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
-                    confirmDocumentRepository.insert(contentPk, confirm);
-                    sentMessageProcessStatus = SUCCESS;
-                } catch (RuntimeException e) {
-                    status.setRollbackOnly();
-                    sentMessageProcessStatus = FAIL;
-                    log.error("메시지 변환 중 에러가 발생했습니다. 롤백합니다.", e);
-                } catch (JsonProcessingException e) {
-                    status.setRollbackOnly();
-                    sentMessageProcessStatus = FAIL;
-                    log.error("VacationConfirmContentModel 메시지 파싱 중 에러가 발생했습니다. 롤백합니다.", e);
-                } finally {
-                    messageQRepository.deleteById(messageQ.getPk());
-                    MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
-                    messageQResultRepository.save(messageQResult);
-                }
-                return null;
-            }
-        });
+        TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
+
+        try {
+            VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+            VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+            Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+            confirmDocumentRepository.insert(contentPk, confirm);
+            sentMessageProcessStatus = SUCCESS;
+        } catch (RuntimeException e) {
+            txStatus.setRollbackOnly();
+            sentMessageProcessStatus = FAIL;
+            log.error("메시지 변환 중 에러가 발생했습니다. 롤백합니다.", e);
+        } catch (JsonProcessingException e) {
+            txStatus.setRollbackOnly();
+            sentMessageProcessStatus = FAIL;
+            log.error("VacationConfirmContentModel 메시지 파싱 중 에러가 발생했습니다. 롤백합니다.", e);
+        } finally {
+            messageQRepository.deleteById(messageQ.getPk());
+            MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
+            messageQResultRepository.save(messageQResult);
+        }
     }
-
     @Override
     public void retry(Message<MessageQ> message) {
         MessageQ messageQ = message.getPayload();

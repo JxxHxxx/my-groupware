@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class VacationConfirmContentModel {
     private String title;
     private String delegatorId;
@@ -22,10 +22,6 @@ public class VacationConfirmContentModel {
     private String departmentId;
     private String departmentName;
     private List<VacationDurationModel> vacationDurations;
-
-
-    public VacationConfirmContentModel() {
-    }
 
     @JsonCreator
     public VacationConfirmContentModel(@JsonProperty("title") String title,

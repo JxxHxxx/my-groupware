@@ -1,9 +1,6 @@
 package com.jxx.vacation.core.message.body.vendor.confirm;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +15,5 @@ public class VacationDurationModel {
     }
 
     public VacationDurationModel() {
-        System.out.println("test");
     }
 }

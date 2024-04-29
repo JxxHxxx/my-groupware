@@ -1,12 +1,10 @@
 package com.jxx.vacation.messaging.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmContentModel;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,23 +14,23 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Repository
-@RequiredArgsConstructor
 public class ConfirmDocumentRepository {
 
     @Qualifier(value = "approvalNamedParameterJdbcTemplate")
     private final NamedParameterJdbcTemplate approvalJdbcTemplate; // 결재서버 DataSource
+    private final ObjectMapper objectMapper;
+
+    public ConfirmDocumentRepository(NamedParameterJdbcTemplate approvalJdbcTemplate, ObjectMapper objectMapper) {
+        this.approvalJdbcTemplate = approvalJdbcTemplate;
+        this.objectMapper = objectMapper.registerModule(new JavaTimeModule());
+    }
 
     // 컬럼 순서대로 SQL 쿼리문 짜야됨
     public void insert(Long contentPk, VacationConfirmModel model) {
@@ -58,16 +56,14 @@ public class ConfirmDocumentRepository {
                 ":departmentId, " +
                 ":requesterId, " +
                 ":approvalLineLifeCycle, " +
-                ":contentPk)";
+                ":contentPks)";
 
         approvalJdbcTemplate.update(sql, source);
     }
 
     public Long insertContent(VacationConfirmContentModel model) throws JsonProcessingException {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectMapper timeModuleObjectMapper = objectMapper.registerModule(new JavaTimeModule());
-        parameters.addValue("contents", timeModuleObjectMapper.writeValueAsString(model.toMap()));
+        parameters.addValue("contents", objectMapper.writeValueAsString(model.toMap()));
 
         String sql = "INSERT INTO JXX_CONFIRM_DOCUMENT_CONTENT_MASTER " +
                 "(CONTENTS) VALUES (:contents)";
@@ -121,6 +117,7 @@ public class ConfirmDocumentRepository {
         return approvalJdbcTemplate.queryForObject(sql, params, rowMapper);
     }
 
+    // 테스트 환경에서 에러 발생함
     public VacationConfirmContentModel findById(Long confirmDocumentContentPk) {
         String sql = "SELECT CONFIRM_DOCUMENT_CONTENT_PK, " +
                 "CONTENTS " +
@@ -129,31 +126,27 @@ public class ConfirmDocumentRepository {
         Map<String, Object> params = new HashMap<>();
         params.put("confirmDocumentContentPk", confirmDocumentContentPk);
 
-        RowMapper<VacationConfirmContentModel> rowMapper = (rs, rowNum) -> {
-            ObjectMapper objectMapper = new ObjectMapper();
+        return approvalJdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> {
             VacationConfirmContentModel contents = null;
             try {
                 contents = objectMapper.readValue(rs.getString("CONTENTS"), VacationConfirmContentModel.class);
             } catch (JsonProcessingException e) {
+                log.error("메시지 역직렬화 중 에러 발생 {}", e.getMessage(), e);
             }
-            System.out.println("contents" + contents);
-
             return contents;
-        };
-        return approvalJdbcTemplate.queryForObject(sql, params, rowMapper);
+        });
+    }
+
+    public boolean checkExist(Long confirmDocumentContentPk) {
+        String sql = "SELECT CONFIRM_DOCUMENT_CONTENT_PK, " +
+                "FROM JXX_CONFIRM_DOCUMENT_CONTENT_MASTER JCDCM " +
+                "WHERE JCDCM.CONFIRM_DOCUMENT_CONTENT_PK =(:confirmDocumentContentPk)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("confirmDocumentContentPk", confirmDocumentContentPk);
+
+        RowMapper<Long> rowMapper = (rs, rowNum) -> rs.getLong("CONFIRM_DOCUMENT_CONTENT_PK");
+        Long findConfirmDocumentContentPk = approvalJdbcTemplate.queryForObject(sql, params, rowMapper);
+        return findConfirmDocumentContentPk == 0  ? false : true;
     }
 }
-
-//}
-
-//            return new VacationConfirmContentModel(
-//                    String.valueOf(contents.get("title")),
-//                    String.valueOf(contents.get("delegator_id")),
-//                    String.valueOf(contents.get("reason")),
-//                    String.valueOf(contents.get("requester_id")),
-//                    String.valueOf(contents.get("requester_name")),
-//                    String.valueOf(contents.get("department_id")),
-//                    String.valueOf(contents.get("department_name")),
-//                    (ArrayList) contents.get("vacation_durations"));
-//        };
 

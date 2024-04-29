@@ -46,3 +46,4 @@ out/
 /vacation-batch/src/test/resources/application.yml
 /vacation-messaging/src/main/resources/logback.properties
 /vacation-messaging/src/main/resources/logback-spring.xml
+/vacation-messaging/src/test/resources/application.yml
