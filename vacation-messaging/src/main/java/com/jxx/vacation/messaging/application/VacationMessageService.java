@@ -78,6 +78,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
 //                    messageQRepository.deleteById(messageQ.getPk());
 //                    MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
 //                    messageQResultRepository.save(messageQResult);
+//                    status.flush();
 //                }
 //                return null;
 //            }
@@ -103,6 +104,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
             Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
             confirmDocumentRepository.insert(contentPk, confirm);
             sentMessageProcessStatus = SUCCESS;
+            platformTransactionManager.commit(txStatus);
         } catch (RuntimeException e) {
             txStatus.setRollbackOnly();
             sentMessageProcessStatus = FAIL;
@@ -122,36 +124,35 @@ public class VacationMessageService implements MessageService<MessageQ>{
         MessageQ messageQ = message.getPayload();
         MessageProcessStatus messageProcessStatus = messageQ.getMessageProcessStatus();
 
-        transactionTemplate.execute((TransactionCallback<Void>) txStatus -> {
-            MessageProcessStatus retryMessageProcessStatus = messageProcessStatus;
-            Long originalMessagePk = null;
-            try {
-                VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
-                VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
-                Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
-                confirmDocumentRepository.insert(contentPk, confirm);
-                retryMessageProcessStatus = SUCCESS;
-                originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
+        TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
 
-            } catch (Exception e) {
-                txStatus.setRollbackOnly();
-                log.warn("메시지 변환 중 오류가 발생했습니다.", e);
-                retryMessageProcessStatus = FAIL;
-                // 아래 if 분기 왜 만들었는지 확인 파악
-                if (!message.getHeaders().containsKey(RETRY_HEADER)) {
-                    originalMessagePk = MessageQ.ERROR_ORIGINAL_MESSAGE_PK;
-                }
-                originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
+        MessageProcessStatus retryMessageProcessStatus = messageProcessStatus;
+        Long originalMessagePk = null;
+        try {
+            VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+            VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+            Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+            confirmDocumentRepository.insert(contentPk, confirm);
+            retryMessageProcessStatus = SUCCESS;
+            originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
+            platformTransactionManager.commit(txStatus);
+
+        } catch (Exception e) {
+            txStatus.setRollbackOnly();
+            log.warn("메시지 변환 중 오류가 발생했습니다.", e);
+            retryMessageProcessStatus = FAIL;
+            // 아래 if 분기 왜 만들었는지 확인 파악
+            if (!message.getHeaders().containsKey(RETRY_HEADER)) {
+                originalMessagePk = MessageQ.ERROR_ORIGINAL_MESSAGE_PK;
             }
-            finally {
-                messageQRepository.deleteById(messageQ.getPk());
-                MessageQResult messageQResult = createRetryMessageQResult(messageQ, retryMessageProcessStatus, originalMessagePk);
-                messageQResultRepository.save(messageQResult);
-            }
-
-            return null;
-        });
-
+            originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
+        }
+        finally {
+            messageQRepository.deleteById(messageQ.getPk());
+            MessageQResult messageQResult = createRetryMessageQResult(messageQ, retryMessageProcessStatus, originalMessagePk);
+            messageQResultRepository.save(messageQResult);
+            txStatus.flush();
+        }
     }
 
     private static MessageQResult createSentMessageQResult(MessageQ messageQ, MessageProcessStatus messageProcessStatus) {

@@ -56,7 +56,7 @@ public class ConfirmDocumentRepository {
                 ":departmentId, " +
                 ":requesterId, " +
                 ":approvalLineLifeCycle, " +
-                ":contentPks)";
+                ":contentPk)";
 
         approvalJdbcTemplate.update(sql, source);
     }
