@@ -47,44 +47,6 @@ public class VacationMessageService implements MessageService<MessageQ>{
         this.transactionTemplate = transactionTemplate;
         this.platformTransactionManager = new DataSourceTransactionManager(dataSource);
     }
-
-/**
-     * 롤백 처리 해야 함 둘 중 하나라도 실패하면..
-     */
-
-//    @Override
-//    public void process(Message<MessageQ> message) {
-//        MessageQ messageQ = message.getPayload();
-//        MessageProcessStatus messageProcessStatus = messageQ.getMessageProcessStatus();
-//
-//        transactionTemplate.execute(new TransactionCallback<Void>() {
-//            MessageProcessStatus sentMessageProcessStatus = messageProcessStatus;
-//            public Void doInTransaction(TransactionStatus status) {
-//                try {
-//                    VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
-//                    VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
-//                    Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
-//                    confirmDocumentRepository.insert(contentPk, confirm);
-//                    sentMessageProcessStatus = SUCCESS;
-//                } catch (RuntimeException e) {
-//                    status.setRollbackOnly();
-//                    sentMessageProcessStatus = FAIL;
-//                    log.error("메시지 변환 중 에러가 발생했습니다. 롤백합니다.", e);
-//                } catch (JsonProcessingException e) {
-//                    status.setRollbackOnly();
-//                    sentMessageProcessStatus = FAIL;
-//                    log.error("VacationConfirmContentModel 메시지 파싱 중 에러가 발생했습니다. 롤백합니다.", e);
-//                } finally {
-//                    messageQRepository.deleteById(messageQ.getPk());
-//                    MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
-//                    messageQResultRepository.save(messageQResult);
-//                    status.flush();
-//                }
-//                return null;
-//            }
-//        });
-//    }
-
     /**
      * 트랜잭션 관리를 위한 테스트 메서드
      * @param message

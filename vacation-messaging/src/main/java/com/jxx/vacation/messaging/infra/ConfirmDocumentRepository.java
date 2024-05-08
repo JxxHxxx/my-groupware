@@ -44,7 +44,9 @@ public class ConfirmDocumentRepository {
                 "DOCUMENT_TYPE, " +
                 "COMPANY_ID, " +
                 "DEPARTMENT_ID, " +
+                "DEPARTMENT_NAME, " +
                 "REQUESTER_ID, " +
+                "REQUESTER_NAME, " +
                 "APPROVAL_LINE_LIFE_CYCLE, " +
                 "CONFIRM_DOCUMENT_CONTENT_PK) VALUES " +
                 "(:confirmStatus, " +
@@ -54,7 +56,9 @@ public class ConfirmDocumentRepository {
                 ":documentType, " +
                 ":companyId, " +
                 ":departmentId, " +
+                ":departmentName, " +
                 ":requesterId, " +
+                ":requesterName, " +
                 ":approvalLineLifeCycle, " +
                 ":contentPk)";
 
@@ -86,7 +90,9 @@ public class ConfirmDocumentRepository {
                 "DOCUMENT_TYPE, " +
                 "COMPANY_ID, " +
                 "DEPARTMENT_ID, " +
+                "DEPARTMENT_NAME, " +
                 "REQUESTER_ID, " +
+                "REQUESTER_NAME, " +
                 "CONFIRM_DOCUMENT_CONTENT_PK " +
                 "FROM JXX_CONFIRM_DOCUMENT_MASTER JCDM WHERE JCDM.CONFIRM_DOCUMENT_ID =(:confirmDocumentId)";
 
@@ -97,8 +103,10 @@ public class ConfirmDocumentRepository {
             String _confirmDocumentId = rs.getString("CONFIRM_DOCUMENT_ID");
             String documentType = rs.getString("DOCUMENT_TYPE");
             String departmentId = rs.getString("DEPARTMENT_ID");
+            String departmentName = rs.getString("DEPARTMENT_NAME");
             String companyId = rs.getString("COMPANY_ID");
             String requesterId = rs.getString("REQUESTER_ID");
+            String requesterName = rs.getString("REQUESTER_NAME");
             String approvalLineCycle = rs.getString("APPROVAL_LINE_LIFE_CYCLE");
             Long contentPk = rs.getLong("CONFIRM_DOCUMENT_CONTENT_PK");
 
@@ -110,7 +118,9 @@ public class ConfirmDocumentRepository {
                     documentType,
                     companyId,
                     departmentId,
+                    departmentName,
                     requesterId,
+                    requesterName,
                     approvalLineCycle,
                     contentPk);
         };

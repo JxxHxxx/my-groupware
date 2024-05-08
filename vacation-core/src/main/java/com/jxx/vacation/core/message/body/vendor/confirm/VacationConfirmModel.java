@@ -28,12 +28,15 @@ public class VacationConfirmModel {
     private String documentType;
     private String companyId;
     private String departmentId;
+    private String departmentName;
     private String requesterId;
+    private String requesterName;
     private String approvalLineLifeCycle;
     private Long contentPk;
 
     public VacationConfirmModel(String confirmStatus, String createSystem, LocalDateTime createTime, String confirmDocumentId,
-                                String documentType, String companyId, String departmentId, String requesterId, String approvalLineLifeCycle, Long contentPk) {
+                                String documentType, String companyId, String departmentId, String departmentName,
+                                String requesterId, String requesterName, String approvalLineLifeCycle, Long contentPk) {
         this.confirmStatus = confirmStatus;
         this.createSystem = createSystem;
         this.createTime = createTime;
@@ -41,13 +44,17 @@ public class VacationConfirmModel {
         this.documentType = documentType;
         this.companyId = companyId;
         this.departmentId = departmentId;
+        this.departmentName = departmentName;
         this.requesterId = requesterId;
+        this.requesterName = requesterName;
         this.approvalLineLifeCycle = approvalLineLifeCycle;
         this.contentPk = contentPk;
     }
 
-    private VacationConfirmModel(String confirmStatus, String confirmDocumentId, String createSystem, LocalDateTime createTime, String documentType, String companyId,
-                                 String departmentId, String requesterId, String approvalLineLifeCycle) {
+    private VacationConfirmModel(String confirmStatus, String confirmDocumentId, String createSystem,
+                                 LocalDateTime createTime, String documentType, String companyId,
+                                 String departmentId, String departmentName, String requesterId, String requesterName,
+                                 String approvalLineLifeCycle) {
         this.confirmStatus = confirmStatus;
         this.createSystem = createSystem;
         this.createTime = createTime;
@@ -55,7 +62,9 @@ public class VacationConfirmModel {
         this.documentType = documentType;
         this.companyId = companyId;
         this.departmentId = departmentId;
+        this.departmentName = departmentName;
         this.requesterId = requesterId;
+        this.requesterName = requesterName;
         this.approvalLineLifeCycle = approvalLineLifeCycle;
     }
 
@@ -72,11 +81,14 @@ public class VacationConfirmModel {
         String documentType = String.valueOf(messageBody.get("document_type"));
         String companyId = (String) messageBody.get("company_id");
         String departmentId = (String) messageBody.get("department_id");
+        String departmentName = String.valueOf(messageBody.get("department_name"));
         String requesterId = (String) messageBody.get("requester_id");
+        String requesterName = String.valueOf(messageBody.get("requester_name"));
         String approvalLineLifeCycle =  String.valueOf(messageBody.get("approval_line_life_cycle"));
         LocalDateTime createTime = convertToCreateTime(messageBody);
 
-        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime, documentType, companyId, departmentId, requesterId, approvalLineLifeCycle);
+        return new VacationConfirmModel(confirmStatus, confirmDocumentId, createSystem, createTime,
+                documentType, companyId, departmentId, departmentName, requesterId, requesterName, approvalLineLifeCycle);
     }
 
     private static LocalDateTime convertToCreateTime(Map<String, Object> body) {
