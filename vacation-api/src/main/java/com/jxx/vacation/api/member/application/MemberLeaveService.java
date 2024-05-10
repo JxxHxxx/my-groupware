@@ -1,20 +1,28 @@
 package com.jxx.vacation.api.member.application;
 
+import com.jxx.vacation.api.member.dto.request.MemberSearchCondition;
 import com.jxx.vacation.api.member.dto.response.MemberLeaveResponse;
+import com.jxx.vacation.api.member.dto.response.MemberProjection;
+import com.jxx.vacation.api.member.query.MemberDynamicMapper;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.domain.exeception.MemberLeaveException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberLeaveService {
 
     private final MemberLeaveRepository memberLeaveRepository;
+    private final MemberDynamicMapper memberDynamicMapper;
 
     public MemberLeaveResponse findMemberLeave(String memberId) {
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).
@@ -79,5 +87,13 @@ public class MemberLeaveService {
                         memberLeave.getOrganization().getDepartmentId(),
                         memberLeave.getOrganization().getDepartmentName()))
                 .toList();
+    }
+    public List<MemberProjection> search(MemberSearchCondition searchCondition, String companyId) {
+        if (!Objects.equals(searchCondition.getCompanyId(), companyId)) {
+            log.warn("권장되지 않는 API 호출 입니다. queryParam:{} path-variable:{}", searchCondition.getCompanyId(), companyId);
+            searchCondition.changeCompanyId(companyId);
+        }
+        searchCondition.changeOnlyActive();
+        return memberDynamicMapper.search(searchCondition);
     }
 }

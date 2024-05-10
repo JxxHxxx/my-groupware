@@ -14,7 +14,11 @@ import java.time.LocalDate;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MEMBER_LEAVE_MASTER", indexes = @Index(name = "IDX_MEMBER_LEAVE_MEMBER_ID", columnList = "MEMBER_ID", unique = true))
+@Table(name = "JXX_MEMBER_LEAVE_MASTER",
+        indexes = {
+                @Index(name = "IDX_MEMBER_LEAVE_MEMBER_ID", columnList = "MEMBER_ID", unique = true),
+                @Index(name = "IDX_MEMBER_LEAVE_MEMBER_NAME", columnList = "NAME", unique = false)
+        })
 public class MemberLeave {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

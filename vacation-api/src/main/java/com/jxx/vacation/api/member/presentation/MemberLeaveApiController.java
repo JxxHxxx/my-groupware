@@ -1,13 +1,17 @@
 package com.jxx.vacation.api.member.presentation;
 
+import com.jxx.vacation.api.member.application.AuthService;
 import com.jxx.vacation.api.member.application.MemberLeaveService;
+import com.jxx.vacation.api.member.application.UserSession;
+import com.jxx.vacation.api.member.dto.request.MemberSearchCondition;
 import com.jxx.vacation.api.member.dto.response.MemberLeaveResponse;
+import com.jxx.vacation.api.member.dto.response.MemberProjection;
+import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,6 +20,7 @@ import java.util.List;
 public class MemberLeaveApiController {
 
     private final MemberLeaveService memberLeaveService;
+    private final AuthService authService;
 
     @GetMapping("/api/member-leaves/{member-id}")
     public ResponseEntity<?> getMemberLeave(@PathVariable("member-id") String memberId) {
@@ -27,6 +32,16 @@ public class MemberLeaveApiController {
     public ResponseEntity<?> getCompanyMemberLeave(@PathVariable("company-id") String companyId, @RequestParam List<String> membersId) {
         List<MemberLeaveResponse> responses = memberLeaveService.findCompanyMembers(companyId, membersId);
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/api/companies/{company-id}/members")
+    public ResponseEntity<?> searchCompanyMember(@PathVariable("company-id") String companyId,
+                                                 @ModelAttribute MemberSearchCondition searchCondition,
+                                                 HttpServletRequest httpRequest) {
+
+        authService.validateCompanyIdValue(httpRequest, companyId); // 사용자 url 및 세션 조작 검증
+        List<MemberProjection> responses = memberLeaveService.search(searchCondition, companyId);
+        return ResponseEntity.ok(new ResponseResult(200, "사용자 검색", responses));
     }
 
     @GetMapping("/api/departments/{department-id}/member-leaves")

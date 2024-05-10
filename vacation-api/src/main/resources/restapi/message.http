@@ -1,2 +1,10 @@
-### 메시지 재시도
-PATCH http://localhost:8080/message-q-results/2/retry
+### 메시지 재시도 /message-q-results/{message-q-result-pk}/retry
+PATCH http://localhost:8080/message-q-results/1/retry
+
+
+
+
+
+
+
+

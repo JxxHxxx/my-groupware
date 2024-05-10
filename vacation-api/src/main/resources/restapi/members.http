@@ -1,0 +1,11 @@
+### 간단 로그인!!
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "memberId" : "SPY00001",
+  "password" : "SPY00001"
+}
+
+### 사용자 검색, 로그인 필요
+GET http://localhost:8080/api/companies/SPY/members?departmentId=SPY08000

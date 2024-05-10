@@ -59,6 +59,16 @@ public class AuthService {
             throw new UnAuthenticationException();
         }
     }
+    public void validateCompanyIdValue(HttpServletRequest httpRequest, String companyId) {
+        UserSession userSession = getUserSession(httpRequest);
+        boolean companyIdEqual = Objects.equals(userSession.getCompanyId(), companyId);
+
+        if (!companyIdEqual) {
+            log.warn("manipulated client request session's memberId:{} companyId:{}",
+                    userSession.getMemberId(), userSession.getCompanyId());
+            throw new UnAuthenticationException();
+        }
+    }
 
     public UserSession getUserSession(HttpServletRequest httpRequest) {
         String sessionKey = getSessionKey(httpRequest);

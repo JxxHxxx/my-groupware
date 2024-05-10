@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.vacation.api.member.query.MemberDynamicMapper">
+
+    <select id="search"
+            parameterType="com.jxx.vacation.api.member.dto.request.MemberSearchCondition"
+            resultType="com.jxx.vacation.api.member.dto.response.MemberProjection">
+        SELECT
+        JMLM.MEMBER_PK,
+        JMLM.ENTERED_DATE,
+        JMLM.EXPERIENCE_YEARS,
+        JMLM.IS_ACTIVE AS 'MEMBER_ACTIVE',
+        JMLM.MEMBER_ID,
+        JMLM.NAME AS 'MEMBER_NAME',
+        JMLM.COMPANY_ID,
+        JMLM.DEPARTMENT_ID,
+        JOM.ORGANIZATION_PK,
+        JOM.COMPANY_NAME,
+        JOM.DEPARTMENT_NAME,
+        JOM.IS_ACTIVE AS 'ORG_ACTIVE',
+        JOM.PARENET_DEPARTMENT_ID,
+        JOM.PARENET_DEPARTMENT_NAME
+        FROM JXX_MEMBER_LEAVE_MASTER JMLM
+        JOIN JXX_ORGANIZATION_MASTER JOM
+        ON JMLM.COMPANY_ID = JOM.COMPANY_ID AND JMLM.DEPARTMENT_ID = JOM.DEPARTMENT_ID
+        <where>
+            <if test="memberId != null and memberId != ''">
+                AND JMLM.MEMBER_ID = #{memberId}
+            </if>
+            <if test="memberName != null and memberName != ''">
+                AND JMLM.NAME = #{memberName}
+            </if>
+            <if test="companyId != null and companyId != ''">
+                AND JMLM.COMPANY_ID = #{companyId}
+            </if>
+            <if test="departmentId != null and departmentId != ''">
+                AND JMLM.DEPARTMENT_ID = #{departmentId}
+            </if>
+            <if test="memberActive != null and memberActive != ''">
+                AND JMLM.IS_ACTIVE = #{memberActive}
+            </if>
+            <if test="orgActive != null and orgActive != ''">
+                AND JOM.IS_ACTIVE = #{orgActive}
+            </if>
+        </where>
+    </select>
+</mapper>
