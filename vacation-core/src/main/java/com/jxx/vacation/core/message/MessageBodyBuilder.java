@@ -23,7 +23,7 @@ public class MessageBodyBuilder {
         payload.put("create_time", messageForm.getCreateTime());
         payload.put("approval_line_life_cycle", messageForm.getApprovalLineLifeCycle());
         payload.put("title", messageForm.getTitle());
-        payload.put("delegator_id", messageForm.getDelegatorId());
+        payload.put("delegator_name", messageForm.getDelegatorName());
         payload.put("reason", messageForm.getReason());
         payload.put("requester_name", messageForm.getRequesterName());
         payload.put("department_name", messageForm.getDepartmentName());

@@ -1,10 +1,8 @@
 package com.jxx.vacation.core.message.body.vendor.confirm;
 
-import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.jxx.vacation.core.message.MessageConst.CREATE_SYSTEM;
@@ -29,7 +27,7 @@ public class VacationConfirmMessageForm {
     private final ApprovalLineLifecycle approvalLineLifeCycle;
 
     private final String title;
-    private final String delegatorId;
+    private final String delegatorName;
     private final String reason;
     private final String requesterName;
     private final String departmentName;
@@ -38,7 +36,7 @@ public class VacationConfirmMessageForm {
     private VacationConfirmMessageForm(ConfirmStatus confirmStatus, String requesterId, String companyId,
                                        String departmentId, String createSystem, DocumentType documentType,
                                        float vacationDate, Long vacationId, ApprovalLineLifecycle approvalLineLifeCycle,
-                                       String title, String delegatorId, String reason, String requesterName, String departmentName,
+                                       String title, String delegatorName, String reason, String requesterName, String departmentName,
                                        List<VacationDurationModel> vacationDurations) {
         this.confirmStatus = confirmStatus;
         this.requesterId = requesterId;
@@ -51,7 +49,7 @@ public class VacationConfirmMessageForm {
         this.approvalLineLifeCycle = approvalLineLifeCycle;
         this.createTime = LocalDateTime.now();
         this.title = title;
-        this.delegatorId = delegatorId;
+        this.delegatorName = delegatorName;
         this.reason = reason;
         this.requesterName = requesterName;
         this.departmentName = departmentName;
