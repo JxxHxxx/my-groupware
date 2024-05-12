@@ -17,7 +17,7 @@ public class Organization {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ORGANIZATION_PK")
     @Comment(value = "조직 테이블 PK")
-    private Long id;
+    private Long pk;
 
     @Column(name = "IS_ACTIVE", nullable = false)
     @Comment(value = "부서 활성화 여부(0:비활성화 1:활성화)")
