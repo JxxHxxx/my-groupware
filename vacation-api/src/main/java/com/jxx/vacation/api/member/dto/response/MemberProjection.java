@@ -8,7 +8,7 @@ public record MemberProjection(
     Integer experienceYears,
     Boolean memberActive,
     String memberId,
-    String memberName,
+    String name,
     String companyId,
     String departmentId,
     Long organizationPk,

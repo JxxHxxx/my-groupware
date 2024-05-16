@@ -2,14 +2,11 @@ package com.jxx.vacation.api.member.presentation;
 
 import com.jxx.vacation.api.member.application.AuthService;
 import com.jxx.vacation.api.member.application.MemberLeaveService;
-import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.member.dto.request.MemberSearchCondition;
 import com.jxx.vacation.api.member.dto.response.MemberLeaveResponse;
 import com.jxx.vacation.api.member.dto.response.MemberProjection;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
