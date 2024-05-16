@@ -48,24 +48,19 @@ public class AuthService {
                 organization.getDepartmentName());
     }
 
-    public void validateUserSessionValue(UserSession session, AuthenticationRequest request) {
-        boolean memberIdEqual = Objects.equals(session.getMemberId(), request.memberId());
-        boolean departmentIdEqual = Objects.equals(session.getDepartmentId(), request.departmentId());
-        boolean companyIdEqual = Objects.equals(session.getCompanyId(), request.companyId());
+    public void validateSessionIntegrity(UserSession session, AuthenticationRequest authenticationRequest) {
+        AuthenticationRequest userSessionBasedAuthenticationRequest = new AuthenticationRequest(session.getMemberId(),
+                session.getCompanyId(),
+                session.getDepartmentId(),
+                session.getName(),
+                session.getCompanyName(),
+                session.getDepartmentName());
 
-        if (!(memberIdEqual && departmentIdEqual && companyIdEqual)) {
+        boolean isManipulated = !Objects.equals(authenticationRequest, userSessionBasedAuthenticationRequest);
+
+        if (isManipulated) {
             log.warn("manipulated client request session's memberId:{} request's memberId:{}",
-                    session.getMemberId(), request.memberId());
-            throw new UnAuthenticationException();
-        }
-    }
-    public void validateCompanyIdValue(HttpServletRequest httpRequest, String companyId) {
-        UserSession userSession = getUserSession(httpRequest);
-        boolean companyIdEqual = Objects.equals(userSession.getCompanyId(), companyId);
-
-        if (!companyIdEqual) {
-            log.warn("manipulated client request session's memberId:{} companyId:{}",
-                    userSession.getMemberId(), userSession.getCompanyId());
+                    session.getMemberId(), authenticationRequest.memberId());
             throw new UnAuthenticationException();
         }
     }

@@ -77,7 +77,7 @@ public class AuthApiController {
             @RequestBody AuthenticationRequest authenticationRequest, HttpServletRequest httpRequest) {
         // 쿠키 중 사용자 세션 키를 담은 쿠기 가져오기, 없다면 UNAUTHORIZED 401
         UserSession userSession = authService.getUserSession(httpRequest);
-        authService.validateUserSessionValue(userSession, authenticationRequest);
+        authService.validateSessionIntegrity(userSession, authenticationRequest);
         log.info("userSession {}", userSession);
         return ResponseEntity.ok(200);
     }

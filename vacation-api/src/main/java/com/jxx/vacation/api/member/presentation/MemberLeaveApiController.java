@@ -36,10 +36,8 @@ public class MemberLeaveApiController {
 
     @GetMapping("/api/companies/{company-id}/members")
     public ResponseEntity<?> searchCompanyMember(@PathVariable("company-id") String companyId,
-                                                 @ModelAttribute MemberSearchCondition searchCondition,
-                                                 HttpServletRequest httpRequest) {
+                                                 @ModelAttribute MemberSearchCondition searchCondition) {
 
-        authService.validateCompanyIdValue(httpRequest, companyId); // 사용자 url 및 세션 조작 검증
         List<MemberProjection> responses = memberLeaveService.search(searchCondition, companyId);
         return ResponseEntity.ok(new ResponseResult(200, "사용자 검색", responses));
     }

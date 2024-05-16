@@ -4,6 +4,8 @@ package com.jxx.vacation.api.member.application;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Objects;
+
 @Getter
 @ToString
 public class UserSession {
