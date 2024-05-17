@@ -37,7 +37,10 @@
                 AND JMLM.COMPANY_ID = #{companyId}
             </if>
             <if test="departmentId != null and departmentId != ''">
-                AND JMLM.DEPARTMENT_ID = #{departmentId}
+                AND JOM.DEPARTMENT_ID = #{departmentId}
+            </if>
+            <if test="departmentName != null and departmentName != ''">
+                AND JOM.DEPARTMENT_NAME LIKE CONCAT('%', #{departmentName}, '%')
             </if>
             <if test="memberActive != null and memberActive != ''">
                 AND JMLM.IS_ACTIVE = #{memberActive}

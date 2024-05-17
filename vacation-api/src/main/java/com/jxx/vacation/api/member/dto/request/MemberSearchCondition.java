@@ -12,6 +12,7 @@ import lombok.Setter;
 public class MemberSearchCondition {
     private String companyId;
     private String departmentId;
+    private String departmentName;
     private String memberId;
     private String memberName;
     private boolean memberActive;
