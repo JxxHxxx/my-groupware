@@ -16,6 +16,7 @@ import java.util.Map;
 public class VacationConfirmContentModel {
     private String title;
     private String delegatorId;
+    private String delegatorName;
     private String reason;
     private String requesterId;
     private String requesterName;
@@ -26,6 +27,7 @@ public class VacationConfirmContentModel {
     @JsonCreator
     public VacationConfirmContentModel(@JsonProperty("title") String title,
                                        @JsonProperty("delegator_id") String delegatorId,
+                                       @JsonProperty("delegator_name") String delegatorName,
                                        @JsonProperty("reason") String reason,
                                        @JsonProperty("requester_id") String requesterId,
                                        @JsonProperty("requester_name") String requesterName,
@@ -34,6 +36,7 @@ public class VacationConfirmContentModel {
                                        @JsonProperty("vacation_durations") List<VacationDurationModel> vacationDurations) {
         this.title = title;
         this.delegatorId = delegatorId;
+        this.delegatorName = delegatorName;
         this.reason = reason;
         this.requesterId = requesterId;
         this.requesterName = requesterName;
@@ -46,18 +49,21 @@ public class VacationConfirmContentModel {
     public static VacationConfirmContentModel from(Map<String, Object> messageBody) {
         String title = (String) messageBody.get("title");
         String delegatorId = String.valueOf(messageBody.get("delegator_id"));
+        String delegatorName = String.valueOf(messageBody.get("delegator_name"));
         String reason = (String) messageBody.get("reason");
         String requesterId = (String) messageBody.get("requester_id");
         String requesterName = (String) messageBody.get("requester_name");
         String departmentId = (String) messageBody.get("department_id");
         String departmentName = (String) messageBody.get("department_name");
         List<VacationDurationModel> vacationDurations = (List<VacationDurationModel>) messageBody.get("vacation_durations");
-        return new VacationConfirmContentModel(title, delegatorId, reason, requesterId, requesterName, departmentId, departmentName, vacationDurations);
+        return new VacationConfirmContentModel(title, delegatorId, delegatorName,
+                reason, requesterId, requesterName, departmentId, departmentName, vacationDurations);
     }
     public Map<String, Object> toMap() {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", title);
         parameters.put("delegator_id", delegatorId);
+        parameters.put("delegator_name", delegatorName);
         parameters.put("reason", reason);
         parameters.put("requester_id", requesterId);
         parameters.put("requester_name", requesterName);

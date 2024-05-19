@@ -83,6 +83,7 @@ public class VacationService {
                     vacation,
                     totalUseLeaveValue,
                     vacationForm.title(),
+                    vacationForm.delegatorId(),
                     vacationForm.delegatorName(),
                     vacationForm.reason())
             );

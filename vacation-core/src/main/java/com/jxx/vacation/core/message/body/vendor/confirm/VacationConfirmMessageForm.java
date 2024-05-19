@@ -27,6 +27,7 @@ public class VacationConfirmMessageForm {
     private final ApprovalLineLifecycle approvalLineLifeCycle;
 
     private final String title;
+    private final String delegatorId;
     private final String delegatorName;
     private final String reason;
     private final String requesterName;
@@ -36,7 +37,7 @@ public class VacationConfirmMessageForm {
     private VacationConfirmMessageForm(ConfirmStatus confirmStatus, String requesterId, String companyId,
                                        String departmentId, String createSystem, DocumentType documentType,
                                        float vacationDate, Long vacationId, ApprovalLineLifecycle approvalLineLifeCycle,
-                                       String title, String delegatorName, String reason, String requesterName, String departmentName,
+                                       String title, String delegatorId, String delegatorName, String reason, String requesterName, String departmentName,
                                        List<VacationDurationModel> vacationDurations) {
         this.confirmStatus = confirmStatus;
         this.requesterId = requesterId;
@@ -49,6 +50,7 @@ public class VacationConfirmMessageForm {
         this.approvalLineLifeCycle = approvalLineLifeCycle;
         this.createTime = LocalDateTime.now();
         this.title = title;
+        this.delegatorId = delegatorId;
         this.delegatorName = delegatorName;
         this.reason = reason;
         this.requesterName = requesterName;
@@ -57,7 +59,7 @@ public class VacationConfirmMessageForm {
     }
 
     public static VacationConfirmMessageForm create(String requesterId, String companyId, String departmentId,
-                                                    float vacationDate, Long vacationId, String title, String delegatorId,
+                                                    float vacationDate, Long vacationId, String title, String delegatorId, String delegatorName,
                                                     String reason, String requesterName, String departmentName,
                                                     List<VacationDurationModel> vacationDurations) {
         return new VacationConfirmMessageForm(
@@ -72,6 +74,7 @@ public class VacationConfirmMessageForm {
                 ApprovalLineLifecycle.BEFORE_CREATE,
                 title,
                 delegatorId,
+                delegatorName,
                 reason,
                 requesterName,
                 departmentName,

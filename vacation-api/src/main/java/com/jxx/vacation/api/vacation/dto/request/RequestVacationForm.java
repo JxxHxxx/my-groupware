@@ -16,6 +16,7 @@ public record RequestVacationForm(
         String title,
         String reason,
         String requesterName,
+        String delegatorId,
         String delegatorName,
         String departmentId,
         String departmentName

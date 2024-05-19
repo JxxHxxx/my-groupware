@@ -75,6 +75,7 @@ public class VacationEventListener {
                 createdEvent.vacationDate(),
                 vacation.getId(),
                 createdEvent.title(),
+                createdEvent.delegatorId(),
                 createdEvent.delegatorName(),
                 createdEvent.reason(),
                 memberLeave.getName(),

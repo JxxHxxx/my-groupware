@@ -8,6 +8,7 @@ public record VacationCreatedEvent(
         Vacation vacation,
         float vacationDate,
         String title,
+        String delegatorId,
         String delegatorName,
         String reason
 ) {
