@@ -8,4 +8,4 @@ Content-Type: application/json
 }
 
 ### 사용자 검색, 로그인 필요
-GET http://localhost:8080/api/companies/SPY/members?departmentId=SPY08000
+GET http://localhost:8080/api/companies/SPY/members?departmentName=응급의료운영관리팀

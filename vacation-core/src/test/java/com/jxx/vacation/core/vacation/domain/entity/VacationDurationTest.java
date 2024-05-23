@@ -18,17 +18,17 @@ class VacationDurationTest {
     void calculate() {
         // 월요일
         LocalDateTime today = LocalDateTime.of(2024, 4, 2, 0, 0, 0);
-        VacationDuration vd1 = new VacationDuration(today, today, LeaveDeduct.DEDUCT);
+        VacationDuration vd1 = new VacationDuration(today, today, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
         assertThat(vd1.calculateDate()).isEqualTo(1l);
 
 
-        VacationDuration vd2 = new VacationDuration(today, today.plusDays(1l), LeaveDeduct.DEDUCT);
+        VacationDuration vd2 = new VacationDuration(today, today.plusDays(1l), LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
         assertThat(vd2.calculateDate()).isEqualTo(2l);
 
         LocalDateTime start = LocalDateTime.of(2024, 2, 29, 0, 0);
         LocalDateTime end = LocalDateTime.of(2024, 3, 1, 0, 0);
 
-        VacationDuration vd3 = new VacationDuration(start, end, LeaveDeduct.DEDUCT);
+        VacationDuration vd3 = new VacationDuration(start, end, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
         assertThat(vd3.calculateDate()).isEqualTo(2l);
     }
 
@@ -39,7 +39,7 @@ class VacationDurationTest {
         LocalDateTime start = LocalDateTime.of(2024, 2, 29, 0, 0);
         LocalDateTime end = LocalDateTime.of(2024, 3, 3, 0, 0);
 
-        VacationDuration vd3 = new VacationDuration(start, end, LeaveDeduct.DEDUCT);
+        VacationDuration vd3 = new VacationDuration(start, end, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
         assertThat(vd3.calculateDate()).isEqualTo(2l);
     }
 
@@ -47,7 +47,7 @@ class VacationDurationTest {
     void isInVacationDate() {
         LocalDateTime startDate = LocalDateTime.of(2024, 2, 28, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 1, 0, 0);
-        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
         LocalDateTime betweenDate = LocalDateTime.of(2024, 2, 29, 0, 0);
 
         assertThatThrownBy(() -> vacationDuration.isAlreadyInVacationDate(betweenDate))
@@ -58,7 +58,7 @@ class VacationDurationTest {
     void receiveVacationDateTimes() {
         LocalDateTime startDate = LocalDateTime.of(2024, 2, 28, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 1, 0, 0);
-        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
 
         List<LocalDateTime> localDateTimes = vacationDuration.receiveVacationDateTimes();
 
@@ -75,12 +75,12 @@ class VacationDurationTest {
         // 휴가 종료일 2024-04-25
         LocalDateTime startDateTime1 = LocalDateTime.of(2024, 4, 24, 0, 0, 0);
         LocalDateTime endDateTime1 = LocalDateTime.of(2024, 4, 25, 0, 0, 0);
-        VacationDuration vacationDuration1 = new VacationDuration(startDateTime1, endDateTime1, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration1 = new VacationDuration(startDateTime1, endDateTime1, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
 
         // 휴가 종료일 2024-04-26
         LocalDateTime startDateTime2 = LocalDateTime.of(2024, 4, 25, 0, 0, 0);
         LocalDateTime endDateTime2 = LocalDateTime.of(2024, 4, 26, 0, 0, 0);
-        VacationDuration vacationDuration2 = new VacationDuration(startDateTime2, endDateTime2, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration2 = new VacationDuration(startDateTime2, endDateTime2, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
 
         // 2024-04-25 은 2024-04-26 보다 과거이기 때문에 -1 이 박힌다.
         int result = vacationDuration1.reconciliationVacationDurations(vacationDuration2);
@@ -96,12 +96,12 @@ class VacationDurationTest {
         // 휴가 종료일 2024-04-25
         LocalDateTime startDateTime1 = LocalDateTime.of(2024, 4, 24, 0, 0, 0);
         LocalDateTime endDateTime1 = LocalDateTime.of(2024, 4, 25, 0, 0, 0);
-        VacationDuration vacationDuration1 = new VacationDuration(startDateTime1, endDateTime1, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration1 = new VacationDuration(startDateTime1, endDateTime1, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
 
         // 휴가 종료일 2024-04-24
         LocalDateTime startDateTime2 = LocalDateTime.of(2024, 4, 23, 0, 0, 0);
         LocalDateTime endDateTime2 = LocalDateTime.of(2024, 4, 24, 0, 0, 0);
-        VacationDuration vacationDuration2 = new VacationDuration(startDateTime2, endDateTime2, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration2 = new VacationDuration(startDateTime2, endDateTime2, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
 
         // 2024-04-25 은 2024-04-24 보다 미래기 때문에 1 이 박힌다.
         int result = vacationDuration1.reconciliationVacationDurations(vacationDuration2);

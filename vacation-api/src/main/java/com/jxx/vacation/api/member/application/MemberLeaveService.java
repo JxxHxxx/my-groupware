@@ -11,7 +11,6 @@ import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +19,6 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class MemberLeaveService {
-
     private final MemberLeaveRepository memberLeaveRepository;
     private final MemberDynamicMapper memberDynamicMapper;
 

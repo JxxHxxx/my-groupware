@@ -35,13 +35,14 @@ public class VacationManager {
         validateMemberActive();
     }
 
-    public void createVacationDurations(List<RequestVacationDuration> requestVacationDurations) {
+    public void createVacationDurations(VacationType vacationType, List<RequestVacationDuration> requestVacationDurations) {
         vacationDurations = requestVacationDurations.stream()
                 .map(requestVacationDuration -> {
                     VacationDuration vacationDuration = new VacationDuration(
                             requestVacationDuration.startDateTime(),
                             requestVacationDuration.endDateTime(),
-                            vacation.getLeaveDeduct());
+                            vacation.getLeaveDeduct(),
+                            vacationType);
                     vacationDuration.mappingVacation(vacation);
                     return vacationDuration;
                 })
@@ -68,7 +69,11 @@ public class VacationManager {
     }
 
     public static VacationDuration createCommonVacationDuration(Vacation commonVacation, LocalDate commonVacationDate) {
-        VacationDuration commonVacationDuration = new VacationDuration(commonVacationDate.atStartOfDay(), commonVacationDate.atTime(23, 59, 59), commonVacation.getLeaveDeduct());
+        VacationDuration commonVacationDuration = new VacationDuration(
+                commonVacationDate.atStartOfDay(),
+                commonVacationDate.atTime(23, 59, 59), commonVacation.getLeaveDeduct(),
+                commonVacation.getVacationType());
+
         commonVacationDuration.setLastDurationY();
         commonVacationDuration.mappingVacation(commonVacation);
 

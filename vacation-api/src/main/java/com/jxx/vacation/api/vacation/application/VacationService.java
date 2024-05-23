@@ -59,7 +59,7 @@ public class VacationService {
         VacationManager vacationManager = VacationManager.create(memberLeave, vacationForm.vacationType(), vacationForm.leaveDeduct());
 
         Vacation vacation = vacationManager.getVacation();
-        vacationManager.createVacationDurations(vacationForm.requestVacationDurations());
+        vacationManager.createVacationDurations(vacation.getVacationType(), vacationForm.requestVacationDurations());
         List<VacationDuration> vacationDurations = vacationManager.getVacationDurations();
 
         vacationDurationRepository.saveAll(vacationDurations);

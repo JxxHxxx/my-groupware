@@ -55,6 +55,7 @@ public class AuthApiController {
         //클라이언트에게 사용자 세션 키 값을 쿠키에 담아 전달
         Cookie cookie = new Cookie(COOKIE_KEY_OF_USER_SESSION, sessionId);
         cookie.setPath(COOKIE_DEFAULT_PATH);
+//        cookie.setDomain("main--jxx-gw.netlify.app");
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new LoginResult<>(200, loginResponse));

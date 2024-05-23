@@ -27,7 +27,7 @@ class VacationManagerTest {
     void instantiate() {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = LocalDateTime.now().plusDays(2l);
-        List<VacationDuration> vacationDuration = List.of(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT));
+        List<VacationDuration> vacationDuration = List.of(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
@@ -53,14 +53,14 @@ class VacationManagerTest {
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
         VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
         Vacation vacation = vacationManager.getVacation();
-        vacation.addVacationDuration(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT));
+        vacation.addVacationDuration(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
         // 기존에 존재하고 있는 아직 사용 전인 휴가
         LocalDateTime startDate2 = LocalDateTime.of(2024, 3, 5, 0, 0);
         LocalDateTime endDate2 = LocalDateTime.of(2024, 3, 6, 0, 0);
 
         Vacation existedVacation = new Vacation("T0001", "TJX", LeaveDeduct.DEDUCT, VacationType.MORE_DAY, vacationStatus);
-        existedVacation.addVacationDuration(new VacationDuration(startDate2, endDate2, LeaveDeduct.DEDUCT));
+        existedVacation.addVacationDuration(new VacationDuration(startDate2, endDate2, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
         //WHEN - THEN
         assertThatThrownBy(() -> vacationManager.validateVacationDatesAreDuplicated(List.of(existedVacation)))
@@ -75,7 +75,7 @@ class VacationManagerTest {
     void validate_vacation_dates_are_duplication_not_throw_exception_case(VacationStatus vacationStatus) {
         LocalDateTime startDate = LocalDateTime.of(2024, 3, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 4, 0, 0);
-        List<VacationDuration> vacationDuration = List.of(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT));
+        List<VacationDuration> vacationDuration = List.of(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
@@ -85,7 +85,7 @@ class VacationManagerTest {
         // 휴가 상태가 REQUEST, APPROVED, ONGOING 아닌 경우
         LocalDateTime startDate2 = LocalDateTime.of(2024, 3, 2, 0, 0);
         LocalDateTime endDate2 = LocalDateTime.of(2024, 3, 3, 0, 0);
-        List<VacationDuration> vacationDuration2 = List.of(new VacationDuration(startDate2, endDate2, LeaveDeduct.DEDUCT));
+        List<VacationDuration> vacationDuration2 = List.of(new VacationDuration(startDate2, endDate2, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
 
         //WHEN - THEN
@@ -105,7 +105,7 @@ class VacationManagerTest {
         //GIVEN
         LocalDateTime startDate = LocalDateTime.of(2024, 3, 4, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, 8, 0, 0);
-        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT);
+        VacationDuration vacationDuration = new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY);
         Organization organization = CoreEntityFactory.defalutOrganization();
 
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
@@ -149,7 +149,7 @@ class VacationManagerTest {
         //GIVEN
         LocalDateTime startDate = LocalDateTime.of(2024, 3, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 3, endDayOfMonth, 0, 0);
-        List<VacationDuration> vacationDuration = List.of(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT));
+        List<VacationDuration> vacationDuration = List.of(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId

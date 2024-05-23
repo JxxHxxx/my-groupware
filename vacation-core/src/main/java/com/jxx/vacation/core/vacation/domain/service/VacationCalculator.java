@@ -1,6 +1,7 @@
 package com.jxx.vacation.core.vacation.domain.service;
 
 import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
+import com.jxx.vacation.core.vacation.domain.entity.VacationType;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,7 +17,11 @@ public class VacationCalculator {
     private static long DATE_ADJUSTMENTS_VALUE = 1l;
     private static List<DayOfWeek> DEFAULT_WITHOUT_WORKING_DAY = List.of(DayOfWeek.SUNDAY, DayOfWeek.SATURDAY);
 
-    public static float calculateUseLeaveValue(LeaveDeduct leaveDeduct, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public static float calculateUseLeaveValue(VacationType vacationType, LeaveDeduct leaveDeduct, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        if (VacationType.HALF_VACATION_TYPE.contains(vacationType)) {
+            return 0.5F;
+        }
+
         long vacationDateCount = 0;
         long notWorkingDateCount = 0;
         if (LeaveDeduct.isLeaveDeductVacation(leaveDeduct)) {

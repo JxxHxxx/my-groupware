@@ -76,10 +76,10 @@ public class VacationDuration {
         return endDateTime.isAfter(vacationDuration.getEndDateTime()) ? FUTURE_FLAG : PAST_FLAG;
     }
 
-    public VacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, LeaveDeduct leaveDeduct) {
+    public VacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime, LeaveDeduct leaveDeduct, VacationType vacationType) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.useLeaveValue = VacationCalculator.calculateUseLeaveValue(leaveDeduct, startDateTime, endDateTime);
+        this.useLeaveValue = VacationCalculator.calculateUseLeaveValue(vacationType, leaveDeduct, startDateTime, endDateTime);
         this.lastDuration = "N";
     }
 

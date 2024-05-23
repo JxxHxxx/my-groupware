@@ -2,6 +2,7 @@ package com.jxx.vacation.core.vacation.domain.service;
 
 
 import com.jxx.vacation.core.vacation.domain.entity.LeaveDeduct;
+import com.jxx.vacation.core.vacation.domain.entity.VacationType;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ class VacationCalculatorTest {
         LocalDateTime startDate = LocalDateTime.of(2024, 4, 22, 0, 0, 0); // 월요일
         LocalDateTime endDate = LocalDateTime.of(2024, 4, 23, 0, 0, 0); // 화요일(+1)
         //when
-        float useLeaveDeduct = VacationCalculator.calculateUseLeaveValue(LeaveDeduct.DEDUCT, startDate, endDate);
+        float useLeaveDeduct = VacationCalculator.calculateUseLeaveValue(VacationType.MORE_DAY, LeaveDeduct.DEDUCT, startDate, endDate);
         //then
         assertThat(useLeaveDeduct).isEqualTo(2f);
     }
@@ -30,7 +31,7 @@ class VacationCalculatorTest {
         LocalDateTime startDate = LocalDateTime.of(2024, 4, 21, 0, 0, 0); // 일요일
         LocalDateTime endDate = LocalDateTime.of(2024, 4, 22, 0, 0, 0); // 월요일(+1)
         //when
-        float useLeaveDeduct = VacationCalculator.calculateUseLeaveValue(LeaveDeduct.DEDUCT, startDate, endDate);
+        float useLeaveDeduct = VacationCalculator.calculateUseLeaveValue(VacationType.MORE_DAY, LeaveDeduct.DEDUCT, startDate, endDate);
         //then
         assertThat(useLeaveDeduct).isEqualTo(1f);
     }
@@ -42,7 +43,7 @@ class VacationCalculatorTest {
         LocalDateTime startDate = LocalDateTime.of(2024, 4, 25, 0, 0, 0); // 일요일
         LocalDateTime endDate = LocalDateTime.of(2024, 4, 22, 0, 0, 0); // 월요일(+1)
         //when
-        assertThatThrownBy(() -> VacationCalculator.calculateUseLeaveValue(LeaveDeduct.DEDUCT, startDate, endDate))
+        assertThatThrownBy(() -> VacationCalculator.calculateUseLeaveValue(VacationType.MORE_DAY, LeaveDeduct.DEDUCT, startDate, endDate))
                 .isInstanceOf(VacationClientException.class).hasMessageContaining("잘못된 접근입니다. 휴가일 :-2일");
 
 
