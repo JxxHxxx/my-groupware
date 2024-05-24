@@ -1001,3 +1001,15 @@ values ('MORE_DAY', '1일 이상의 연차', 'P'),
        ('DEATH_SPOUSE', '배우자의 사망', 'F'),
        ('DEATH_CHILD', '자녀의 사망', 'F'),
        ('COMMON_VACATION', '공동 연차', 'C');
+
+-- jxx_messaging.jxx_company_half_vacation_policy definition
+
+CREATE TABLE `jxx_company_half_vacation_policy` (
+    `COMPANY_HALF_VACATION_TIME_PK` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '회사 반차 시간 PK',
+    `COMPANY_ID` char(6) NOT NULL COMMENT '회사 식별자',
+    `START_DATE_TIME` time NOT NULL COMMENT '반차 시작 시간',
+    `END_DATE_TIME` time NOT NULL COMMENT '반차 종료 시간',
+    `SHOW_ORDER` int NOT NULL COMMENT '정렬 순서',
+    PRIMARY KEY (`COMPANY_HALF_VACATION_TIME_PK`),
+    UNIQUE KEY `jxx_company_half_vacation_policy_COMPANY_ID_START_DATE_TIME_IDX` (`COMPANY_ID`,`START_DATE_TIME`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
