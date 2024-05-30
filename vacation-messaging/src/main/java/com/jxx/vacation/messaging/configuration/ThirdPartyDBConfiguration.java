@@ -1,6 +1,7 @@
 package com.jxx.vacation.messaging.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -24,15 +25,24 @@ public class ThirdPartyDBConfiguration {
     private String password;
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
+    @Value("${spring.datasource.pool-name}")
+    private String poolName;
+    @Value("${spring.datasource.max-pool-size}")
+    private int maxPoolSize;
+
+    // 메시지 서버 데이터 소스 설정
     @Bean
     @Primary
     public DataSource dataSource() {
-        return DataSourceBuilder.create()
-                .url(url)
-                .username(username)
-                .password(password)
-                .driverClassName(driverClassName)
-                .build();
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setMaximumPoolSize(maxPoolSize);
+        hikariDataSource.setJdbcUrl(url);
+        hikariDataSource.setUsername(username);
+        hikariDataSource.setPassword(password);
+        hikariDataSource.setDriverClassName(driverClassName);
+        hikariDataSource.setPoolName(poolName);
+
+        return hikariDataSource;
     }
 
     @Bean(name = "jdbcTemplate")
@@ -48,6 +58,10 @@ public class ThirdPartyDBConfiguration {
     private String approvalDbPassword;
     @Value("${3rd-party.datasource.approval.driver-class-name}")
     private String approvalDbDriverClassName;
+    @Value("${3rd-party.datasource.approval.pool-name}")
+    private String approvalPoolName;
+    @Value("${3rd-party.datasource.approval.max-pool-size}")
+    private int approvalMaxPoolSize;
 
     @Bean(name = "transactionTemplate")
     public TransactionTemplate transactionTemplate() {
@@ -61,14 +75,18 @@ public class ThirdPartyDBConfiguration {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 
+    // 결재 서버(써드 파티) 데이터 소스 설정
     @Bean(name = "approvalDataSource")
     public DataSource approvalDataSource() {
-        return DataSourceBuilder.create()
-                .url(approvalDbUrl)
-                .username(approvalDbUsername)
-                .password(approvalDbPassword)
-                .driverClassName(approvalDbDriverClassName)
-                .build();
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setMaximumPoolSize(approvalMaxPoolSize);
+        hikariDataSource.setJdbcUrl(approvalDbUrl);
+        hikariDataSource.setUsername(approvalDbUsername);
+        hikariDataSource.setPassword(approvalDbPassword);
+        hikariDataSource.setDriverClassName(approvalDbDriverClassName);
+        hikariDataSource.setPoolName(approvalPoolName);
+
+        return hikariDataSource;
     }
     @Bean
     public ObjectMapper objectMapper() {
