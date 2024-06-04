@@ -2,14 +2,12 @@ package com.jxx.vacation.core.message.body.vendor.confirm;
 
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 public class VacationDurationModel {
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private String startDateTime;
+    private String endDateTime;
 
-    public VacationDurationModel(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public VacationDurationModel(String startDateTime, String endDateTime) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
     }

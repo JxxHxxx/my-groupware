@@ -15,9 +15,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -68,7 +65,8 @@ class ConfirmDocumentRepositoryTest {
                 "개인사정",
                 "TESTERNAME",
                 "TESTDPNAME",
-                List.of(new VacationDurationModel(LocalDateTime.now(), LocalDateTime.now()))
+                "테스트부서",
+                List.of(new VacationDurationModel(String.valueOf(LocalDateTime.now()), String.valueOf(LocalDateTime.now())))
         );
         Map<String, Object> messageBody = MessageBodyBuilder.from(messageForm);
         VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageBody);
@@ -102,8 +100,8 @@ class ConfirmDocumentRepositoryTest {
                 "개인사정",
                 "TESTERNAME",
                 "DEPNAME",
-                List.of(new VacationDurationModel(LocalDateTime.now(), LocalDateTime.now()))
-        );
+                "테스트부서",
+                List.of(new VacationDurationModel(String.valueOf(LocalDateTime.now()), String.valueOf(LocalDateTime.now()))));
         Map<String, Object> messageBody = MessageBodyBuilder.from(messageForm);
         VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageBody);
         //when
@@ -135,8 +133,8 @@ class ConfirmDocumentRepositoryTest {
                 "개인사정",
                 "TESTERNAME",
                 "DEPNAME",
-                List.of(new VacationDurationModel(LocalDateTime.now(), LocalDateTime.now()))
-        );
+                "테스트부서",
+                List.of(new VacationDurationModel(String.valueOf(LocalDateTime.now()), String.valueOf(LocalDateTime.now()))));
         Map<String, Object> messageBody = MessageBodyBuilder.from(messageForm);
         VacationConfirmModel vacationConfirmModel = VacationConfirmModel.from(messageBody);
         //when

@@ -62,7 +62,7 @@ public class VacationEventListener {
         List<VacationDuration> vacationDurationEntities = vacation.getVacationDurations();
 
         List<VacationDurationModel> vacationDurations = vacationDurationEntities.stream()
-                .map(vd -> new VacationDurationModel(vd.getStartDateTime(), vd.getEndDateTime()))
+                .map(vd -> new VacationDurationModel(String.valueOf(vd.getStartDateTime()), String.valueOf(vd.getEndDateTime())))
                 .toList();
 
         MemberLeave memberLeave = createdEvent.memberLeave();
