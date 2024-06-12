@@ -1,4 +1,4 @@
-package com.jxx.vacation.core.vacation.domain;
+package com.jxx.vacation.core.vacation.domain.dto;
 
 import java.time.LocalDateTime;
 

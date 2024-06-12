@@ -22,11 +22,18 @@ public class VacationManager {
     private List<VacationDuration> vacationDurations = new ArrayList<>();
 
     /**
+     * 휴가 생성 시 사용
      * 해당 메서드로 생성 시 Vacation 영속화된 상태가 아니니 주의
      */
-
-    public static VacationManager create(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
+    public static VacationManager createVacation(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
         return new VacationManager(memberLeave, vacationType, leaveDeduct);
+    }
+
+    /**
+     * 휴가 수정 시 사용
+     */
+    public static VacationManager updateVacation(MemberLeave memberLeave, Vacation vacation) {
+        return new VacationManager(memberLeave, vacation);
     }
 
     private VacationManager(MemberLeave memberLeave, VacationType vacationType, LeaveDeduct leaveDeduct) {
@@ -35,8 +42,22 @@ public class VacationManager {
         validateMemberActive();
     }
 
+    private VacationManager(MemberLeave memberLeave, Vacation vacation) {
+        this.memberLeave = memberLeave;
+        this.vacation = vacation;
+        this.vacationDurations = vacation.getVacationDurations();
+        validateMemberActive();
+    }
+
+    public void validateUpdatePossible() {
+        if (!CREATE.equals(vacation.getVacationStatus())) {
+            log.info("휴가 수정 요청 불가 vacationId:{} vacationStatus:{}", vacation.getId(), vacation.getVacationStatus());
+            throw new VacationClientException("수정할 수 없는 결재 문서입니다. vacationStatus:" + vacation.getVacationStatus());
+        }
+    }
+
     public void createVacationDurations(VacationType vacationType, List<RequestVacationDuration> requestVacationDurations) {
-        vacationDurations = requestVacationDurations.stream()
+        this.vacationDurations = requestVacationDurations.stream()
                 .map(requestVacationDuration -> {
                     VacationDuration vacationDuration = new VacationDuration(
                             requestVacationDuration.startDateTime(),
@@ -52,10 +73,32 @@ public class VacationManager {
         decideLastDuration();
     }
 
-    private void decideLastDuration() {
+    public void decideLastDuration() {
         int lastVacationDurationIndex = vacationDurations.size() - 1;
         VacationDuration lastVacationDuration = vacationDurations.get(lastVacationDurationIndex);
         lastVacationDuration.setLastDurationY();
+    }
+
+    /** 업데이트 할 때 사용 **/
+    public void updateLastDuration() {
+        Long lastVacationDurationId = Long.MIN_VALUE;
+        LocalDateTime lastVacationDurationEndDateTime = LocalDateTime.MIN;
+        for (VacationDuration vacationDuration : vacationDurations) {
+            vacationDuration.setLastDurationN();
+            // 마지막 휴가 기간을 측정하기 위한 작업
+            if (vacationDuration.getEndDateTime().isAfter(lastVacationDurationEndDateTime)) {
+                lastVacationDurationEndDateTime = vacationDuration.getEndDateTime();
+                lastVacationDurationId = vacationDuration.getId();
+            }
+        }
+
+        Long finalLastVacationDurationId = lastVacationDurationId;
+
+        vacationDurations.stream()
+                .filter(vd -> vd.identifyVacationDuration(finalLastVacationDurationId))
+                .findFirst()
+                .orElseThrow(() -> new VacationClientException("휴가 기간 수정 중에 오류가 발생했습니다."))
+                .setLastDurationY();
     }
 
     private Vacation createVacation(VacationType vacationType, LeaveDeduct leaveDeduct) {
@@ -88,16 +131,6 @@ public class VacationManager {
                 .toList();
     }
 
-    public static VacationManager updateVacation(Vacation vacation, MemberLeave memberLeave) {
-        return new VacationManager(vacation, memberLeave);
-    }
-
-    // update
-    private VacationManager(Vacation vacation, MemberLeave memberLeave) {
-        this.memberLeave = memberLeave;
-        this.vacation = vacation;
-        validateMemberActive();
-    }
 
     public boolean validateMemberActive() {
         Organization organization = memberLeave.getOrganization();
@@ -180,18 +213,9 @@ public class VacationManager {
     // 휴가 취소 (결재 문서를 취소)
     public Vacation cancel() {
         if (!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {
-            throw new IllegalArgumentException("취소 불가능>.<");
+            throw new IllegalArgumentException("취소 불가능한 상태입니다.");
         }
         vacation.changeVacationStatus(CANCELED);
         return vacation;
     }
-
-    // 휴가 수정
-//    public Vacation update(VacationDuration vacationDuration) {
-//        if (!CREATE.equals(vacation.getVacationStatus())) {
-//            throw new IllegalArgumentException("수정 불가능>.<");
-//        }
-//        vacation.updateVacationDuration(vacationDuration);
-//        return vacation;
-//    }
 }

@@ -1,6 +1,6 @@
 package com.jxx.vacation.core.vacation.domain.entity;
 
-import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
+import com.jxx.vacation.core.vacation.domain.dto.VacationDurationDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -77,18 +77,6 @@ public class Vacation {
         this.vacationStatus = vacationStatus;
         this.createTime = LocalDateTime.now();
     }
-
-    public boolean isDeductVacationType() {
-        return vacationType.deductType();
-    }
-    public static Vacation createDeductVacation(String requesterId, String companyId, VacationType vacationType) {
-        return new Vacation(requesterId, companyId, LeaveDeduct.DEDUCT, vacationType, CREATE);
-    }
-
-    public static Vacation createNotDeductVacation(String requesterId, String companyId, VacationType vacationType) {
-        return new Vacation(requesterId, companyId, LeaveDeduct.NOT_DEDUCT, vacationType, CREATE);
-    }
-
     public void changeVacationStatus(VacationStatus vacationStatus) {
         this.vacationStatus = vacationStatus;
     }
@@ -101,11 +89,6 @@ public class Vacation {
         return this.vacationType;
     }
 
-    public boolean isMoreThanDayVacation(){
-        VacationType vacationType = vacationType();
-        return vacationType.equals(VacationType.MORE_DAY);
-    }
-
     public List<VacationDurationDto> receiveVacationDurationDto() {
         return vacationDurations.stream()
                 .map(vd -> new VacationDurationDto(vd.getId(),vd.getStartDateTime(), vd.getEndDateTime(), vd.getUseLeaveValue()))
@@ -116,15 +99,11 @@ public class Vacation {
         vacationDurations.add(vacationDuration);
     }
 
+    /** 하나의 휴가에 묶인 휴가 기간의 소진 연차 합계 계산 **/
     public Float getTotalUseLeaveValue() {
-        return vacationDurations.stream().map(vd -> vd.getUseLeaveValue()).reduce((prev, now) -> prev + now).get();
+        return vacationDurations.stream()
+                .map(vd -> vd.getUseLeaveValue())
+                .reduce((prev, now) -> prev + now).get();
     }
-
-//    protected void updateVacationDuration(List<VacationDuration> vacationDurations) {
-//        this.vacationDuration = new VacationDuration(
-//                vacationDuration.getVacationType(),
-//                vacationDuration.getStartDateTime(),
-//                vacationDuration.getEndDateTime());
-//    }
 }
 

@@ -11,6 +11,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 신청 휴가에 대한 연차 차감 일 수 계산
+ */
 @Slf4j
 public class VacationCalculator {
 

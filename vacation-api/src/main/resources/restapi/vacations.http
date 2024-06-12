@@ -12,10 +12,20 @@ Content-Type: application/json
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-05-02T00:00",
-      "endDateTime": "2024-05-03T00:00"
+      "startDateTime": "2024-07-02T00:00",
+      "endDateTime": "2024-07-02T00:00"
+    },
+    {
+      "startDateTime": "2024-07-05T00:00",
+      "endDateTime": "2024-07-05T00:00"
     }
-  ]
+  ],
+  "title" : "휴가신청서",
+  "reason" : "개인사정",
+  "requesterName" : "손철수",
+  "delegatorName" : "",
+  "departmentId" : "",
+  "departmentName" : "지역네트워크사업팀"
 }
 
 ### 휴가 신청 2
@@ -60,8 +70,8 @@ Content-Type: application/json
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-05-02T00:00",
-      "endDateTime": "2024-05-03T00:00"
+      "startDateTime": "2024-08-02T00:00",
+      "endDateTime": "2024-08-03T00:00"
     }
   ]
 }
@@ -87,17 +97,42 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "SPY00160",
+  "requesterId": "SPY00167",
   "vacationType": "MORE_DAY",
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-05-02T00:00",
-      "endDateTime": "2024-05-03T00:00"
+      "startDateTime": "2024-06-12T00:00",
+      "endDateTime": "2024-06-12T00:00"
+    },
+    {
+      "startDateTime": "2024-06-14T00:00",
+      "endDateTime": "2024-06-14T00:00"
     }
   ]
 }
 
+### 휴가 수정
+PATCH http://localhost:8080/api/vacations/15
+Content-Type: application/json
+
+{
+  "delegatorId": "",
+  "delegatorName": "",
+  "reason": "",
+  "updateVacationDurationForms": [
+    {
+      "vacationDurationId": 17,
+      "startDateTime": "2024-06-19T00:00:00",
+      "endDateTime": "2024-06-19T00:00:00"
+    },
+    {
+      "vacationDurationId": 16,
+      "startDateTime": "2024-06-18T00:00:00",
+      "endDateTime": "2024-06-18T00:00:00"
+    }
+  ]
+}
 
 ### 휴가 상신
 POST http://localhost:8080/api/vacations/611/raise

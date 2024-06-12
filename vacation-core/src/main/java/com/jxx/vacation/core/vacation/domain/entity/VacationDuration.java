@@ -24,6 +24,7 @@ public class VacationDuration {
 
     private static final long DATE_ADJUSTMENTS_VALUE = 1l;
     private static final String LAST_DURATION_YES_FLAG = "Y";
+    private static final String LAST_DURATION_NO_FLAG = "N";
     private static final int PAST_FLAG = -1;
     private static final int FUTURE_FLAG = 1;
 
@@ -60,6 +61,10 @@ public class VacationDuration {
         this.lastDuration = LAST_DURATION_YES_FLAG;
     }
 
+    protected void setLastDurationN() {
+        this.lastDuration = LAST_DURATION_NO_FLAG;
+    }
+
     /**
      * 하나의 휴가에는 2개 이상의 기간이 존재할 수 있다.
      * e.g) 에를 들어 주말에 일을 하지 않는 사용자라고 할 때
@@ -81,12 +86,6 @@ public class VacationDuration {
         this.endDateTime = endDateTime;
         this.useLeaveValue = VacationCalculator.calculateUseLeaveValue(vacationType, leaveDeduct, startDateTime, endDateTime);
         this.lastDuration = "N";
-    }
-
-    public float calculateDate() {
-        long vacationDateCount = ChronoUnit.DAYS.between(startDateTime, endDateTime) + DATE_ADJUSTMENTS_VALUE;
-        long notWorkingDateCount = countNotWorkingDate();
-        return vacationDateCount - notWorkingDateCount;
     }
 
     // already
@@ -111,14 +110,14 @@ public class VacationDuration {
         return dates;
     }
 
-
-    // 휴일, 공휴일...
-    public long countNotWorkingDate() {
-        List<LocalDateTime> vacationDateTimes = receiveVacationDateTimes();
-        return vacationDateTimes.stream()
-                .filter(vacationDateTime -> vacationDateTime.getDayOfWeek().equals(DayOfWeek.SATURDAY) || vacationDateTime.getDayOfWeek().equals(DayOfWeek.SUNDAY))
-                .count();
+    // DB 레이어에서 동일성을 가졌는지 여부 확인
+    public boolean identifyVacationDuration(Long vacationDurationId) {
+        return this.id.equals(vacationDurationId);
     }
-
-
+    public void updateStartAndEndDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.useLeaveValue = VacationCalculator.calculateUseLeaveValue(vacation.getVacationType(), vacation.getLeaveDeduct(),
+                startDateTime, endDateTime);
+    }
 }

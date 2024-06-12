@@ -33,7 +33,7 @@ class VacationManagerTest {
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
 
         //when
-        VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
+        VacationManager vacationManager = VacationManager.createVacation(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
 
         assertThat(vacationManager.getVacation()).extracting("requesterId").isEqualTo(memberLeave.getMemberId());
         assertThat(vacationManager.getMemberLeave()).isEqualTo(memberLeave);
@@ -51,7 +51,7 @@ class VacationManagerTest {
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
-        VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
+        VacationManager vacationManager = VacationManager.createVacation(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
         Vacation vacation = vacationManager.getVacation();
         vacation.addVacationDuration(new VacationDuration(startDate, endDate, LeaveDeduct.DEDUCT, VacationType.MORE_DAY));
 
@@ -79,7 +79,7 @@ class VacationManagerTest {
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
-        VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
+        VacationManager vacationManager = VacationManager.createVacation(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
 
 
         // 휴가 상태가 REQUEST, APPROVED, ONGOING 아닌 경우
@@ -109,7 +109,7 @@ class VacationManagerTest {
         Organization organization = CoreEntityFactory.defalutOrganization();
 
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
-        VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
+        VacationManager vacationManager = VacationManager.createVacation(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
         Vacation vacation = vacationManager.getVacation();
         vacation.addVacationDuration(vacationDuration);
 
@@ -153,7 +153,7 @@ class VacationManagerTest {
 
         Organization organization = CoreEntityFactory.defalutOrganization();
         MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization); // memberId == requesterId
-        VacationManager vacationManager = VacationManager.create(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
+        VacationManager vacationManager = VacationManager.createVacation(memberLeave, VacationType.MORE_DAY, LeaveDeduct.DEDUCT);
 
         Vacation vacation1 = Vacation.builder()
                 .vacationStatus(VacationStatus.APPROVED)

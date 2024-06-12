@@ -45,7 +45,5 @@ class VacationCalculatorTest {
         //when
         assertThatThrownBy(() -> VacationCalculator.calculateUseLeaveValue(VacationType.MORE_DAY, LeaveDeduct.DEDUCT, startDate, endDate))
                 .isInstanceOf(VacationClientException.class).hasMessageContaining("잘못된 접근입니다. 휴가일 :-2일");
-
-
     }
 }
