@@ -81,7 +81,7 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "SPY00160",
+  "requesterId": "SPY00174",
   "vacationType": "MORE_DAY",
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
@@ -97,7 +97,7 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "SPY00169",
+  "requesterId": "SPY00171",
   "vacationType": "MORE_DAY",
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
@@ -113,22 +113,40 @@ Content-Type: application/json
 }
 
 ### 휴가 수정
-PATCH http://localhost:8080/api/vacations/60
+PATCH http://localhost:8080/api/vacations/8
+Content-Type: application/json
+
+{
+  "delegatorId": "테스터ID",
+  "delegatorName": "테스터",
+  "reason": "개인사유123",
+  "departmentId": "8",
+  "updateVacationDurationForms": [
+    {
+      "vacationDurationId": 12,
+      "startDateTime": "2024-06-25T00:00:00",
+      "endDateTime": "2024-06-25T00:00:00"
+    }
+  ]
+}
+
+### 휴가 수정
+PATCH http://localhost:8080/api/vacations/6
 Content-Type: application/json
 
 {
   "delegatorId": "테스터ID",
   "delegatorName": "테스터",
   "reason": "개인사유",
-  "departmentId": "10",
+  "departmentId": "6",
   "updateVacationDurationForms": [
     {
-      "vacationDurationId": 36,
+      "vacationDurationId": 9,
       "startDateTime": "2024-06-23T00:00:00",
-      "endDateTime": "2024-06-24T00:00:00"
+      "endDateTime": "2024-06-23T00:00:00"
     },
     {
-      "vacationDurationId": 37,
+      "vacationDurationId": 10,
       "startDateTime": "2024-06-26T00:00:00",
       "endDateTime": "2024-06-27T00:00:00"
     }
@@ -136,7 +154,7 @@ Content-Type: application/json
 }
 
 ### 휴가 상신
-POST http://localhost:8080/api/vacations/611/raise
+POST http://localhost:8080/api/vacations/3/raise
 Content-Type: application/json
 
 ### 휴가 신청 POST 2
