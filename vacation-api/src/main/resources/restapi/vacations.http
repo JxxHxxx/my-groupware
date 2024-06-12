@@ -97,7 +97,7 @@ POST http://localhost:8080/api/vacations
 Content-Type: application/json
 
 {
-  "requesterId": "SPY00168",
+  "requesterId": "SPY00169",
   "vacationType": "MORE_DAY",
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
@@ -113,24 +113,24 @@ Content-Type: application/json
 }
 
 ### 휴가 수정
-PATCH http://localhost:8080/api/vacations/59
+PATCH http://localhost:8080/api/vacations/60
 Content-Type: application/json
 
 {
   "delegatorId": "테스터ID",
   "delegatorName": "테스터",
   "reason": "개인사유",
-  "departmentId": "9",
+  "departmentId": "10",
   "updateVacationDurationForms": [
     {
-      "vacationDurationId": 34,
-      "startDateTime": "2024-06-19T00:00:00",
-      "endDateTime": "2024-06-19T00:00:00"
+      "vacationDurationId": 36,
+      "startDateTime": "2024-06-23T00:00:00",
+      "endDateTime": "2024-06-24T00:00:00"
     },
     {
-      "vacationDurationId": 35,
-      "startDateTime": "2024-06-18T00:00:00",
-      "endDateTime": "2024-06-18T00:00:00"
+      "vacationDurationId": 37,
+      "startDateTime": "2024-06-26T00:00:00",
+      "endDateTime": "2024-06-27T00:00:00"
     }
   ]
 }

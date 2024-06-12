@@ -81,6 +81,8 @@ public class ConfirmDocumentRepository {
         parameters.addValue("delegatorId", model.getDelegatorId());
         parameters.addValue("delegatorName", model.getDelegatorName());
         parameters.addValue("reason", model.getReason());
+        String s = objectMapper.writeValueAsString(model.getVacationDurations());
+        parameters.addValue("vacationDurations", s);
         // 이거 임시코드임
         parameters.addValue("confirmDocumentContentPk", Long.valueOf(model.getDepartmentId()));
 
@@ -88,7 +90,8 @@ public class ConfirmDocumentRepository {
                 "CDCM.CONTENTS = JSON_REPLACE(CDCM.CONTENTS, " +
                 "'$.delegator_id', :delegatorId, " +
                 "'$.delegator_name', :delegatorName, " +
-                "'$.reason', :reason)  " +
+                "'$.reason', :reason, " +
+                "'$.vacation_durations', :vacationDurations)  " +
                 "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
 
         approvalJdbcTemplate.update(sql, parameters);
