@@ -61,12 +61,22 @@ public class VacationMessageService implements MessageService<MessageQ>{
         TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
 
         try {
-            VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
-            VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
-            Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
-            confirmDocumentRepository.insert(contentPk, confirm);
-            sentMessageProcessStatus = SUCCESS;
-            platformTransactionManager.commit(txStatus);
+            switch (messageQ.getMessageDestination()) {
+                case CONFIRM -> {
+                    VacationConfirmContentModel updateForm = VacationConfirmContentModel.from(messageQ.getBody());
+                    confirmDocumentRepository.updateContent(updateForm);
+                    sentMessageProcessStatus = SUCCESS;
+                    platformTransactionManager.commit(txStatus);
+                }
+                case APPROVAL -> {
+                    VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+                    VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+                    Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+                    confirmDocumentRepository.insert(contentPk, confirm);
+                    sentMessageProcessStatus = SUCCESS;
+                    platformTransactionManager.commit(txStatus);
+                }
+            }
         } catch (RuntimeException e) {
             txStatus.setRollbackOnly();
             sentMessageProcessStatus = FAIL;

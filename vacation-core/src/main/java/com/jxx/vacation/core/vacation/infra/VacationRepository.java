@@ -15,4 +15,9 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
             "join fetch VacationDuration vd " +
             "where v.companyId=:companyId and v.vacationType ='COMMON_VACATION'")
     List<Vacation> findCommonVacation(@Param("companyId") String companyId);
+
+    @Query(value = "select v from Vacation v " +
+            "join fetch VacationDuration vd " +
+            "where v.id=:vacationId ")
+    List<Vacation> findWithVacationDurations(@Param("vacationId") Long vacationId);
 }

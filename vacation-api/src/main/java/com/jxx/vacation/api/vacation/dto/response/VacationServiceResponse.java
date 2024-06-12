@@ -1,6 +1,6 @@
 package com.jxx.vacation.api.vacation.dto.response;
 
-import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
+import com.jxx.vacation.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.vacation.core.vacation.domain.entity.VacationStatus;
 
 import java.util.List;

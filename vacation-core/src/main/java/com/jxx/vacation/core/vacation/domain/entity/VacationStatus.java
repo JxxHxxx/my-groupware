@@ -8,7 +8,7 @@ import java.util.List;
 public enum VacationStatus {
 
     CREATE("연차 신청서 작성 완료한 상태"), // 최초
-    REQUEST("결재 요청 완료"), // 휴가 서버에서 결정 - REST API
+    REQUEST("상신 요청 완료"), // 휴가 서버에서 결정 - REST API
     REJECT("결재 반려"), // 걸재 서버에서 결정
     APPROVED("결재 승인"), // 결재 서버에서 결정
     NON_REQUIRED("결재 승인 필요X"),

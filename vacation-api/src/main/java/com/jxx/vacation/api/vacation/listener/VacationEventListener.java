@@ -2,13 +2,11 @@ package com.jxx.vacation.api.vacation.listener;
 
 
 import com.jxx.vacation.core.message.*;
-import com.jxx.vacation.core.message.body.vendor.confirm.CommonVacationConfirmMessageForm;
-import com.jxx.vacation.core.message.body.vendor.confirm.VacationDurationModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.*;
 import com.jxx.vacation.core.message.domain.MessageDestination;
 import com.jxx.vacation.core.message.domain.MessageProcessStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
-import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmMessageForm;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
 import com.jxx.vacation.core.vacation.domain.entity.Organization;
 import com.jxx.vacation.core.vacation.domain.entity.Vacation;
@@ -53,10 +51,48 @@ public class VacationEventListener {
             MessageQ messageQ = createMessage(createdEvent);
             messageQRepository.save(messageQ);
         } catch (Exception e) {
-            log.info("Fail Create MessageQ createdEvent {}", createdEvent);
+            log.info("Fail create MessageQ createdEvent {}", createdEvent);
             log.error("Error : ", e);
         }
     }
+
+    @Async("${event.executor.name}")
+    @Transactional(propagation = Propagation.REQUIRED)
+    @EventListener(VacationUpdatedEvent.class)
+    public void listen(VacationUpdatedEvent updatedEvent) {
+        try {
+            MessageQ messageQ = updateMessage(updatedEvent);
+            messageQRepository.save(messageQ);
+        } catch (Exception e) {
+            log.info("Fail create MessageQ updatedEvent {}", updatedEvent);
+            log.error("Error : ", e);
+        }
+    }
+    private MessageQ updateMessage(VacationUpdatedEvent updatedEvent) {
+        Vacation vacation = updatedEvent.vacation();
+        List<VacationDuration> vacationDurationEntities = vacation.getVacationDurations();
+        List<VacationDurationModel> vacationDurationModel = vacationDurationEntities.stream()
+                .map(vd -> new VacationDurationModel(String.valueOf(vd.getStartDateTime()), String.valueOf(vd.getEndDateTime())))
+                .toList();
+
+        VacationUpdateMessageForm vacationUpdateMessageForm = new VacationUpdateMessageForm(
+                vacation.getId(),
+                DocumentType.VAC,
+                vacation.getCompanyId(),
+                updatedEvent.delegatorId(),
+                updatedEvent.delegatorName(),
+                updatedEvent.reason(),
+                vacationDurationModel,
+                updatedEvent.departmentId()
+        );
+        Map<String, Object> body = MessageBodyBuilder.from(vacationUpdateMessageForm);
+        return MessageQ.builder()
+                .messageDestination(MessageDestination.CONFIRM)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .body(body)
+                .build();
+    }
+
     private static MessageQ createMessage(VacationCreatedEvent createdEvent) {
         Vacation vacation = createdEvent.vacation();
         List<VacationDuration> vacationDurationEntities = vacation.getVacationDurations();

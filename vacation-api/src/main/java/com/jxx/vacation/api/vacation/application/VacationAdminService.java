@@ -11,7 +11,7 @@ import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.listener.CommonVacationCreateEvent;
 import com.jxx.vacation.core.common.Creator;
-import com.jxx.vacation.core.vacation.domain.VacationDurationDto;
+import com.jxx.vacation.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.core.vacation.infra.*;

@@ -5,6 +5,7 @@ import com.jxx.vacation.api.member.application.UserSession;
 import com.jxx.vacation.api.vacation.application.VacationService;
 import com.jxx.vacation.api.vacation.dto.request.ConfirmStatusChangeRequest;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.vacation.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.vacation.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.vacation.api.vacation.dto.response.ResponseResult;
@@ -56,12 +57,12 @@ public class VacationApiController {
 
     /*** 결재 수정 API */
 
-//    @PatchMapping("/api/vacations/{vacation-id}")
-//    public ResponseEntity<?> updateVacation(@PathVariable(name = "vacation-id") Long vacationId,
-//                                            @RequestBody RequestVacationForm requestVacationForm) {
-//        VacationServiceResponse response = vacationService.updateVacation(vacationId, requestVacationForm);
-//        return ResponseEntity.ok(response);
-//    }
+    @PatchMapping("/api/vacations/{vacation-id}")
+    public ResponseEntity<?> updateVacation(@PathVariable(name = "vacation-id") Long vacationId,
+                                            @RequestBody UpdateVacationForm form) {
+        VacationServiceResponse response = vacationService.updateVacation(vacationId, form);
+        return ResponseEntity.ok(response);
+    }
 
     /*** 휴가 취소 API
      * 1. 추가 요구 사항 - 결재가 올라간 휴가를 취소할 경우, 결재 라인에 알려야 한다. */

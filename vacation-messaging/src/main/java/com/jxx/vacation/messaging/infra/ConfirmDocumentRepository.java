@@ -1,10 +1,12 @@
 package com.jxx.vacation.messaging.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmContentModel;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationDurationModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -74,6 +77,55 @@ public class ConfirmDocumentRepository {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         approvalJdbcTemplate.update(sql, parameters, keyHolder);
         return keyHolder.getKey().longValue();
+    }
+
+    public void updateContent(VacationConfirmContentModel model) throws JsonProcessingException {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("delegatorId", model.getDelegatorId());
+        parameters.addValue("delegatorName", model.getDelegatorName());
+        parameters.addValue("reason", model.getReason());
+
+        // 이거 임시코드임
+        parameters.addValue("confirmDocumentContentPk", Long.valueOf(model.getDepartmentId()));
+
+        String sql = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET " +
+                "CDCM.CONTENTS = JSON_REPLACE(CDCM.CONTENTS, " +
+                "'$.delegator_id', :delegatorId, " +
+                "'$.delegator_name', :delegatorName, " +
+                "'$.reason', :reason) " +
+                "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+        approvalJdbcTemplate.update(sql, parameters);
+
+        String sql2 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET CDCM.CONTENTS = JSON_REMOVE(CDCM.CONTENTS, '$.vacation_durations') " +
+                "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+        approvalJdbcTemplate.update(sql2, parameters);
+
+        String s = objectMapper.writeValueAsString(model.getVacationDurations());
+        List<VacationDurationModel> vds = objectMapper.readValue(s, new TypeReference<List<VacationDurationModel>>(){});
+
+        int cnt = 0;
+        for (VacationDurationModel vd : vds) {
+            String start = vd.getStartDateTime();
+            String end = vd.getEndDateTime();
+            parameters.addValue("start", start);
+            parameters.addValue("end", end);
+
+            if (cnt == 0) {
+                String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET CDCM.CONTENTS = JSON_SET(CDCM.CONTENTS, '$.vacation_durations', " +
+                        "JSON_ARRAY(CDCM.CONTENTS, JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end))) " +
+                        "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+                approvalJdbcTemplate.update(sql3, parameters);
+            } else {
+                String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET CDCM.CONTENTS = JSON_ARRAY_APPEND(CDCM.CONTENTS, '$.vacation_durations', " +
+                        "JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end)) " +
+                        "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+                approvalJdbcTemplate.update(sql3, parameters);
+            }
+            cnt++;
+        }
     }
 
     public VacationConfirmModel findById(String confirmDocumentId) {

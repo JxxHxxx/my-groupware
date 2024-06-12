@@ -9,12 +9,17 @@ import com.jxx.vacation.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.vacation.domain.RequestVacationDuration;
+import com.jxx.vacation.core.vacation.domain.dto.UpdateVacationDurationForm;
+import com.jxx.vacation.core.vacation.domain.dto.UpdateVacationForm;
+import com.jxx.vacation.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.vacation.core.vacation.domain.entity.*;
 import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
+import com.jxx.vacation.core.vacation.infra.MemberLeaveHistRepository;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.OrganizationRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.stat.inference.GTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -45,15 +50,18 @@ class VacationServiceTest {
     @Autowired
     MemberLeaveRepository memberLeaveRepository;
     @Autowired
+    MemberLeaveHistRepository memberLeaveHistRepository;
+    @Autowired
     OrganizationRepository organizationRepository;
     @Autowired
     MessageQRepository messageQRepository;
 
     @BeforeEach
     void beforeEach() {
-        vacationRepository.deleteAll();
+        memberLeaveHistRepository.deleteAll();
         memberLeaveRepository.deleteAll();
         organizationRepository.deleteAll();
+        vacationRepository.deleteAll();
         messageQRepository.deleteAll();
 
         Organization organization = new Organization("O0001", "TJX", "TJ0001", "테스트부서", "TOP", "최상위부서");
@@ -97,10 +105,11 @@ class VacationServiceTest {
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",
-                "개인사정" ,
-                "이재헌" ,
-                "위임자ID" ,
-                "테스트 부서 ID" ,
+                "개인사정",
+                "이재헌",
+                "위임자ID",
+                "위임자명",
+                "테스트 부서 ID",
                 "테스트 부서 명"
         );
 
@@ -140,7 +149,7 @@ class VacationServiceTest {
 
         assertThat(messages).isNotEmpty();
         assertThat(messages).extracting("body.requester_id").containsExactly(memberId);
-        // 이유 찾아야됨
+        // 간헐적으로 ID 불일치, 이유 찾아야됨
         assertThat(messages).extracting("body.confirm_document_id").containsExactly(confirmDocumentId);
         assertThat(messages).extracting("body.confirm_status").containsExactly(ConfirmStatus.CREATE.name());
         assertThat(messages).extracting("body.approval_line_life_cycle").containsExactly(BEFORE_CREATE.name());
@@ -149,7 +158,7 @@ class VacationServiceTest {
     @DisplayName("차감 일 수가 잔여 연차일을 초과할 경우, VacationClientException 예외가 발생하고" +
             " 휴가 엔티티는 생성되지 않는다.")
     @Test
-    void create_vacation_success_fail() {
+    void create_vacation_fail_use_leave_deduct_more_than_remaining_leave() {
         String memberId = "T0001";
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
         RequestVacationForm vacationForm = new RequestVacationForm(
@@ -158,10 +167,11 @@ class VacationServiceTest {
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 30, 0, 0))
                 ), "휴가신청서",
-                "개인사정" ,
-                "이재헌" ,
-                "위임자ID" ,
-                "테스트 부서 ID" ,
+                "개인사정",
+                "이재헌",
+                "위임자ID",
+                "위임자 명",
+                "테스트 부서 ID",
                 "테스트 부서 명"
         );
 
@@ -169,12 +179,66 @@ class VacationServiceTest {
                 .isInstanceOf(VacationClientException.class);
     }
 
+    @DisplayName("휴가 업데이트 메서드 성공 케이스 " +
+            "휴가 일자 수정 및 결재 서버로 메시지 전송")
+    @Test
+    void update_vacation_success() {
+        //given
+        /** 휴가 생성 START **/
+        String memberId = "T0001";
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
+        // 금, 토
+        RequestVacationForm vacationForm = new RequestVacationForm(
+                memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
+                List.of(new RequestVacationDuration(
+                        LocalDateTime.of(2024, 3, 4, 0, 0),
+                        LocalDateTime.of(2024, 3, 5, 0, 0))
+                ), "휴가신청서",
+                "개인사정",
+                "이재헌",
+                "위임자ID",
+                "위임자명",
+                "테스트 부서 ID",
+                "테스트 부서 명"
+        );
+
+        VacationServiceResponse vacationResponse = vacationService.createVacation(vacationForm);
+        VacationDurationDto vacationDurationDto = vacationResponse.vacationDuration().get(0);
+        assertThat(vacationDurationDto.startDateTime())
+                .isEqualTo(LocalDateTime.of(2024, 3, 4, 0, 0));
+        assertThat(vacationDurationDto.endDateTime())
+                .isEqualTo(LocalDateTime.of(2024, 3, 5, 0, 0));
+        assertThat(vacationDurationDto.useLeaveValue())
+                .isEqualTo(2);
+        /** 휴가 생성 END **/
+
+        // when
+        /** 휴가 업데이트 START **/
+        // 월, 화 -> 수, 목, 금 으로 변경
+        UpdateVacationForm updateVacationForm = new UpdateVacationForm(
+                "위임자ID", "위임자명", "사유",
+                List.of(new UpdateVacationDurationForm(
+                        vacationDurationDto.vacationDurationId(),
+                        LocalDateTime.of(2024, 3, 6, 0, 0),
+                        LocalDateTime.of(2024, 3, 8, 0, 0))));
+
+        vacationService.updateVacation(vacationResponse.vacationId(), updateVacationForm);
+        Vacation updatedVacation = vacationRepository.findById(vacationResponse.vacationId()).get();
+        VacationDuration vacationDuration = updatedVacation.getVacationDurations().get(0);
+
+        // then
+        assertThat(vacationDuration.getStartDateTime()).isEqualTo(LocalDateTime.of(2024, 3, 6, 0, 0));
+        assertThat(vacationDuration.getEndDateTime()).isEqualTo(LocalDateTime.of(2024, 3, 8, 0, 0));
+        assertThat(vacationDuration.getUseLeaveValue()).isEqualTo(3);
+        assertThat(vacationDuration.getLastDuration()).isEqualTo("Y");
+    }
+
     @DisplayName("비활성화 된 사용자가 휴가를 신청할 경우," +
             "휴가는 생성되나 VacationStatus=FAIL 이다. " +
             "비활성화된 사용자가 휴가를 신청한다는 것 자체가 모순이기에 " +
             "요청자와 컨택하여 문제를 해결해야 하기에 데이터는 세이빙한다.")
     @Test
-    void create_vacation_success_fail_inactive_member() {
+    void create_vacation_fail_inactive_member() {
         String memberId = "T0001";
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
         memberLeave.retire();
@@ -186,10 +250,11 @@ class VacationServiceTest {
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",
-                "개인사정" ,
-                "이재헌" ,
-                "위임자ID" ,
-                "테스트 부서 ID" ,
+                "개인사정",
+                "이재헌",
+                "위임자ID",
+                "위임자 명",
+                "테스트 부서 ID",
                 "테스트 부서 명"
         );
 
@@ -216,10 +281,11 @@ class VacationServiceTest {
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",
-                "개인사정" ,
-                "이재헌" ,
-                "위임자ID" ,
-                "테스트 부서 ID" ,
+                "개인사정",
+                "이재헌",
+                "위임자ID",
+                "위임자 명",
+                "테스트 부서 ID",
                 "테스트 부서 명"
         );
 

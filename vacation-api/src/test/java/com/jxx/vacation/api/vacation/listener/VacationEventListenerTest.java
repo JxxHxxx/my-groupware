@@ -6,7 +6,6 @@ import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.OrganizationRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -65,7 +63,7 @@ class VacationEventListenerTest {
 
         //when - then
         assertThatCode(() -> eventPublisher.publishEvent(new VacationCreatedEvent(
-                memberLeave, vacation, 2f, "U00100", "DELEGATOR_ID", "개인사정")))
+                memberLeave, vacation, 2f, "U00100", "DELEGATOR_ID", "DELEGATOR_NAME","개인사정")))
                 .doesNotThrowAnyException();
     }
 

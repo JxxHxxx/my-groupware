@@ -3,6 +3,7 @@ package com.jxx.vacation.core.message;
 import com.jxx.vacation.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.vacation.core.message.body.vendor.confirm.CommonVacationConfirmMessageForm;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmMessageForm;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationUpdateMessageForm;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,16 @@ public class MessageBodyBuilder {
         payload.put("confirm_document_id", vacationConfirmDocumentId);
         payload.put("create_time", messageForm.getCreateTime());
         payload.put("approval_line_life_cycle", messageForm.getApprovalLineLifeCycle());
+        return payload;
+    }
+
+    public static Map<String, Object> from(VacationUpdateMessageForm messageForm) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("delegator_id", messageForm.getDelegatorId());
+        payload.put("delegator_name", messageForm.getDelegatorName());
+        payload.put("reason", messageForm.getReason());
+        payload.put("vacation_durations", messageForm.getVacationDurations());
+        payload.put("department_id", messageForm.getDepartmentId());
         return payload;
     }
 }
