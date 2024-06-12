@@ -76,6 +76,24 @@ public class ConfirmDocumentRepository {
         return keyHolder.getKey().longValue();
     }
 
+    public void updateContent(VacationConfirmContentModel model) throws JsonProcessingException {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("delegatorId", model.getDelegatorId());
+        parameters.addValue("delegatorName", model.getDelegatorName());
+        parameters.addValue("reason", model.getReason());
+        // 이거 임시코드임
+        parameters.addValue("confirmDocumentContentPk", Long.valueOf(model.getDepartmentId()));
+
+        String sql = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET " +
+                "CDCM.CONTENTS = JSON_REPLACE(CDCM.CONTENTS, " +
+                "'$.delegator_id', :delegatorId, " +
+                "'$.delegator_name', :delegatorName, " +
+                "'$.reason', :reason)  " +
+                "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+        approvalJdbcTemplate.update(sql, parameters);
+    }
+
     public VacationConfirmModel findById(String confirmDocumentId) {
         Map<String, Object> params = new HashMap<>();
         params.put("confirmDocumentId", confirmDocumentId);

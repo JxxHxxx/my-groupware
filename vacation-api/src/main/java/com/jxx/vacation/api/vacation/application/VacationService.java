@@ -4,6 +4,7 @@ import com.jxx.vacation.api.excel.application.CompanyVacationTypePolicyExcelRead
 import com.jxx.vacation.api.excel.application.ExcelReader;
 import com.jxx.vacation.api.vacation.application.function.ConfirmRaiseApiAdapter;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.vacation.api.vacation.listener.VacationUpdatedEvent;
 import com.jxx.vacation.core.vacation.domain.dto.UpdateVacationDurationForm;
 import com.jxx.vacation.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.vacation.api.vacation.dto.request.VacationTypePolicyForm;
@@ -133,7 +134,8 @@ public class VacationService {
         }
         vacationManager.updateLastDuration();
 
-//        eventPublisher.publishEvent();
+        eventPublisher.publishEvent(new VacationUpdatedEvent(
+                form.delegatorId(), form.delegatorName(), form.reason(), vacation, form.departmentId()));
 
         return vacationServiceResponse(vacation, memberLeave);
     }
