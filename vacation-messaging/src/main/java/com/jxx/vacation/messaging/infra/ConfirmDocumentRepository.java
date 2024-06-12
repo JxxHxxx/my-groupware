@@ -84,13 +84,7 @@ public class ConfirmDocumentRepository {
         parameters.addValue("delegatorId", model.getDelegatorId());
         parameters.addValue("delegatorName", model.getDelegatorName());
         parameters.addValue("reason", model.getReason());
-        String s = objectMapper.writeValueAsString(model.getVacationDurations());
-        List<VacationDurationModel> vds = objectMapper.readValue(s, new TypeReference<List<VacationDurationModel>>(){});
 
-        String start = vds.get(0).getStartDateTime();
-        String end = vds.get(0).getEndDateTime();
-        parameters.addValue("start", start);
-        parameters.addValue("end", end);
         // 이거 임시코드임
         parameters.addValue("confirmDocumentContentPk", Long.valueOf(model.getDepartmentId()));
 
@@ -107,11 +101,31 @@ public class ConfirmDocumentRepository {
                 "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
         approvalJdbcTemplate.update(sql2, parameters);
 
-        String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET CDCM.CONTENTS = JSON_SET(CDCM.CONTENTS, '$.vacation_durations', " +
-                "JSON_ARRAY(JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end))) " +
-                "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+        String s = objectMapper.writeValueAsString(model.getVacationDurations());
+        List<VacationDurationModel> vds = objectMapper.readValue(s, new TypeReference<List<VacationDurationModel>>(){});
 
-        approvalJdbcTemplate.update(sql3, parameters);
+        int cnt = 0;
+        for (VacationDurationModel vd : vds) {
+            String start = vd.getStartDateTime();
+            String end = vd.getEndDateTime();
+            parameters.addValue("start", start);
+            parameters.addValue("end", end);
+
+            if (cnt == 0) {
+                String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET CDCM.CONTENTS = JSON_SET(CDCM.CONTENTS, '$.vacation_durations', " +
+                        "JSON_ARRAY(CDCM.CONTENTS, JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end))) " +
+                        "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+                approvalJdbcTemplate.update(sql3, parameters);
+            } else {
+                String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET CDCM.CONTENTS = JSON_ARRAY_APPEND(CDCM.CONTENTS, '$.vacation_durations', " +
+                        "JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end)) " +
+                        "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+                approvalJdbcTemplate.update(sql3, parameters);
+            }
+            cnt++;
+        }
     }
 
     public VacationConfirmModel findById(String confirmDocumentId) {
