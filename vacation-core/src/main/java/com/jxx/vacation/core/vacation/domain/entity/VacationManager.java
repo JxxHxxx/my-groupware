@@ -135,19 +135,21 @@ public class VacationManager {
         }
     }
 
-    public void validateVacationDatesAreDuplicated(List<Vacation> createCompletedVacations) {
-        List<VacationDuration> requestCompletedVacationDurations = createCompletedVacations.stream()
-                .filter(vacation -> CONFIRMING_AND_ONGOING_GROUP.contains(vacation.getVacationStatus()))
-                .flatMap(requestCompletedVacation -> requestCompletedVacation.getVacationDurations().stream())
+    public void validateVacationDatesAreDuplicated(List<Vacation> createdVacations) {
+        // 상신 - 승인 - 휴가 진행 상태의 휴가 기간
+        List<VacationDuration> vacationDurationsOfRaiseOrApproveOrOngoingStatus = createdVacations.stream()
+                .filter(vacation -> RAISE_APPROVE_ONGOING_VS.contains(vacation.getVacationStatus()))
+                // 하나의 휴가에 여러개의 휴가 기간이 포함될 수 있어 flatMap
+                .flatMap(filteredVacation -> filteredVacation.getVacationDurations().stream())
                 .toList();
 
-        List<LocalDateTime> requestingVacationDateTimes = new ArrayList<>();
-        List<VacationDuration> requestVacationDurations = vacation.getVacationDurations();
-        for (VacationDuration requestVacationDuration : requestVacationDurations) {
-            requestingVacationDateTimes.addAll(requestVacationDuration.receiveVacationDateTimes());
-        }
+        // 현재 신청/수정하려는 휴가 기간의 날짜 저장해두는 리스트
+        List<LocalDateTime> requestingVacationDateTimes = vacation.getVacationDurations().stream()
+                .flatMap(requestVacationDuration -> requestVacationDuration.receiveVacationDateTimes().stream())
+                .toList();
 
-        for (VacationDuration vacationDuration : requestCompletedVacationDurations) {
+        // 이미 상신, 승인, 진행중인 휴가의 기간중에 현재 신청/수정하려는 휴가의 기간이 이미 지정되어 있는지 확인
+        for (VacationDuration vacationDuration : vacationDurationsOfRaiseOrApproveOrOngoingStatus) {
             for (LocalDateTime requestVacationDateTime : requestingVacationDateTimes) {
                 vacationDuration.isAlreadyInVacationDate(requestVacationDateTime);
             }
