@@ -135,7 +135,7 @@ public class VacationService {
         vacationManager.updateLastDuration();
 
         eventPublisher.publishEvent(new VacationUpdatedEvent(
-                form.delegatorId(), form.delegatorName(), form.reason(), vacation, form.departmentId()));
+                form.delegatorId(), form.delegatorName(), form.reason(), vacation, form.contentPk()));
 
         return vacationServiceResponse(vacation, memberLeave);
     }

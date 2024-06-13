@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmContentModel;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmUpdateContentModel;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationDurationModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -79,14 +80,14 @@ public class ConfirmDocumentRepository {
         return keyHolder.getKey().longValue();
     }
 
-    public void updateContent(VacationConfirmContentModel model) throws JsonProcessingException {
+    public void updateContent(VacationConfirmUpdateContentModel model) throws JsonProcessingException {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("delegatorId", model.getDelegatorId());
         parameters.addValue("delegatorName", model.getDelegatorName());
         parameters.addValue("reason", model.getReason());
 
         // 이거 임시코드임
-        parameters.addValue("confirmDocumentContentPk", Long.valueOf(model.getDepartmentId()));
+        parameters.addValue("confirmDocumentContentPk", model.getContentPk());
 
         String sql = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET " +
                 "CDCM.CONTENTS = JSON_REPLACE(CDCM.CONTENTS, " +

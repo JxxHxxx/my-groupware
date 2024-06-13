@@ -19,7 +19,6 @@ import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.vacation.core.vacation.infra.OrganizationRepository;
 import com.jxx.vacation.core.vacation.infra.VacationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.stat.inference.GTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -220,7 +219,8 @@ class VacationServiceTest {
                 List.of(new UpdateVacationDurationForm(
                         vacationDurationDto.vacationDurationId(),
                         LocalDateTime.of(2024, 3, 6, 0, 0),
-                        LocalDateTime.of(2024, 3, 8, 0, 0))));
+                        LocalDateTime.of(2024, 3, 8, 0, 0))),
+                0l);
 
         vacationService.updateVacation(vacationResponse.vacationId(), updateVacationForm);
         Vacation updatedVacation = vacationRepository.findById(vacationResponse.vacationId()).get();

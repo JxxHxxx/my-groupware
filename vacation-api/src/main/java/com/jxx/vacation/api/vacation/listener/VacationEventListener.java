@@ -83,7 +83,7 @@ public class VacationEventListener {
                 updatedEvent.delegatorName(),
                 updatedEvent.reason(),
                 vacationDurationModel,
-                updatedEvent.departmentId()
+                updatedEvent.contentPk()
         );
         Map<String, Object> body = MessageBodyBuilder.from(vacationUpdateMessageForm);
         return MessageQ.builder()

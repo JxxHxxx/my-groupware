@@ -16,6 +16,6 @@ public class VacationUpdateMessageForm {
     private final String delegatorName;
     private final String reason;
     private final List<VacationDurationModel> vacationDurations;
-    private final String departmentId;
+    private final Long contentPk;
 
 }

@@ -14,14 +14,14 @@ public class VacationConfirmUpdateContentModel {
     private String delegatorId;
     private String delegatorName;
     private String reason;
-    private String departmentId;
+    private Long contentPk;
     private List<VacationDurationModel> vacationDurations;
 
-    public VacationConfirmUpdateContentModel(String delegatorId, String delegatorName, String reason, String departmentId, List<VacationDurationModel> vacationDurations) {
+    public VacationConfirmUpdateContentModel(String delegatorId, String delegatorName, String reason, Long contentPk, List<VacationDurationModel> vacationDurations) {
         this.delegatorId = delegatorId;
         this.delegatorName = delegatorName;
         this.reason = reason;
-        this.departmentId = departmentId;
+        this.contentPk = contentPk;
         this.vacationDurations = vacationDurations;
     }
 
@@ -30,8 +30,11 @@ public class VacationConfirmUpdateContentModel {
         String delegatorId = String.valueOf(messageBody.get("delegator_id"));
         String delegatorName = String.valueOf(messageBody.get("delegator_name"));
         String reason = (String) messageBody.get("reason");
-        String departmentId = (String) messageBody.get("department_id");
+        // Long 타입을 변환하지 Integer 타입으로 인식하고 있어 캐스팅으로 처리
+        int tempContentPk = Integer.parseInt(String.valueOf(messageBody.get("content_pk")));
+        Long contentPk = Long.parseLong(String.valueOf(tempContentPk));
+
         List<VacationDurationModel> vacationDurations = (List<VacationDurationModel>) messageBody.get("vacation_durations");
-        return new VacationConfirmUpdateContentModel(delegatorId, delegatorName, reason, departmentId, vacationDurations);
+        return new VacationConfirmUpdateContentModel(delegatorId, delegatorName, reason, contentPk, vacationDurations);
     }
 }

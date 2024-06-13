@@ -2,6 +2,7 @@ package com.jxx.vacation.messaging.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmContentModel;
+import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmUpdateContentModel;
 import com.jxx.vacation.core.message.domain.MessageProcessStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.domain.MessageQResult;
@@ -9,7 +10,6 @@ import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.message.infra.MessageQResultRepository;
 import com.jxx.vacation.messaging.infra.ConfirmDocumentRepository;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -63,7 +63,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
         try {
             switch (messageQ.getMessageDestination()) {
                 case CONFIRM -> {
-                    VacationConfirmContentModel updateForm = VacationConfirmContentModel.from(messageQ.getBody());
+                    VacationConfirmUpdateContentModel updateForm = VacationConfirmUpdateContentModel.from(messageQ.getBody());
                     confirmDocumentRepository.updateContent(updateForm);
                     sentMessageProcessStatus = SUCCESS;
                     platformTransactionManager.commit(txStatus);

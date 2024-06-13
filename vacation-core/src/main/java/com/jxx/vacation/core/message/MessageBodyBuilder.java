@@ -56,7 +56,7 @@ public class MessageBodyBuilder {
         payload.put("delegator_name", messageForm.getDelegatorName());
         payload.put("reason", messageForm.getReason());
         payload.put("vacation_durations", messageForm.getVacationDurations());
-        payload.put("department_id", messageForm.getDepartmentId());
+        payload.put("content_pk", messageForm.getContentPk());
         return payload;
     }
 }

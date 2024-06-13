@@ -7,6 +7,6 @@ public record VacationUpdatedEvent(
         String delegatorName,
         String reason,
         Vacation vacation,
-        String departmentId // 이거 임시
+        Long contentPk
 ) {
 }

@@ -9,7 +9,7 @@ public record UpdateVacationForm(
         String delegatorName,
         String reason,
         List<UpdateVacationDurationForm> updateVacationDurationForms,
-        String departmentId
+        Long contentPk
 
 ) {
 }
