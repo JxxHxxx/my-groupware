@@ -75,7 +75,7 @@ class VacationMessageServiceTest {
 
         MessageQ messageQ = MessageQ.builder()
                 .messageProcessStatus(MessageProcessStatus.SENT)
-                .messageDestination(MessageDestination.APPROVAL)
+                .messageDestination(MessageDestination.CONFIRM)
                 .body(messageBody)
                 .retryId(null)
                 .build();

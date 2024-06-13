@@ -5,6 +5,7 @@ import com.jxx.vacation.core.message.*;
 import com.jxx.vacation.core.message.body.vendor.confirm.*;
 import com.jxx.vacation.core.message.domain.MessageDestination;
 import com.jxx.vacation.core.message.domain.MessageProcessStatus;
+import com.jxx.vacation.core.message.domain.MessageProcessType;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.vacation.domain.entity.MemberLeave;
@@ -89,6 +90,7 @@ public class VacationEventListener {
         return MessageQ.builder()
                 .messageDestination(MessageDestination.CONFIRM)
                 .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.UPDATE)
                 .body(body)
                 .build();
     }
@@ -120,8 +122,9 @@ public class VacationEventListener {
 
         Map<String, Object> vacationConfirmMessageBody = MessageBodyBuilder.from(messageForm);
         MessageQ messageQ = MessageQ.builder()
-                .messageDestination(MessageDestination.APPROVAL)
+                .messageDestination(MessageDestination.CONFIRM)
                 .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.INSERT)
                 .body(vacationConfirmMessageBody)
                 .build();
         return messageQ;
@@ -137,8 +140,9 @@ public class VacationEventListener {
 
         Map<String, Object> vacationConfirmMessageBody = MessageBodyBuilder.from(messageForm);
         MessageQ messageQ = MessageQ.builder()
-                .messageDestination(MessageDestination.APPROVAL)
+                .messageDestination(MessageDestination.CONFIRM)
                 .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.INSERT)
                 .body(vacationConfirmMessageBody)
                 .build();
         return messageQ;

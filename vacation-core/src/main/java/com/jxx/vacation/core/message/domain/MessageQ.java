@@ -39,6 +39,11 @@ public class MessageQ {
     @Enumerated(EnumType.STRING)
     private MessageProcessStatus messageProcessStatus;
 
+    @Column(name = "MESSAGE_PROCESS_TYPE", nullable = false)
+    @Comment(value = "메시지 처리 유형")
+    @Enumerated(EnumType.STRING)
+    private MessageProcessType messageProcessType;
+
     @Column(name = "EVENT_TIME", nullable = false)
     @Comment(value = "메시지 생성 시간")
     private LocalDateTime eventTime;
@@ -51,10 +56,15 @@ public class MessageQ {
     private Long retryId; // 재시도를 위한 키
 
     @Builder
-    public MessageQ(Long retryId, MessageDestination messageDestination, MessageProcessStatus messageProcessStatus, Map<String, Object> body) {
+    public MessageQ(Long retryId,
+                    MessageDestination messageDestination,
+                    MessageProcessStatus messageProcessStatus,
+                    MessageProcessType messageProcessType,
+                    Map<String, Object> body) {
         this.retryId = retryId;
         this.messageDestination = messageDestination;
         this.messageProcessStatus = messageProcessStatus;
+        this.messageProcessType = messageProcessType;
         this.body = body;
         this.processStartTime = null;
         this.eventTime = LocalDateTime.now();
@@ -70,8 +80,9 @@ public class MessageQ {
         return "MessageQ{" +
                 "pk=" + pk +
                 ", messageDestination=" + messageDestination +
-                "\nbody=" + body +
-                "\nmessageProcessStatus=" + messageProcessStatus +
+                ", body=" + body +
+                ", messageProcessStatus=" + messageProcessStatus +
+                ", messageProcessType=" + messageProcessType +
                 ", eventTime=" + eventTime +
                 ", processStartTime=" + processStartTime +
                 ", retryId=" + retryId +

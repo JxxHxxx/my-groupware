@@ -61,16 +61,15 @@ public class VacationMessageService implements MessageService<MessageQ>{
         TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
 
         try {
-            switch (messageQ.getMessageDestination()) {
-                case CONFIRM -> {
+            switch (messageQ.getMessageProcessType()) {
+                case UPDATE -> {
                     VacationConfirmUpdateContentModel updateForm = VacationConfirmUpdateContentModel.from(messageQ.getBody());
-                    // 트랜잭션을 묶어야 될듯 싶다.
                     confirmDocumentMapper.updateContent(updateForm);
                     confirmDocumentRepository.updateVacationDuration(updateForm);
                     sentMessageProcessStatus = SUCCESS;
                     platformTransactionManager.commit(txStatus);
                 }
-                case APPROVAL -> {
+                case INSERT -> {
                     VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
                     VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
                     Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
