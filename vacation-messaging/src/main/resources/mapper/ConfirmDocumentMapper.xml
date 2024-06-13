@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.vacation.messaging.infra.mapper.ConfirmDocumentMapper">
+    <update id="updateContent" parameterType="com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmUpdateContentModel">
+        UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM
+        <set>
+            CDCM.CONTENTS = JSON_REPLACE(CDCM.CONTENTS,
+            <trim suffixOverrides=",">
+                -- null 이 아닌 문자열 "null" 이 들어오는 경우가 있어 검증 추가
+                <if test='delegatorId != null and delegatorId !="null"'>
+                    '$.delegator_id', #{delegatorId},
+                </if>
+                <if test='delegatorName != null and delegatorName != "null"'>
+                    '$.delegator_name' , #{delegatorName},
+                </if>
+                <if test='reason != null and reason != "null"'>
+                    '$.reason' , #{reason},
+                </if>
+            </trim>
+            )
+        </set>
+        <where>
+            CDCM.CONFIRM_DOCUMENT_CONTENT_PK = #{contentPk}
+        </where>
+    </update>
+</mapper>

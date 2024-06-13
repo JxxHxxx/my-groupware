@@ -69,7 +69,7 @@ class VacationMessageServiceTest {
                 "개인사정",
                 "TESTERNAME",
                 "TESTDPNAME",
-                List.of(new VacationDurationModel(LocalDateTime.now(), LocalDateTime.now()))
+                List.of(new VacationDurationModel(String.valueOf(LocalDateTime.now()), String.valueOf(LocalDateTime.now())))
         );
         Map<String, Object> messageBody = MessageBodyBuilder.from(messageForm);
 

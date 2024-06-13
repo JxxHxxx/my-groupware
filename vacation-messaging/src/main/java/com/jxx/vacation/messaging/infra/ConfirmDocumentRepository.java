@@ -80,6 +80,42 @@ public class ConfirmDocumentRepository {
         return keyHolder.getKey().longValue();
     }
 
+    public void updateVacationDuration(VacationConfirmUpdateContentModel model) throws JsonProcessingException {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("confirmDocumentContentPk", model.getContentPk());
+
+        String sql2 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET " +
+                "CDCM.CONTENTS = JSON_REMOVE(CDCM.CONTENTS, '$.vacation_durations') " +
+                "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+        approvalJdbcTemplate.update(sql2, parameters);
+        List<VacationDurationModel> vds = objectMapper.readValue(objectMapper.writeValueAsString(model.getVacationDurations()), new TypeReference<List<VacationDurationModel>>(){});
+
+        int cnt = 0;
+        for (VacationDurationModel vd : vds) {
+            String start = vd.getStartDateTime();
+            String end = vd.getEndDateTime();
+            parameters.addValue("start", start);
+            parameters.addValue("end", end);
+
+            if (cnt == 0) {
+                String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET " +
+                        "CDCM.CONTENTS = JSON_SET(CDCM.CONTENTS, '$.vacation_durations', " +
+                        "JSON_ARRAY(CDCM.CONTENTS, JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end))) " +
+                        "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+                approvalJdbcTemplate.update(sql3, parameters);
+            } else {
+                String sql3 = "UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM SET " +
+                        "CDCM.CONTENTS = JSON_ARRAY_APPEND(CDCM.CONTENTS, '$.vacation_durations', " +
+                        "JSON_OBJECT('startDateTIme', :start, 'endDateTime', :end)) " +
+                        "WHERE CDCM.CONFIRM_DOCUMENT_CONTENT_PK  = :confirmDocumentContentPk;";
+
+                approvalJdbcTemplate.update(sql3, parameters);
+            }
+            cnt++;
+        }
+    }
+
     public void updateContent(VacationConfirmUpdateContentModel model) throws JsonProcessingException {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("delegatorId", model.getDelegatorId());

@@ -8,6 +8,7 @@ import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.domain.MessageQResult;
 import com.jxx.vacation.core.message.infra.MessageQRepository;
 import com.jxx.vacation.core.message.infra.MessageQResultRepository;
+import com.jxx.vacation.messaging.infra.mapper.ConfirmDocumentMapper;
 import com.jxx.vacation.messaging.infra.ConfirmDocumentRepository;
 import com.jxx.vacation.core.message.body.vendor.confirm.VacationConfirmModel;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
-
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
@@ -33,18 +31,20 @@ import static com.jxx.vacation.core.message.domain.MessageProcessStatus.*;
 public class VacationMessageService implements MessageService<MessageQ>{
 
     private final ConfirmDocumentRepository confirmDocumentRepository;
+    private final ConfirmDocumentMapper confirmDocumentMapper;
     private final MessageQRepository messageQRepository;
     private final MessageQResultRepository messageQResultRepository;
-    private final TransactionTemplate transactionTemplate;
     private final PlatformTransactionManager platformTransactionManager;
 
-    public VacationMessageService(ConfirmDocumentRepository confirmDocumentRepository, MessageQRepository messageQRepository,
-                                  MessageQResultRepository messageQResultRepository, TransactionTemplate transactionTemplate,
+    public VacationMessageService(ConfirmDocumentRepository confirmDocumentRepository,
+                                  ConfirmDocumentMapper confirmDocumentMapper,
+                                  MessageQRepository messageQRepository,
+                                  MessageQResultRepository messageQResultRepository,
                                   @Qualifier("approvalDataSource") DataSource dataSource) {
         this.confirmDocumentRepository = confirmDocumentRepository;
+        this.confirmDocumentMapper = confirmDocumentMapper;
         this.messageQRepository = messageQRepository;
         this.messageQResultRepository = messageQResultRepository;
-        this.transactionTemplate = transactionTemplate;
         this.platformTransactionManager = new DataSourceTransactionManager(dataSource);
     }
     /**
@@ -64,7 +64,9 @@ public class VacationMessageService implements MessageService<MessageQ>{
             switch (messageQ.getMessageDestination()) {
                 case CONFIRM -> {
                     VacationConfirmUpdateContentModel updateForm = VacationConfirmUpdateContentModel.from(messageQ.getBody());
-                    confirmDocumentRepository.updateContent(updateForm);
+                    // 트랜잭션을 묶어야 될듯 싶다.
+                    confirmDocumentMapper.updateContent(updateForm);
+                    confirmDocumentRepository.updateVacationDuration(updateForm);
                     sentMessageProcessStatus = SUCCESS;
                     platformTransactionManager.commit(txStatus);
                 }
