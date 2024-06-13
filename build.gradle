@@ -84,7 +84,6 @@ project(':vacation-core') {
         //database
         runtimeOnly 'com.mysql:mysql-connector-j'
 
-        implementation 'org.springframework.data:spring-data-envers'
         implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2")
         // json 타입 컬럼을 사용하기 위한 프로젝트 START
         implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.7.0'
@@ -165,12 +164,17 @@ project(':vacation-messaging') {
         implementation 'org.springframework.boot:spring-boot-starter-integration'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'org.springframework.integration:spring-integration-jpa'
+        implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2")
 
         // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
         implementation 'com.fasterxml.jackson.core:jackson-core:2.17.0'
         // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
         implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+        // https://mvnrepository.com/artifact/org.bgee.log4jdbc-log4j2/log4jdbc-log4j2-jdbc4.1
+        // SQL 로그 출력용
+        implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
