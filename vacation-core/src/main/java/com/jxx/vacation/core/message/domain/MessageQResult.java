@@ -32,6 +32,11 @@ public class MessageQResult {
     @Enumerated(EnumType.STRING)
     private MessageDestination messageDestination;
 
+    @Column(name = "MESSAGE_PROCESS_TYPE", nullable = false)
+    @Comment(value = "메시지 처리 유형")
+    @Enumerated(EnumType.STRING)
+    private MessageProcessType messageProcessType;
+
     @Type(JsonType.class)
     @Column(name = "BODY", columnDefinition = "json")
     @Comment(value = "메시지 본문")
@@ -55,11 +60,19 @@ public class MessageQResult {
     private LocalDateTime processEndTime;
 
     @Builder
-    public MessageQResult(Long originalMessagePk, MessageDestination messageDestination, Map<String, Object> body, MessageProcessStatus messageProcessStatus, LocalDateTime eventTime, LocalDateTime processStartTime, LocalDateTime processEndTime) {
+    public MessageQResult(Long originalMessagePk,
+                          MessageDestination messageDestination,
+                          Map<String, Object> body,
+                          MessageProcessStatus messageProcessStatus,
+                          MessageProcessType messageProcessType,
+                          LocalDateTime eventTime,
+                          LocalDateTime processStartTime,
+                          LocalDateTime processEndTime) {
         this.originalMessagePk = originalMessagePk;
         this.messageDestination = messageDestination;
         this.body = body;
         this.messageProcessStatus = messageProcessStatus;
+        this.messageProcessType = messageProcessType;
         this.eventTime = eventTime;
         this.processStartTime = processStartTime;
         this.processEndTime = processEndTime;
