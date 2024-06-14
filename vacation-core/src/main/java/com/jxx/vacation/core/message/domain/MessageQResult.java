@@ -10,10 +10,18 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ 1. TimeStamp 타입으로 처리 시간 필드 추가를 고려해볼만 함, 실패 이력 조회 시 성능을 위해
+ 2. MESSAGE_DESTINATION 의 종류가 많아지면 PROCESS_END_TIME, MESSAGE_DESTINATION 멀티 인덱스 고려해도 될듯?
+ **/
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MESSAGE_Q_RESULT", indexes = @Index(name = "IDX_O_MESSAGE_PK", columnList = "ORIGINAL_MESSAGE_PK", unique = false))
+@Table(name = "JXX_MESSAGE_Q_RESULT",
+        indexes = {
+                @Index(name = "IDX_O_MESSAGE_PK", columnList = "ORIGINAL_MESSAGE_PK", unique = false),
+                @Index(name = "IDX_PCS_END_TIME", columnList = "PROCESS_END_TIME", unique = false)
+        })
 @ToString
 public class MessageQResult {
 
@@ -76,5 +84,9 @@ public class MessageQResult {
         this.eventTime = eventTime;
         this.processStartTime = processStartTime;
         this.processEndTime = processEndTime;
+    }
+
+    public boolean isFail() {
+        return MessageProcessStatus.FAIL.equals(this.messageProcessStatus);
     }
 }

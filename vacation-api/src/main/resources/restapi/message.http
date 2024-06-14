@@ -2,6 +2,9 @@
 PATCH http://localhost:8080/message-q-results/2/retry
 
 
+### 처리 실패한 메시지 이력
+GET http://localhost:8080/message-q-results/fail?page=0&size=10&std=2024-06-14&edd=2024-06-14
+
 
 
 

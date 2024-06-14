@@ -113,13 +113,12 @@ Content-Type: application/json
   "delegatorId": "SPY00290",
   "delegatorName": "허민용"
 }
-
 ### 휴가 수정
 PATCH http://localhost:8080/api/vacations/1
 Content-Type: application/json
 
 {
-  "reason": "개인사유",
+  "reason": "개인사유123",
   "contentPk": 1,
   "updateVacationDurationForms": [
     {

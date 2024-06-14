@@ -45,6 +45,7 @@ public class VacationMessageService implements MessageService<MessageQ>{
         this.confirmDocumentMapper = confirmDocumentMapper;
         this.messageQRepository = messageQRepository;
         this.messageQResultRepository = messageQResultRepository;
+        // JDBC 용 트랜잭션 매니저
         this.platformTransactionManager = new DataSourceTransactionManager(dataSource);
     }
     /**
@@ -60,24 +61,23 @@ public class VacationMessageService implements MessageService<MessageQ>{
 
         TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
 
+        // 비즈니스 로직 START
         try {
             switch (messageQ.getMessageProcessType()) {
                 case UPDATE -> {
                     VacationConfirmUpdateContentModel updateForm = VacationConfirmUpdateContentModel.from(messageQ.getBody());
                     confirmDocumentMapper.updateContent(updateForm);
                     confirmDocumentRepository.updateVacationDuration(updateForm);
-                    sentMessageProcessStatus = SUCCESS;
-                    platformTransactionManager.commit(txStatus);
                 }
                 case INSERT -> {
                     VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
                     VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
                     Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
                     confirmDocumentRepository.insert(contentPk, confirm);
-                    sentMessageProcessStatus = SUCCESS;
-                    platformTransactionManager.commit(txStatus);
                 }
             }
+            sentMessageProcessStatus = SUCCESS;
+            platformTransactionManager.commit(txStatus);
         } catch (RuntimeException e) {
             txStatus.setRollbackOnly();
             sentMessageProcessStatus = FAIL;
@@ -87,25 +87,36 @@ public class VacationMessageService implements MessageService<MessageQ>{
             sentMessageProcessStatus = FAIL;
             log.error("VacationConfirmContentModel 메시지 파싱 중 에러가 발생했습니다. 롤백합니다.", e);
         } finally {
+            // JpaTransactionManager 가 트랜잭션을 관리하기 때문에 위 롤백에 영향없음
             messageQRepository.deleteById(messageQ.getPk());
             MessageQResult messageQResult = createSentMessageQResult(messageQ, sentMessageProcessStatus);
             messageQResultRepository.save(messageQResult);
         }
+        // 비즈니스 로직 END
     }
     @Override
     public void retry(Message<MessageQ> message) {
         MessageQ messageQ = message.getPayload();
         MessageProcessStatus messageProcessStatus = messageQ.getMessageProcessStatus();
+        MessageProcessStatus retryMessageProcessStatus = messageProcessStatus;
 
         TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
 
-        MessageProcessStatus retryMessageProcessStatus = messageProcessStatus;
         Long originalMessagePk = null;
         try {
-            VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
-            VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
-            Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
-            confirmDocumentRepository.insert(contentPk, confirm);
+            switch (messageQ.getMessageProcessType()) {
+                case UPDATE -> {
+                    VacationConfirmUpdateContentModel updateForm = VacationConfirmUpdateContentModel.from(messageQ.getBody());
+                    confirmDocumentMapper.updateContent(updateForm);
+                    confirmDocumentRepository.updateVacationDuration(updateForm);
+                }
+                case INSERT -> {
+                    VacationConfirmModel confirm = VacationConfirmModel.from(messageQ.getBody());
+                    VacationConfirmContentModel confirmContent = VacationConfirmContentModel.from(messageQ.getBody());
+                    Long contentPk = confirmDocumentRepository.insertContent(confirmContent);
+                    confirmDocumentRepository.insert(contentPk, confirm);
+                }
+            }
             retryMessageProcessStatus = SUCCESS;
             originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
             platformTransactionManager.commit(txStatus);
@@ -114,13 +125,14 @@ public class VacationMessageService implements MessageService<MessageQ>{
             txStatus.setRollbackOnly();
             log.warn("메시지 변환 중 오류가 발생했습니다.", e);
             retryMessageProcessStatus = FAIL;
-            // 아래 if 분기 왜 만들었는지 확인 파악
+            // RETRY 키에 재시도 해더가 들어가는데
             if (!message.getHeaders().containsKey(RETRY_HEADER)) {
                 originalMessagePk = MessageQ.ERROR_ORIGINAL_MESSAGE_PK;
             }
             originalMessagePk = message.getHeaders().get(RETRY_HEADER, Long.class);
         }
         finally {
+            // JpaTransactionManager 가 트랜잭션을 관리하기 때문에 위 롤백에 영향없음
             messageQRepository.deleteById(messageQ.getPk());
             MessageQResult messageQResult = createRetryMessageQResult(messageQ, retryMessageProcessStatus, originalMessagePk);
             messageQResultRepository.save(messageQResult);
@@ -128,11 +140,14 @@ public class VacationMessageService implements MessageService<MessageQ>{
         }
     }
 
-    private static MessageQResult createSentMessageQResult(MessageQ messageQ, MessageProcessStatus messageProcessStatus) {
+    private static MessageQResult createSentMessageQResult(
+            MessageQ messageQ,
+            MessageProcessStatus messageProcessStatus) {
         return MessageQResult.builder()
                 .messageProcessStatus(messageProcessStatus)
                 .processStartTime(messageQ.getProcessStartTime())
                 .processEndTime(LocalDateTime.now())
+                .messageProcessType(messageQ.getMessageProcessType())
                 .messageDestination(messageQ.getMessageDestination())
                 .eventTime(messageQ.getEventTime())
                 .originalMessagePk(messageQ.getPk())
@@ -140,11 +155,15 @@ public class VacationMessageService implements MessageService<MessageQ>{
                 .build();
     }
 
-    private static MessageQResult createRetryMessageQResult(MessageQ messageQ, MessageProcessStatus retryMessageProcessStatus, Long originalMessagePk) {
+    private static MessageQResult createRetryMessageQResult(
+            MessageQ messageQ,
+            MessageProcessStatus retryMessageProcessStatus,
+            Long originalMessagePk) {
         return MessageQResult.builder()
                 .messageProcessStatus(retryMessageProcessStatus)
                 .processStartTime(messageQ.getProcessStartTime())
                 .processEndTime(LocalDateTime.now())
+                .messageProcessType(messageQ.getMessageProcessType())
                 .messageDestination(messageQ.getMessageDestination())
                 .eventTime(messageQ.getEventTime())
                 .originalMessagePk(originalMessagePk)
