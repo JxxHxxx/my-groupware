@@ -207,10 +207,10 @@ public class VacationService {
         // call to another server api
         ConfirmDocumentRaiseResponse response = function.apply(vacation, memberLeave);
 
-        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
+        // TODO 실제 트랜잭션이 시작해야 하는 부분
         Vacation riseVacation = vacationManager.raise(response.confirmStatus());
         vacationHistRepository.save(new VacationHistory(riseVacation, History.update(vacation.getRequesterId())));
-
+        // TODO 실제 트랜잭션이 종료해야 하는 부분
         return new VacationServiceResponse(vacation.getId(),
                 vacation.getRequesterId(),
                 memberLeave.getName(),
