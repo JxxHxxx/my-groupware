@@ -60,8 +60,8 @@ public class VacationManager {
         this.vacationDurations = requestVacationDurations.stream()
                 .map(requestVacationDuration -> {
                     VacationDuration vacationDuration = new VacationDuration(
-                            requestVacationDuration.startDateTime(),
-                            requestVacationDuration.endDateTime(),
+                            requestVacationDuration.getStartDateTime(),
+                            requestVacationDuration.getEndDateTime(),
                             vacation.getLeaveDeduct(),
                             vacationType);
                     vacationDuration.mappingVacation(vacation);

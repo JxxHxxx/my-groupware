@@ -62,6 +62,10 @@ public class VacationService {
         VacationManager vacationManager = VacationManager.createVacation(memberLeave, vacationForm.vacationType(), vacationForm.leaveDeduct());
 
         Vacation vacation = vacationManager.getVacation();
+        // 임시 로직 - 휴가(반차X)시 시간 조정
+        vacationForm.requestVacationDurations()
+                .forEach(vd -> vd.reconcliation(vacation.getVacationType()));
+
         vacationManager.createVacationDurations(vacation.getVacationType(), vacationForm.requestVacationDurations());
         List<VacationDuration> vacationDurations = vacationManager.getVacationDurations();
 
