@@ -26,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -47,7 +50,7 @@ public class VacationService {
     private final MemberLeaveRepository memberLeaveRepository;
     private final CompanyVacationTypePolicyRepository companyVacationTypePolicyRepository;
     private final VacationDynamicMapper vacationDynamicMapper;
-
+    private final PlatformTransactionManager platformTransactionManager;
     /**
      * 트랜잭션 커밋/롤백 정책
      * 복구불가능한 비즈니스 로직의 경우 VacationClientException <- 롤백
@@ -178,12 +181,15 @@ public class VacationService {
                 )).toList();
     }
 
+    @Deprecated
     @Transactional
     public VacationServiceResponse raiseVacation(Long vacationId) {
         BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter = new ConfirmRaiseApiAdapter();
         return raiseVacation(vacationId, apiAdapter);
     }
 
+    /** 트랜잭션이 효율적이지 못함 - 외부 API 호출을 포함하고 있어 외부에서 오류 발생 시 트랜잭션이 지연될 가능성 존재  **/
+    @Deprecated
     @Transactional
     protected VacationServiceResponse raiseVacation(Long vacationId,
                                                     BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
@@ -211,6 +217,50 @@ public class VacationService {
         Vacation riseVacation = vacationManager.raise(response.confirmStatus());
         vacationHistRepository.save(new VacationHistory(riseVacation, History.update(vacation.getRequesterId())));
         // TODO 실제 트랜잭션이 종료해야 하는 부분
+        return new VacationServiceResponse(vacation.getId(),
+                vacation.getRequesterId(),
+                memberLeave.getName(),
+                vacation.receiveVacationDurationDto(),
+                vacation.getVacationStatus());
+    }
+    public VacationServiceResponse raiseVacationV2(Long vacationId) {
+        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter = new ConfirmRaiseApiAdapter();
+        return raiseVacationV2(vacationId, apiAdapter);
+    }
+    protected VacationServiceResponse raiseVacationV2(Long vacationId,
+                                                    BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+        MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(vacation.getRequesterId())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+
+        VacationManager vacationManager = VacationManager.updateVacation(memberLeave, vacation);
+        // validate start
+        if (!vacationManager.validateMemberActive()) {
+            VacationServiceResponse response = new VacationServiceResponse(vacation.getId(),
+                    vacation.getRequesterId(),
+                    memberLeave.getName(),
+                    vacation.receiveVacationDurationDto(),
+                    vacation.getVacationStatus());
+            return response;
+        }
+
+        vacationManager.isRaisePossible();
+
+        ConfirmDocumentRaiseResponse response = function.apply(vacation, memberLeave);
+
+        TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
+        try {
+            Vacation riseVacation = vacationManager.raise(response.confirmStatus());
+            vacationHistRepository.save(new VacationHistory(riseVacation, History.update(vacation.getRequesterId())));
+        } catch (Exception e) {
+            platformTransactionManager.rollback(txStatus);
+            log.warn("처리중에 오류 발생 롤백합니다.", e);
+            // 이거 커스텀 예외 클래스 만들어서 처리하자.
+            throw new RuntimeException(e);
+        }
+        platformTransactionManager.commit(txStatus);
+
         return new VacationServiceResponse(vacation.getId(),
                 vacation.getRequesterId(),
                 memberLeave.getName(),

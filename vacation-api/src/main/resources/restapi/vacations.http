@@ -160,7 +160,7 @@ Content-Type: application/json
 }
 
 ### 휴가 상신
-POST http://localhost:8080/api/vacations/3/raise
+POST http://localhost:8080/api/vacations/6/raise
 Content-Type: application/json
 
 ### 휴가 신청 POST 2

@@ -51,9 +51,10 @@ public class VacationApiController {
 
     @PostMapping(value = "/api/vacations/{vacation-id}/raise")
     public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) {
-        VacationServiceResponse response = vacationService.raiseVacation(vacationId);
+        VacationServiceResponse response = vacationService.raiseVacationV2(vacationId);
         return ResponseEntity.ok(response);
     }
+
 
     /*** 결재 수정 API */
 

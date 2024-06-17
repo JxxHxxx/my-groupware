@@ -40,6 +40,9 @@ public class ConfirmRaiseApiAdapter implements BiFunction<Vacation, MemberLeave,
 
         SimpleRestClient simpleRestClient = new SimpleRestClient();
 
+        URI uri = uriComponents.toUri();
+        RequestUri requestUri = new RequestUri(uri.getHost(), uri.getPort(), uri.getPath());
+
         ResponseResult result = null;
         ConfirmDocumentRaiseResponse raiseResponse;
         try {
@@ -51,12 +54,13 @@ public class ConfirmRaiseApiAdapter implements BiFunction<Vacation, MemberLeave,
                 return new ConfirmDocumentRaiseResponse(null, null, ConfirmStatus.RAISE.name());
             }
 
-            URI uri = uriComponents.toUri();
-            RequestUri requestUri = new RequestUri(uri.getHost(), uri.getPort(), uri.getPath());
             throw new ServerCommunicationException(INTERNAL_SERVER_ERROR.value(), "알 수 없는 에러 발생", requestUri , exception);
         } catch (JsonProcessingException exception) {
             log.warn("exception {}", result, exception);
             return new ConfirmDocumentRaiseResponse(null, null, ConfirmStatus.RAISE.name());
+        } catch (Exception exception) {
+            log.warn("exception ", exception);
+            throw new ServerCommunicationException("외부 통신 중에 에러 발생", requestUri, exception);
         }
 
         return raiseResponse;

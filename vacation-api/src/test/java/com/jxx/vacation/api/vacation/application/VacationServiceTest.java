@@ -1,6 +1,7 @@
 package com.jxx.vacation.api.vacation.application;
 
 
+import com.jxx.vacation.api.common.web.ServerCommunicationException;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
@@ -328,7 +329,7 @@ class VacationServiceTest {
                 (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
 
         //when
-        VacationServiceResponse response = vacationService.raiseVacation(savedVacation.getId(), apiAdapter);
+        VacationServiceResponse response = vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter);
         //then
         Vacation updatedVacation = vacationRepository.findById(savedVacation.getId()).get();
         assertThat(response.vacationStatus()).isEqualTo(VacationStatus.FAIL);
@@ -361,7 +362,35 @@ class VacationServiceTest {
         BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
                 (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
 
-        assertThatThrownBy(() -> vacationService.raiseVacation(savedVacation.getId(), apiAdapter))
+        assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter))
                 .isInstanceOf(VacationClientException.class);
+    }
+    @DisplayName("외부 호출에서 예외 발생")
+    @Test
+    void raise_vacation_fail_external_api_throw_except() {
+        //given
+        //사용자 생성
+        String memberId = "T0001";
+        MemberLeave memberLeave = memberLeaveRepository.findByMemberId(memberId).get();
+        memberLeaveRepository.save(memberLeave);
+        //휴가 생성
+        Vacation vacation = Vacation.builder()
+                .leaveDeduct(LeaveDeduct.DEDUCT)
+                .requesterId("T0001")
+                .companyId("TJX")
+                .vacationStatus(VacationStatus.CREATE)
+                .vacationType(VacationType.MORE_DAY)
+                .build();
+        Vacation savedVacation = vacationRepository.save(vacation);
+
+        //when - then
+        // 외부 API 호출 대체
+        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
+                (v, m) -> {
+                    throw new RuntimeException();
+                };
+
+        assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter))
+                .isInstanceOf(ServerCommunicationException.class);
     }
 }
