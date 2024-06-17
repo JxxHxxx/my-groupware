@@ -195,19 +195,17 @@ public class VacationManager {
             throw new VacationClientException("이미 결재가 올라갔거나 종료된 휴가입니다.");
         }
     }
+    public Vacation raise(String confirmStatus) {
+        return raise(ConfirmStatus.valueOf(confirmStatus));
+    }
 
-    // 상신
-    public Vacation raise(ConfirmStatus confirmStatus) {
+    protected Vacation raise(ConfirmStatus confirmStatus) {
         if (ConfirmStatus.RAISE.equals(confirmStatus)) { //결재 문서의 상태가 상신이면
             vacation.changeVacationStatus(REQUEST); // 휴가의 상태도 변경해라.
         } else {
-            throw new IllegalArgumentException("결재가 상신되지 않았습니다.");
+            throw new IllegalArgumentException("해당 요청을 처리할 수 없습니다.");
         }
         return vacation;
-    }
-
-    public Vacation raise(String confirmStatus) {
-        return raise(ConfirmStatus.valueOf(confirmStatus));
     }
 
     // 휴가 취소 (결재 문서를 취소)

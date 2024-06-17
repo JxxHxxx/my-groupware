@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.*;
 import org.springframework.web.util.UriComponents;
 
+import java.net.ConnectException;
 import java.net.URI;
 
 @Slf4j
@@ -27,13 +28,14 @@ public class SimpleRestClient {
 
         try {
             stringResponse = restTemplate.postForObject(uri, request, String.class);
-        } catch (RestClientException exception) {
-            log.warn("exception occur to {}", uri.getHost(), exception);
+        }
+        catch (RestClientException exception) {
+            log.warn("exception occur to {}", uri.getHost() + ":" + uri.getPort(), exception);
             RequestUri requestUri = new RequestUri(uri.getHost(), uri.getPort(), uri.getPath());
             // 4xx, 5xx 예외
             if (exception instanceof HttpStatusCodeException httpStatusCodeException) {
                 ResponseResult<String> responseBody = httpStatusCodeException.getResponseBodyAs(ResponseResult.class);
-                throw new ServerCommunicationException(responseBody.getStatus(), responseBody.getMessage(), requestUri, exception);
+                throw new ServerCommunicationException(responseBody.getStatus(), responseBody.getData(), responseBody.getMessage(), requestUri, exception);
             }
 
             if (exception instanceof ResourceAccessException resourceAccessException) {

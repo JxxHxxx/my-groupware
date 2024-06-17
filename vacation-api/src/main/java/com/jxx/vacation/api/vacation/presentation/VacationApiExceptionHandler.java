@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 
 import java.net.ConnectException;
 
@@ -39,7 +40,7 @@ public class VacationApiExceptionHandler {
 
     }
 
-    @ExceptionHandler(ConnectException.class)
+    @ExceptionHandler({ConnectException.class, RestClientException.class})
     public ResponseEntity<?> handleServerServiceException(ConnectException exception) {
         return ResponseEntity.internalServerError()
                 .body(new ResponseResult<>(500, exception.getMessage(), null));

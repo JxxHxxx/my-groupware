@@ -223,19 +223,19 @@ public class VacationService {
                 vacation.receiveVacationDurationDto(),
                 vacation.getVacationStatus());
     }
+
     public VacationServiceResponse raiseVacationV2(Long vacationId) {
         BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter = new ConfirmRaiseApiAdapter();
         return raiseVacationV2(vacationId, apiAdapter);
     }
-    protected VacationServiceResponse raiseVacationV2(Long vacationId,
-                                                    BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> function) {
+    protected VacationServiceResponse raiseVacationV2(Long vacationId, BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
         MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(vacation.getRequesterId())
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 
         VacationManager vacationManager = VacationManager.updateVacation(memberLeave, vacation);
-        // validate start
+        // 이 부분도 개선해야함 응답받은 사람은 왜 실패했는지 모를수도 있음
         if (!vacationManager.validateMemberActive()) {
             VacationServiceResponse response = new VacationServiceResponse(vacation.getId(),
                     vacation.getRequesterId(),
@@ -244,11 +244,11 @@ public class VacationService {
                     vacation.getVacationStatus());
             return response;
         }
-
+        // 결재 서버에 요청이 가능한 휴가인지 검증
         vacationManager.isRaisePossible();
-
-        ConfirmDocumentRaiseResponse response = function.apply(vacation, memberLeave);
-
+        // 결재 서버 API 호출
+        ConfirmDocumentRaiseResponse response = apiAdapter.apply(vacation, memberLeave);
+        // 트랜잭션 시작
         TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
         try {
             Vacation riseVacation = vacationManager.raise(response.confirmStatus());

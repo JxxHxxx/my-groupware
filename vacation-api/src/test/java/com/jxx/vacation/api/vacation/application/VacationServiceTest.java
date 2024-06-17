@@ -2,6 +2,7 @@ package com.jxx.vacation.api.vacation.application;
 
 
 import com.jxx.vacation.api.common.web.ServerCommunicationException;
+import com.jxx.vacation.api.vacation.application.function.ConfirmRaiseApiAdapter;
 import com.jxx.vacation.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.vacation.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.vacation.api.vacation.dto.response.VacationServiceResponse;
@@ -365,7 +366,10 @@ class VacationServiceTest {
         assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter))
                 .isInstanceOf(VacationClientException.class);
     }
-    @DisplayName("외부 호출에서 예외 발생")
+
+    @DisplayName("외부 API 호출 시 정상 응답을 받을 수 없는 경우, " +
+            "ServerCommunicationException 예외가 발생한다. " +
+            "현재 케이스에서는 실제 결재 서버(외부) API 호출 구현체를 주입하였다.")
     @Test
     void raise_vacation_fail_external_api_throw_except() {
         //given
@@ -384,13 +388,11 @@ class VacationServiceTest {
         Vacation savedVacation = vacationRepository.save(vacation);
 
         //when - then
-        // 외부 API 호출 대체
-        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
-                (v, m) -> {
-                    throw new RuntimeException();
-                };
+        /** 실제 외부 API 호출 구현체를 주입
+         외부 API 서버는 shutdown 된 상태이기 때문에 ConnectException이 터지게 된다. **/
+        ConfirmRaiseApiAdapter confirmRaiseApiAdapter = new ConfirmRaiseApiAdapter();
 
-        assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter))
+        assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), confirmRaiseApiAdapter))
                 .isInstanceOf(ServerCommunicationException.class);
     }
 }
