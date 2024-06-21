@@ -117,6 +117,9 @@ project(':vacation-api') {
         implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
         implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2")
+        // https://mvnrepository.com/artifact/org.bgee.log4jdbc-log4j2/log4jdbc-log4j2-jdbc4.1
+        // SQL 로그 출력용
+        implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'com.h2database:h2'

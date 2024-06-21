@@ -20,7 +20,7 @@
             <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
                 <![CDATA[
                 AND PROCESS_END_TIME > CAST(#{startDate} AS DATETIME)
-                AND PROCESS_END_TIME < CAST(#{endDate} AS DATETIME)
+                AND PROCESS_END_TIME < DATE_ADD(CAST(#{endDate} AS DATETIME), INTERVAL 1 DAY)
                          ]]>
             </if>
             <if test="messageProcessStatus != null
