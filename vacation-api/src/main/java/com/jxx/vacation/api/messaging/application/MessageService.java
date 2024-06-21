@@ -1,6 +1,9 @@
 package com.jxx.vacation.api.messaging.application;
 
+import com.jxx.vacation.api.messaging.dto.request.MessageQResultSearchCondition;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponse;
+import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponseV2;
+import com.jxx.vacation.api.messaging.query.MessageQResultMapper;
 import com.jxx.vacation.core.message.domain.MessageProcessStatus;
 import com.jxx.vacation.core.message.domain.MessageQ;
 import com.jxx.vacation.core.message.domain.MessageQResult;
@@ -28,6 +31,7 @@ public class MessageService {
 
     private final MessageQResultRepository messageQResultRepository;
     private final MessageQRepository messageQRepository;
+    private final MessageQResultMapper messageQResultMapper;
 
     public PageImpl<MessageQResultResponse> findProcessFailMessages(int page, int size, String startDate, String endDate) {
         LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse(startDate), LocalTime.of(0, 0, 0));
@@ -86,6 +90,16 @@ public class MessageService {
         messageQRepository.save(messageQ);
     }
 
+    /** V1 **/
+    public PageImpl<MessageQResultResponseV2> findSuccessMessageQResult(MessageQResultSearchCondition searchCondition, int page, int size) {
+        searchCondition.setMessageProcessStatus(MessageProcessStatus.SUCCESS);
+        List<MessageQResultResponseV2> response = messageQResultMapper.search(searchCondition);
+        PageRequest pageRequest = PageRequest.of(page, size);
+        int start = (int) pageRequest.getOffset();
+        int total = response.size();
+        int end = Math.min((start + pageRequest.getPageSize()), total);
 
+        return new PageImpl<>(response.subList(start, end), pageRequest, total);
+    }
 
 }

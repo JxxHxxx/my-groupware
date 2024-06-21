@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxx.vacation.api.messaging.query.MessageQResultMapper">
+
+    <select id="search"
+            parameterMap="messageQResultSearchMap"
+            resultMap="MessageQResultResponseMap">
+        SELECT MESSAGE_Q_RESULT_PK ,
+        ORIGINAL_MESSAGE_PK ,
+        MESSAGE_DESTINATION ,
+        BODY ,
+        MESSAGE_PROCESS_STATUS ,
+        EVENT_TIME ,
+        PROCESS_START_TIME ,
+        PROCESS_END_TIME FROM JXX_MESSAGE_Q_RESULT
+
+        <where>
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                <![CDATA[
+                AND PROCESS_END_TIME > CAST(#{startDate} AS DATETIME)
+                AND PROCESS_END_TIME < CAST(#{endDate} AS DATETIME)
+                         ]]>
+            </if>
+            <if test="messageProcessStatus != null
+                 and !@org.springframework.util.ObjectUtils@isEmpty(messageProcessStatus)">
+                AND MESSAGE_PROCESS_STATUS = #{messageProcessStatus}
+            </if>
+        </where>
+    </select>
+    <parameterMap id="messageQResultSearchMap"
+                  type="com.jxx.vacation.api.messaging.dto.request.MessageQResultSearchCondition">
+        <parameter property="messageProcessStatus" javaType="com.jxx.vacation.core.message.domain.MessageProcessStatus"/>
+    </parameterMap>
+    <resultMap id="MessageQResultResponseMap"
+               type="com.jxx.vacation.api.messaging.dto.response.MessageQResultResponseV2">
+        <id property="pk" column="MESSAGE_Q_RESULT_PK"/>
+        <result property="body" column="BODY" javaType="java.util.Map"
+                typeHandler="com.jxx.vacation.api.common.mybatis.JsonTypeHandler"/>
+    </resultMap>
+</mapper>
