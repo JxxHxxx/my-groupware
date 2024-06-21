@@ -14,11 +14,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebApiConfiguration implements WebMvcConfigurer {
 
     private final AuthService authService;
-
+    private static final String ADMIN_DOMAIN = "http://localhost:3100";
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3001", "https://main--jxx-gw.netlify.app")
+                .allowedOrigins("http://localhost:3001", "https://main--jxx-gw.netlify.app", ADMIN_DOMAIN)
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true); // Credentials Request 를 허용

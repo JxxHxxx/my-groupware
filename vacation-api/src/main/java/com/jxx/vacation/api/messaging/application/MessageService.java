@@ -99,7 +99,15 @@ public class MessageService {
         int total = response.size();
         int end = Math.min((start + pageRequest.getPageSize()), total);
 
-        return new PageImpl<>(response.subList(start, end), pageRequest, total);
+        PageImpl<MessageQResultResponseV2> result = null;
+        try {
+            result = new PageImpl<>(response.subList(start, end), pageRequest, total);
+        } catch (IllegalArgumentException e) {
+            // TODO ExceptionHandler 처리
+            throw new MessageClientException(e);
+        }
+
+        return result;
     }
 
 }

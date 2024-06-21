@@ -36,7 +36,7 @@ public class MessageApiController {
         messageService.retry(messageResultPk);
     }
 
-    @GetMapping("/message-q-results")
+    @GetMapping("/test/message-q-results")
     public ResponseEntity<?> findMessageQResult(@RequestParam(value = "page", defaultValue = "0") int page,
                                                 @RequestParam(value = "size", defaultValue = "20") int size,
                                                 @ModelAttribute MessageQResultSearchCondition searchCondition) {
