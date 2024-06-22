@@ -14,7 +14,8 @@
         MESSAGE_PROCESS_STATUS ,
         EVENT_TIME ,
         PROCESS_START_TIME ,
-        PROCESS_END_TIME FROM JXX_MESSAGE_Q_RESULT
+        PROCESS_END_TIME,
+        MESSAGE_PROCESS_TYPE FROM JXX_MESSAGE_Q_RESULT
 
         <where>
             <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
@@ -32,6 +33,7 @@
     <parameterMap id="messageQResultSearchMap"
                   type="com.jxx.vacation.api.messaging.dto.request.MessageQResultSearchCondition">
         <parameter property="messageProcessStatus" javaType="com.jxx.vacation.core.message.domain.MessageProcessStatus"/>
+        <parameter property="messageProcessType" javaType="com.jxx.vacation.core.message.domain.MessageProcessType"/>
     </parameterMap>
     <resultMap id="MessageQResultResponseMap"
                type="com.jxx.vacation.api.messaging.dto.response.MessageQResultResponseV2">
