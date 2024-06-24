@@ -2,6 +2,7 @@ package com.jxx.vacation.api.messaging.dto.response;
 
 import com.jxx.vacation.core.message.domain.MessageDestination;
 import com.jxx.vacation.core.message.domain.MessageProcessStatus;
+import com.jxx.vacation.core.message.domain.MessageProcessType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,4 +21,5 @@ public class MessageQResultResponseV2 {
     private LocalDateTime eventTime;
     private LocalDateTime processStartTime;
     private LocalDateTime processEndTime;
+    private MessageProcessType messageProcessType;
 }
