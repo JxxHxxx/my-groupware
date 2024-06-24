@@ -1,5 +1,7 @@
 package com.jxx.vacation.api.member.application;
 
+import com.jxx.vacation.api.common.data.PageService;
+import com.jxx.vacation.api.member.dto.request.MemberLeaveSearchParam;
 import com.jxx.vacation.api.member.dto.request.MemberSearchCondition;
 import com.jxx.vacation.api.member.dto.response.MemberLeaveResponse;
 import com.jxx.vacation.api.member.dto.response.MemberProjection;
@@ -10,6 +12,8 @@ import com.jxx.vacation.core.vacation.domain.exeception.MemberLeaveException;
 import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,9 +44,17 @@ public class MemberLeaveService {
                 organization.getDepartmentName());
     }
 
-    public List<MemberLeaveResponse> findSameDepartmentMembers(String companyId, String departmentId) {
-        List<MemberLeave> departmentMembers = memberLeaveRepository.findDepartmentMembers(companyId, departmentId);
+    public PageImpl<MemberLeaveResponse> findSameDepartmentMembers(MemberLeaveSearchParam searchParam, int page, int size) {
+        List<MemberLeave> departmentMembers = memberLeaveRepository.findDepartmentMembers(
+                searchParam.getCompanyId(), searchParam.getDepartmentId());
+        List<MemberLeaveResponse> memberLeaveResponses = entityToPojo(departmentMembers);
+        PageService pageService = new PageService(page, size);
 
+       return pageService.convertToPage(memberLeaveResponses);
+
+    }
+
+    private static List<MemberLeaveResponse> entityToPojo(List<MemberLeave> departmentMembers) {
         return departmentMembers.stream()
                 .map(memberLeave -> new MemberLeaveResponse(
                         memberLeave.getPk(),
@@ -71,20 +83,7 @@ public class MemberLeaveService {
             }
         }
 
-        return companyMembers.stream()
-                .map(memberLeave -> new MemberLeaveResponse(
-                        memberLeave.getPk(),
-                        memberLeave.getMemberId(),
-                        memberLeave.getName(),
-                        memberLeave.getExperienceYears(),
-                        memberLeave.getEnteredDate(),
-                        memberLeave.receiveTotalLeave(),
-                        memberLeave.receiveRemainingLeave(),
-                        memberLeave.getOrganization().getCompanyId(),
-                        memberLeave.getOrganization().getCompanyName(),
-                        memberLeave.getOrganization().getDepartmentId(),
-                        memberLeave.getOrganization().getDepartmentName()))
-                .toList();
+        return entityToPojo(companyMembers);
     }
     public List<MemberProjection> search(MemberSearchCondition searchCondition, String companyId) {
         if (!Objects.equals(searchCondition.getCompanyId(), companyId)) {

@@ -1,5 +1,6 @@
 package com.jxx.vacation.api.messaging.application;
 
+import com.jxx.vacation.api.common.data.PageService;
 import com.jxx.vacation.api.messaging.dto.request.MessageQResultSearchCondition;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponseV2;
@@ -55,7 +56,7 @@ public class MessageService {
 
 
         // 아직 성공 처리되지 않은 메시지들의 모음
-        List<MessageQResultResponse> filtered = filterMessage.stream()
+        List<MessageQResultResponse> notSucceedResponses = filterMessage.stream()
                 .map(mqr -> new MessageQResultResponse(
                         mqr.getPk(),
                         mqr.getOriginalMessagePk(),
@@ -66,11 +67,8 @@ public class MessageService {
                         mqr.getProcessStartTime(),
                         mqr.getProcessEndTime()))
                 .toList();
-
-        PageRequest pageRequest = PageRequest.of(page, size);
-        int start = (int) pageRequest.getOffset();
-        int end = Math.min((start + pageRequest.getPageSize()), filtered.size());
-        return new PageImpl<>(filtered.subList(start, end), pageRequest, filtered.size());
+        PageService pageService = new PageService(page, size);
+        return pageService.convertToPage(notSucceedResponses);
     }
     // 메시지 재처리
     // 1. 완변 성공된 메시지는 다시 재처리할 수 없어야 한다.
