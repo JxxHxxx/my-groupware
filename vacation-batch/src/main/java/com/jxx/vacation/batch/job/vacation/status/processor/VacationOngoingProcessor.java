@@ -13,6 +13,7 @@ public class VacationOngoingProcessor implements ItemProcessor<VacationItem, Vac
         boolean approvedVacationStatus = VacationStatus.isApproved(item.getVacationStatus());
         Long vacationId = item.getVacationId();
         String vacationStatus = item.getVacationStatus();
+        log.info("[PROCESS][VAC ID:{}]", vacationId);
 
         if (!approvedVacationStatus) {
             // 로그 파일 작업을 위한...
