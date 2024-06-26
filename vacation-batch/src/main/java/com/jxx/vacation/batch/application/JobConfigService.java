@@ -34,9 +34,16 @@ public class JobConfigService {
         // 애플리케이션에 등록된 jobName 이 아닐 경우 리턴 타입이 Job인 걸로 검증해야 더 정확함
         String jobBeanName = form.jobName();
         if (!beanFactory.containsBean(jobBeanName)) {
-            log.warn("jobName:{}는 애플리케이션 상에 등록된 JobBean 이 아닙니다.", jobBeanName);
+            log.error("jobName:{}는 애플리케이션 상에 등록된 JobBean 이 아닙니다.", jobBeanName);
             throw new AdminClientException(jobBeanName + "에 등록되지 않은 JobBean 입니다.");
         }
+
+        boolean presentJobName = jobMetaDataRepository.findByJobName(form.jobName()).isPresent();
+        if (presentJobName) {
+            log.error("JobName:{} 은 이미 저장되어 있습니다.", form.jobName());
+            throw new AdminClientException("JobName:" + form.jobName() + " 은 이미 저장되어 있습니다.");
+        }
+
         JobMetaData jobMetaData = JobMetaData.builder()
                 .jobName(form.jobName())
                 .jobDescription(form.jobDescription())
