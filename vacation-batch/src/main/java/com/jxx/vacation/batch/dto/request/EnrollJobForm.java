@@ -7,6 +7,7 @@ import java.util.List;
 public record EnrollJobForm(
         String jobName,
         String jobDescription,
+        boolean used,
         String executeType,
         LocalTime executionTime,
         Integer executionDuration,

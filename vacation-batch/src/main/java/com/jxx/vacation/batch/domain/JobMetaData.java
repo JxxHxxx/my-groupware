@@ -23,10 +23,13 @@ public class JobMetaData {
     private int pk;
     @Column(name = "JOB_NAME", unique = true)
     @Comment(value = "잡 이름(고유한 값으로 사실상 잡ID)")
-    private String JobName;
+    private String jobName;
     @Column(name = "JOB_DESCRIPTION")
     @Comment(value = "잡 설명")
-    private String JobDescription;
+    private String jobDescription;
+    @Column(name = "USED")
+    @Comment(value = "사용 여부")
+    private boolean used;
     @Column(name = "ENROLLED_TIME")
     @Comment(value = "최초 잡 등록 시간")
     private LocalDateTime enrolledTime;
@@ -44,13 +47,15 @@ public class JobMetaData {
     private List<JobParam> jobParams = new ArrayList<>();
 
     @Builder
-    public JobMetaData(String jobName, String jobDescription, LocalDateTime enrolledTime, String executionType,
-                       LocalTime executionTime, Integer executionDuration) {
-        JobName = jobName;
-        JobDescription = jobDescription;
+    public JobMetaData(String jobName, String jobDescription, boolean used, LocalDateTime enrolledTime, String executionType,
+                       LocalTime executionTime, Integer executionDuration, List<JobParam> jobParams) {
+        this.jobName = jobName;
+        this.jobDescription = jobDescription;
+        this.used = used;
         this.enrolledTime = enrolledTime;
         this.executionType = executionType;
         this.executionTime = executionTime;
         this.executionDuration = executionDuration;
+        this.jobParams = jobParams;
     }
 }

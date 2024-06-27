@@ -6,6 +6,8 @@ import com.jxx.vacation.batch.domain.JobParam;
 import com.jxx.vacation.batch.dto.request.EnrollJobForm;
 import com.jxx.vacation.batch.dto.request.EnrollJobParam;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
+import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
+import com.jxx.vacation.batch.dto.response.JobParamResponse;
 import com.jxx.vacation.batch.infra.JobMetaDataRepository;
 import com.jxx.vacation.batch.infra.JobParamRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,7 @@ public class JobConfigService {
         JobMetaData jobMetaData = JobMetaData.builder()
                 .jobName(form.jobName())
                 .jobDescription(form.jobDescription())
+                .used(form.used())
                 .enrolledTime(LocalDateTime.now())
                 .executionType(form.executeType())
                 .executionTime(form.executionTime())
@@ -65,7 +68,7 @@ public class JobConfigService {
             savedJobMetaData = jobMetaDataRepository.save(jobMetaData);
             jobParamRepository.saveAll(jobParams);
         } catch (Exception e) {
-            log.error("Data Access Error" , e);
+            log.error("Data Access Error", e);
             throw new RuntimeException(e);
         }
         List<EnrollJobParam> enrollJobParams = savedJobMetaData.getJobParams().stream().map(
@@ -82,11 +85,23 @@ public class JobConfigService {
                 enrollJobParams);
     }
 
+    public List<JobMetadataResponse> findAllJob() {
+        List<JobMetaData> jobMetaData = jobMetaDataRepository.fetchAllWithJobParams();
+        return jobMetaData.stream().map(job -> new JobMetadataResponse(
+                        job.getJobName(),
+                        job.getJobDescription(),
+                        job.isUsed(),
+                        job.getExecutionTime(),
+                        job.getJobParams().stream().map(param -> new JobParamResponse(
+                                param.getParameterKey(),
+                                param.getParamDescription(),
+                                param.isRequired())).toList()))
+                .toList();
+    }
+
     // update
     @Transactional
     public void updateBatchJob() {
 
     }
-
-
 }
