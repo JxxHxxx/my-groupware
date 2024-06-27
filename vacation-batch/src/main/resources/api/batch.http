@@ -3,6 +3,7 @@ POST http://localhost:8070/batch/job/run
 Content-Type: application/json
 
 {
+  "jobName": "vacation.start.job",
   "properties": {
     "jobName": "vacation.start.job",
     "run.id": "ADMIN20240419-001",
@@ -43,4 +44,70 @@ Content-Type: application/json
     "run.id": "ADMIN20240404-01",
     "executeDateTime": "2024-03-04 00:00:00"
   }
+}
+
+###
+POST http://localhost:8070/admin/batch/jobs
+Content-Type: application/json
+
+{
+  "jobName": "vacation.start.job",
+  "jobDescription": "연차 시작 처리 배치",
+  "used": true,
+  "executeType": "시간",
+  "executionTime": "00:00:00",
+  "executionDuration": null,
+  "jobParams": [
+    {
+      "parameterKey": "run.id",
+      "paramDescription": "잡 실행 고유 ID",
+      "placeHolder": "ADMIN20240627-001",
+      "required": true
+    },
+    {
+      "parameterKey": "jobName",
+      "paramDescription": "실행할 Spring Bean Name",
+      "placeHolder": "",
+      "required": true
+    },
+    {
+      "parameterKey": "processDate",
+      "paramDescription": "휴가 시작 일자",
+      "placeHolder": "2024-06-27",
+      "required": true
+    }
+  ]
+}
+
+###
+POST http://localhost:8070/admin/batch/jobs
+Content-Type: application/json
+
+{
+  "jobName": "vacation.end.job",
+  "jobDescription": "연차 종료 처리 배치",
+  "used": true,
+  "executeType": "시간",
+  "executionTime": "00:05:00",
+  "executionDuration": null,
+  "jobParams": [
+    {
+      "parameterKey": "run.id",
+      "paramDescription": "잡 실행 고유 ID",
+      "placeHolder": "ADMIN20240627-001",
+      "required": true
+    },
+    {
+      "parameterKey": "jobName",
+      "paramDescription": "실행할 Spring Bean Name",
+      "placeHolder": "",
+      "required": true
+    },
+    {
+      "parameterKey": "executeDateTime",
+      "paramDescription": "휴가 종료 일자, 배치 실행 일자 기준으로 전일을 설정하면 된다. 예를 들어, 배치가 6월28일 00시에 시작되는 경우 6월 27일에 종료되는 휴가를 종료 처리해야하기 때문이다.",
+      "placeHolder": "2024-06-27",
+      "required": true
+    }
+  ]
 }

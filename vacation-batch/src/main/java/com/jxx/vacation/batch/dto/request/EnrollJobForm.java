@@ -1,6 +1,5 @@
 package com.jxx.vacation.batch.dto.request;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 

@@ -48,7 +48,7 @@ public class JobMetaData {
 
     @Builder
     public JobMetaData(String jobName, String jobDescription, boolean used, LocalDateTime enrolledTime, String executionType,
-                       LocalTime executionTime, Integer executionDuration, List<JobParam> jobParams) {
+                       LocalTime executionTime, Integer executionDuration) {
         this.jobName = jobName;
         this.jobDescription = jobDescription;
         this.used = used;
@@ -56,6 +56,5 @@ public class JobMetaData {
         this.executionType = executionType;
         this.executionTime = executionTime;
         this.executionDuration = executionDuration;
-        this.jobParams = jobParams;
     }
 }

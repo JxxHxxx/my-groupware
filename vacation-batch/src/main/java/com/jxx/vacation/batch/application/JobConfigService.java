@@ -56,13 +56,17 @@ public class JobConfigService {
                 .executionDuration(form.executionDuration())
                 .build();
 
-        List<JobParam> jobParams = form.jobParams().stream().map(
-                jobParam -> new JobParam(
-                        jobParam.required(),
-                        jobParam.parameterKey(),
-                        jobParam.paramDescription(),
-                        jobMetaData)
-        ).toList();
+        List<JobParam> jobParams = form.jobParams()
+                .stream().map(jp -> {
+                            JobParam jobParam = new JobParam(jp.required(),
+                                    jp.parameterKey(),
+                                    jp.paramDescription(),
+                                    jp.placeHolder(),
+                                    jobMetaData);
+                            jobParam.mappedJobMetaData(jobMetaData);
+                            return jobParam;
+                        }
+                ).toList();
         JobMetaData savedJobMetaData;
         try {
             savedJobMetaData = jobMetaDataRepository.save(jobMetaData);
@@ -72,7 +76,10 @@ public class JobConfigService {
             throw new RuntimeException(e);
         }
         List<EnrollJobParam> enrollJobParams = savedJobMetaData.getJobParams().stream().map(
-                jobParam -> new EnrollJobParam(jobParam.getParameterKey(), jobParam.getParamDescription(), jobParam.isRequired())
+                jobParam -> new EnrollJobParam(jobParam.getParameterKey(),
+                        jobParam.getParamDescription(),
+                        jobParam.getPlaceHolder(),
+                        jobParam.isRequired())
         ).toList();
         return new EnrollJobResponse(
                 savedJobMetaData.getPk(),
@@ -95,6 +102,7 @@ public class JobConfigService {
                         job.getJobParams().stream().map(param -> new JobParamResponse(
                                 param.getParameterKey(),
                                 param.getParamDescription(),
+                                param.getPlaceHolder(),
                                 param.isRequired())).toList()))
                 .toList();
     }

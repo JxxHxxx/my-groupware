@@ -1,7 +1,5 @@
 package com.jxx.vacation.batch.dto.response;
 
-import com.jxx.vacation.batch.domain.JobParam;
-
 import java.time.LocalTime;
 import java.util.List;
 
