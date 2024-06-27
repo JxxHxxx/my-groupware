@@ -1,7 +1,6 @@
 package com.jxx.vacation.messaging.consumer;
 
 import com.jxx.vacation.core.message.domain.MessageQ;
-import com.jxx.vacation.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.vacation.messaging.application.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,6 @@ import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.annotation.ServiceActivators;
 import org.springframework.messaging.Message;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,14 +22,14 @@ public class SimpleMessageConsumer {
 
     @Qualifier("vacationMessageService")
     private final MessageService messageService;
-//    @Transactional
+    @Transactional
     @ServiceActivators({
             @ServiceActivator(inputChannel = "sentQueueChannel1")
     })
     public void consumeSentMessage1(List<Message<MessageQ>> message) {
         processes(message, "1");
     }
-
+    @Transactional
     @ServiceActivators({
             @ServiceActivator(inputChannel = "sentQueueChannel2")
     })
