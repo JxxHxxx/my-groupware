@@ -2,6 +2,7 @@ package com.jxx.vacation.api.messaging.presentation;
 
 import com.jxx.vacation.api.messaging.application.MessageService;
 import com.jxx.vacation.api.messaging.dto.request.MessageQResultSearchCondition;
+import com.jxx.vacation.api.messaging.dto.request.MessagePagingSearchCond;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponseV2;
 import com.jxx.vacation.api.messaging.query.MessageQResultMapper;
@@ -10,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,12 +21,19 @@ public class MessageApiController {
     private final MessageQResultMapper messageQResultMapper;
 
     //한 번이라도 실패 이력이 있는 MessageQ 에 대해 조회한다. 실패 이력 조회
-    @GetMapping("/message-q-results/fail")
+    @GetMapping("/test/message-q-results/fail")
     public ResponseEntity<?> getNotSucceededMessage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                     @RequestParam(value = "size", defaultValue = "20") int size,
-                                                    @RequestParam(value = "std") String std,
-                                                    @RequestParam(value = "edd") String edd) {
-        PageImpl<MessageQResultResponse> responses = messageService.findProcessFailMessages(page, size, std, edd);
+                                                    @RequestParam(value = "std") String startDate,
+                                                    @RequestParam(value = "edd") String endDate) {
+        PageImpl<MessageQResultResponse> responses = messageService.findProcessFailMessages(page, size, startDate, endDate);
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/test/message-q-results/fail")
+    public ResponseEntity<?> getFailMessage(@ModelAttribute MessagePagingSearchCond searchCond) {
+        PageImpl<MessageQResultResponse> responses = messageService.findProcessFailMessages(
+                searchCond.page(), searchCond.size(), searchCond.startDate(), searchCond.endDate());
         return ResponseEntity.ok(responses);
     }
 

@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### 잡Config 등록
-POST http://localhost:8070/admin/job-configurations
+POST http://localhost:8070/admin/batch/jobs
 Content-Type: application/json
 
 {
@@ -37,23 +37,26 @@ Content-Type: application/json
     {
       "parameterKey" :  "run.id",
       "paramDescription" :  "잡 실행 고유 ID",
+      "placeHolder" : "ADMIN2024-06-28",
       "required": true
     },
     {
       "parameterKey" :  "jobName",
       "paramDescription" :  "Job Bean Name",
+      "placeHolder" : "",
       "required": true
     },
     {
       "parameterKey" :  "processDate",
       "paramDescription" :  "휴가의 상태를 ONGOING으로 바꿀 휴가 시작일자. 예를 들어 휴가 시작일자를 2024-05-05로 지정하면 시작일자가 2024-05-05일인 휴가의 상태를 ONGOING 상태로 변경한다.",
+      "placeHolder" : "2024-06-28",
       "required": true
     }
   ]
 }
 
 ### 잡Config 등록 2
-POST http://localhost:8070/admin/job-configurations
+POST http://localhost:8070/admin/batch/jobs
 Content-Type: application/json
 
 {
@@ -66,16 +69,19 @@ Content-Type: application/json
     {
       "parameterKey" :  "run.id",
       "paramDescription" :  "잡 실행 고유 ID",
+      "placeHolder" : "ADMIN2024-06-28",
       "required": true
     },
     {
       "parameterKey" :  "jobName",
       "paramDescription" :  "Job Bean Name",
+      "placeHolder" : "A",
       "required": true
     },
     {
       "parameterKey" :  "executeDateTime",
       "paramDescription" : "JXX_VACATION_MASTER, ND_DATE_TIME 컬럼 조건에 해당, 2024년6월27일 00시에 시작되는 경우 2024-06-26 으로 지정해야 도메인적으로 정상 로직임 즉 실행날짜 - 1일을 입력해야함 ",
+      "placeHolder" : "2024-06-28",
       "required": true
     }
   ]
