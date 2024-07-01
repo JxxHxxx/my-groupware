@@ -90,7 +90,8 @@ public class MessageService {
 
     /** V1 **/
     public PageImpl<MessageQResultResponseV2> findSuccessMessageQResult(MessageQResultSearchCondition searchCondition, int page, int size) {
-        searchCondition.setMessageProcessStatus(MessageProcessStatus.SUCCESS);
+        // 전체 메시지를 불러오도록 조건 변경
+//        searchCondition.setMessageProcessStatus(MessageProcessStatus.SUCCESS);
         List<MessageQResultResponseV2> response = messageQResultMapper.search(searchCondition);
         PageRequest pageRequest = PageRequest.of(page, size);
         int start = (int) pageRequest.getOffset();

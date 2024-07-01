@@ -22,18 +22,9 @@ public class MessageApiController {
 
     //한 번이라도 실패 이력이 있는 MessageQ 에 대해 조회한다. 실패 이력 조회
     @GetMapping("/test/message-q-results/fail")
-    public ResponseEntity<?> getNotSucceededMessage(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                    @RequestParam(value = "size", defaultValue = "20") int size,
-                                                    @RequestParam(value = "std") String startDate,
-                                                    @RequestParam(value = "edd") String endDate) {
-        PageImpl<MessageQResultResponse> responses = messageService.findProcessFailMessages(page, size, startDate, endDate);
-        return ResponseEntity.ok(responses);
-    }
-
-    @GetMapping("/test/message-q-results/fail")
     public ResponseEntity<?> getFailMessage(@ModelAttribute MessagePagingSearchCond searchCond) {
         PageImpl<MessageQResultResponse> responses = messageService.findProcessFailMessages(
-                searchCond.page(), searchCond.size(), searchCond.startDate(), searchCond.endDate());
+                searchCond.getPage(), searchCond.getSize(), searchCond.getStartDate(), searchCond.getEndDate());
         return ResponseEntity.ok(responses);
     }
 
