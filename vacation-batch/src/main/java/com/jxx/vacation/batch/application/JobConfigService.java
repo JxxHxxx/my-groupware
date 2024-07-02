@@ -8,6 +8,7 @@ import com.jxx.vacation.batch.dto.request.EnrollJobParam;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
 import com.jxx.vacation.batch.dto.response.JobParamResponse;
+import com.jxx.vacation.batch.infra.JobCustomExplorer;
 import com.jxx.vacation.batch.infra.JobMetaDataRepository;
 import com.jxx.vacation.batch.infra.JobParamRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class JobConfigService {
     private final JobMetaDataRepository jobMetaDataRepository;
     private final JobParamRepository jobParamRepository;
     private final ApplicationContext appContext;
+    private final JobCustomExplorer jobCustomExplorer;
     // create
 
     @Transactional
@@ -111,5 +114,11 @@ public class JobConfigService {
     @Transactional
     public void updateBatchJob() {
 
+    }
+
+    // read
+    public void read() {
+        List<Long> test = jobCustomExplorer.test();
+        log.info("test {}", test);
     }
 }

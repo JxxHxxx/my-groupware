@@ -27,4 +27,10 @@ public class JobConfigApiController {
         List<JobMetadataResponse> responses = jobConfigService.findAllJob();
         return ResponseEntity.ok(responses);
     }
+
+    @GetMapping("/admin/batch/jobs-hist")
+    public ResponseEntity<?> getJobs() {
+        jobConfigService.read();
+        return ResponseEntity.ok("test");
+    }
 }

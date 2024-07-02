@@ -88,4 +88,4 @@ Content-Type: application/json
 }
 
 ### 조회
-GET http://localhost:8070/admin/batch/jobs
+GET http://localhost:8070/admin/batch/jobs-hist
