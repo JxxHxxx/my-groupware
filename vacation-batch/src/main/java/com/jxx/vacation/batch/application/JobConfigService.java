@@ -5,10 +5,12 @@ import com.jxx.vacation.batch.domain.JobMetaData;
 import com.jxx.vacation.batch.domain.JobParam;
 import com.jxx.vacation.batch.dto.request.EnrollJobForm;
 import com.jxx.vacation.batch.dto.request.EnrollJobParam;
+import com.jxx.vacation.batch.dto.request.JobHistoryCond;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
+import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
 import com.jxx.vacation.batch.dto.response.JobParamResponse;
-import com.jxx.vacation.batch.infra.JobCustomExplorer;
+import com.jxx.vacation.batch.infra.JobCustomMapper;
 import com.jxx.vacation.batch.infra.JobMetaDataRepository;
 import com.jxx.vacation.batch.infra.JobParamRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,7 +33,7 @@ public class JobConfigService {
     private final JobMetaDataRepository jobMetaDataRepository;
     private final JobParamRepository jobParamRepository;
     private final ApplicationContext appContext;
-    private final JobCustomExplorer jobCustomExplorer;
+    private final JobCustomMapper jobCustomMapper;
     // create
 
     @Transactional
@@ -115,10 +118,8 @@ public class JobConfigService {
     public void updateBatchJob() {
 
     }
-
     // read
-    public void read() {
-        List<Long> test = jobCustomExplorer.test();
-        log.info("test {}", test);
+    public List<JobHistoryResponse> read(JobHistoryCond cond) {
+        return jobCustomMapper.findJobExecutionHistory(cond);
     }
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.vacation.batch.infra.JobCustomMapper">
+
+    <select id="findJobExecutionHistory"
+            parameterType="com.jxx.vacation.batch.dto.request.JobHistoryCond"
+            resultType="com.jxx.vacation.batch.dto.response.JobHistoryResponse">
+
+        SELECT BJE.JOB_EXECUTION_ID,
+        BJE.JOB_INSTANCE_ID,
+        BJE.START_TIME,
+        BJE.END_TIME,
+        BJI.JOB_NAME,
+        BJE.STATUS,
+        BJE.EXIT_CODE,
+        BJE.EXIT_MESSAGE
+        FROM BATCH_JOB_EXECUTION BJE
+        JOIN BATCH_JOB_INSTANCE BJI ON BJE.JOB_INSTANCE_ID = BJI.JOB_INSTANCE_ID
+        <where>
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                <![CDATA[
+                AND BJE.START_TIME > #{startDate}
+                AND END_TIME < DATE_ADD(CAST(#{endDate} AS DATE), INTERVAL 1 DAY)
+               ]]>
+            </if>
+        </where>
+    </select>
+
+</mapper>

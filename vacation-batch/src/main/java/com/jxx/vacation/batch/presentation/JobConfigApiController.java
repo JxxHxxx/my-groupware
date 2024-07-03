@@ -2,10 +2,13 @@ package com.jxx.vacation.batch.presentation;
 
 import com.jxx.vacation.batch.application.JobConfigService;
 import com.jxx.vacation.batch.dto.request.EnrollJobForm;
+import com.jxx.vacation.batch.dto.request.JobHistoryCond;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
+import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,8 +32,8 @@ public class JobConfigApiController {
     }
 
     @GetMapping("/admin/batch/jobs-hist")
-    public ResponseEntity<?> getJobs() {
-        jobConfigService.read();
-        return ResponseEntity.ok("test");
+    public ResponseEntity<?> getJobs(@ModelAttribute @Validated JobHistoryCond cond) {
+        List<JobHistoryResponse> responses = jobConfigService.read(cond);
+        return ResponseEntity.ok(responses);
     }
 }
