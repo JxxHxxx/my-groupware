@@ -88,7 +88,7 @@ Content-Type: application/json
 }
 
 ### 조회
-GET http://localhost:8070/admin/batch/jobs-hist?startDate=2024-06-26&endDate=2024-1226
+GET http://localhost:8070/admin/batch/jobs-hist?startDate=2024-06-26&endDate=2024-12-26
 Content-Type: application/json
 
 ### 조회

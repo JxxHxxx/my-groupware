@@ -4,7 +4,6 @@ package com.jxx.vacation.batch.presentation.validator;
 import com.jxx.vacation.batch.dto.request.JobHistoryCond;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import jakarta.validation.MessageInterpolator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +30,6 @@ public class JobHistoryValidator implements ConstraintValidator<DateDurationCons
 
         LocalDate endDate = LocalDate.parse(cond.getEndDate());
         LocalDate startDate = LocalDate.parse(cond.getStartDate());
-        return startDate.isBefore(endDate);
+        return startDate.isEqual(endDate) || startDate.isBefore(endDate);
     }
 }
