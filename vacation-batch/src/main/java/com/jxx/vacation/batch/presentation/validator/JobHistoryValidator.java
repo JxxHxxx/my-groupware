@@ -22,7 +22,7 @@ public class JobHistoryValidator implements ConstraintValidator<DateDurationCons
     public boolean isValid(JobHistoryCond cond, ConstraintValidatorContext context) {
         String strEndDate = cond.getEndDate();
         String strStartDate = cond.getStartDate();
-        if (!strEndDate.matches(DATE_FORMAT) || strStartDate.matches(DATE_FORMAT)) {
+        if (!strEndDate.matches(DATE_FORMAT) || !strStartDate.matches(DATE_FORMAT)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(DATE_VIOLATION_MSG)
                     .addConstraintViolation();
