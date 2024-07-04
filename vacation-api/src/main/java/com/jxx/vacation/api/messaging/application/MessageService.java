@@ -1,6 +1,6 @@
 package com.jxx.vacation.api.messaging.application;
 
-import com.jxx.vacation.api.common.data.PageService;
+import com.jxx.vacation.core.common.pagination.PageService;
 import com.jxx.vacation.api.messaging.dto.request.MessageQResultSearchCondition;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.vacation.api.messaging.dto.response.MessageQResultResponseV2;

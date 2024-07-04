@@ -1,6 +1,6 @@
 package com.jxx.vacation.api.member.application;
 
-import com.jxx.vacation.api.common.data.PageService;
+import com.jxx.vacation.core.common.pagination.PageService;
 import com.jxx.vacation.api.member.dto.request.MemberLeaveSearchParam;
 import com.jxx.vacation.api.member.dto.request.MemberSearchCondition;
 import com.jxx.vacation.api.member.dto.response.MemberLeaveResponse;
@@ -13,7 +13,6 @@ import com.jxx.vacation.core.vacation.infra.MemberLeaveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

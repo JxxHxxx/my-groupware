@@ -1,6 +1,5 @@
-package com.jxx.vacation.api.common.data;
+package com.jxx.vacation.core.common.pagination;
 
-import lombok.Getter;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
