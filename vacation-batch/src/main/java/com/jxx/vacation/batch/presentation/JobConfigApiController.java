@@ -7,6 +7,7 @@ import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
 import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,9 @@ public class JobConfigApiController {
     }
 
     @GetMapping("/admin/batch/jobs-hist")
-    public ResponseEntity<?> getJobs(@ModelAttribute @Validated JobHistoryCond cond) {
-        List<JobHistoryResponse> responses = jobConfigService.read(cond);
+    public ResponseEntity<?> getJobs(@RequestParam("page") int page, @RequestParam int size,
+                                     @ModelAttribute @Validated JobHistoryCond cond) {
+        Page<JobHistoryResponse> responses = jobConfigService.pageJobHistories(cond, page, size);
         return ResponseEntity.ok(responses);
     }
 }

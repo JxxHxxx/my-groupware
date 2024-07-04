@@ -13,14 +13,15 @@ import com.jxx.vacation.batch.dto.response.JobParamResponse;
 import com.jxx.vacation.batch.infra.JobCustomMapper;
 import com.jxx.vacation.batch.infra.JobMetaDataRepository;
 import com.jxx.vacation.batch.infra.JobParamRepository;
+import com.jxx.vacation.core.common.pagination.PageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class JobConfigService {
     private final JobParamRepository jobParamRepository;
     private final ApplicationContext appContext;
     private final JobCustomMapper jobCustomMapper;
+
     // create
 
     @Transactional
@@ -119,7 +121,10 @@ public class JobConfigService {
 
     }
     // read
-    public List<JobHistoryResponse> read(JobHistoryCond cond) {
-        return jobCustomMapper.findJobExecutionHistory(cond);
+    public Page<JobHistoryResponse> pageJobHistories(JobHistoryCond cond, int page, int size) {
+        List<JobHistoryResponse> jobHistories = jobCustomMapper.findJobExecutionHistory(cond);
+        PageService pageService = new PageService(page, size);
+        return pageService.convertToPage(jobHistories);
+
     }
 }
