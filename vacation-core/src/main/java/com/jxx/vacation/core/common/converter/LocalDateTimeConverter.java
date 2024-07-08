@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 /**
  * 배치 잡 실행 시, 파라미터로 실행 시간이 들어가게 되는게 일반적이다.
  * 실제 쿼리에는 실행 시간 +- N일이 되야 하는 경우 및 타입을 String 으로 변환해야 하는 일이 있어 해당 기능을 추가한다.
+ *
+ * 2024-07-08 추가, 해당 클래스 사용 X
  */
 public class LocalDateTimeConverter {
 

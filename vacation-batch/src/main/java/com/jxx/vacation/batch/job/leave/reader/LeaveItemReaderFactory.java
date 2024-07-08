@@ -1,7 +1,6 @@
 package com.jxx.vacation.batch.job.leave.reader;
 
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
-import com.jxx.vacation.core.common.converter.LocalDateTimeConverter;
 import org.springframework.batch.core.scope.context.JobContext;
 import org.springframework.batch.core.scope.context.JobSynchronizationManager;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
@@ -15,8 +14,6 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.JOB_PARAM_EX
  * LeaveItem 필드 순으로 가져와야함
  */
 public class LeaveItemReaderFactory {
-
-    private static final Long EXECUTE_DATE_TIME_ADJUST_VALUE = -1l;
     public JdbcCursorItemReader<LeaveItem> leaveItemReader(DataSource dataSource) {
         String sql = "SELECT " +
                 "JMLM.MEMBER_PK , " +
@@ -45,12 +42,11 @@ public class LeaveItemReaderFactory {
                 " ON JMLM.MEMBER_ID = JVM.REQUESTER_ID " +
                 " JOIN JXX_VACATION_DURATION JVD " +
                 " ON JVD.VACATION_ID = JVM.VACATION_ID " +
-                " WHERE JVD.END_DATE_TIME = ? ;";
+                " WHERE JVD.END_DATE_TIME > ? AND JVD.END_DATE_TIME < DATE_ADD(?, INTERVAL 1 DAY);";
 
         JobContext context = JobSynchronizationManager.getContext();
 
         String executeDateTime = String.valueOf(context.getJobParameters().get(JOB_PARAM_EXECUTE_DATE_TIME.keyName()));
-        String endDateTime = LocalDateTimeConverter.adjustDateTime(executeDateTime, EXECUTE_DATE_TIME_ADJUST_VALUE);
 
         return new JdbcCursorItemReaderBuilder<LeaveItem>()
                 .name("leaveItemReader")
@@ -58,7 +54,10 @@ public class LeaveItemReaderFactory {
                 .fetchSize(3)
                 .sql(sql)
                 .rowMapper(new LeaveItemRowMapper())
-                .preparedStatementSetter(ps -> ps.setString(1, endDateTime))
+                .preparedStatementSetter(ps -> {
+                    ps.setString(1, executeDateTime);
+                    ps.setString(2, executeDateTime);
+                })
                 .build();
     }
 }

@@ -3,8 +3,6 @@ package com.jxx.vacation.batch.job.leave.config;
 import com.jxx.vacation.batch.job.leave.item.LeaveItem;
 import com.jxx.vacation.batch.job.leave.processor.LeaveItemValidateProcessor;
 import com.jxx.vacation.batch.job.leave.reader.LeaveItemReaderFactory;
-import com.jxx.vacation.batch.job.leave.reader.LeaveItemRowMapper;
-import com.jxx.vacation.core.common.converter.LocalDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -12,13 +10,10 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.scope.context.JobContext;
-import org.springframework.batch.core.scope.context.JobSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.batch.item.support.builder.CompositeItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.List;
-
-import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 
 
 /**
@@ -46,7 +39,6 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 public class VacationEndEventJobConfiguration {
 
     private static final String JOB_NAME = "vacation.end.job";
-    private static final Long EXECUTE_DATE_TIME_ADJUST_VALUE = -1l;
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 

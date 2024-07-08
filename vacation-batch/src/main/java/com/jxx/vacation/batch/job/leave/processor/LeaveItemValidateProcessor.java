@@ -35,7 +35,7 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
         }
 
         item.updateVacationStatusToCompleted();
-//        item.calculateDeductAmount();
+        log.info("[PROCESS VID:{}][COMPLETED][memberId:{} inactive][member {}, org {}]", vacationId, memberId, item.isMemberActive(), item.isOrgActive());
 
         return item;
     }
