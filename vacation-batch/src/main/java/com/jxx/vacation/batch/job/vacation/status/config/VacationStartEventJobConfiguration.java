@@ -32,7 +32,7 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 /**
  * 휴가 시작 설정 배치
  * APPROVED -> ONGOING
- *
+ * <p>
  * 리팩토링 - 클래스명 의믜가 불분명 한듯... VacationStatusManage -> VacationStartEventJob
  */
 
@@ -55,7 +55,7 @@ public class VacationStartEventJobConfiguration {
     @Bean(name = "vacation.start.step")
     public Step step(JobRepository jobRepository) {
         return new StepBuilder("vacation.start.step", jobRepository)
-                .<VacationItem, VacationItem> chunk(10, transactionManager)
+                .<VacationItem, VacationItem>chunk(10, transactionManager)
                 .reader(itemReader())
                 .processor(itemProcessor())
                 .writer(vacationItemWriter())
@@ -83,10 +83,14 @@ public class VacationStartEventJobConfiguration {
                         "JVM.VACATION_STATUS " +
                         "FROM JXX_VACATION_MASTER JVM " +
                         "JOIN JXX_VACATION_DURATION JVD ON JVM.VACATION_ID  = JVD.VACATION_ID " +
-                        "WHERE START_DATE_TIME = ?")
+                        "WHERE START_DATE_TIME> ? " +
+                        "AND START_DATE_TIME < DATE_ADD(?, INTERVAL 1 DAY)")
                 .rowMapper(new VacationItemRowMapper())
                 .name("vacationItemJdbcReader")
-                .preparedStatementSetter(preparedStatement -> preparedStatement.setString(1, processDate))
+                .preparedStatementSetter(preparedStatement -> {
+                    preparedStatement.setString(1, processDate);
+                    preparedStatement.setString(2, processDate);
+                })
                 .build();
     }
 
