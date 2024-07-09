@@ -17,17 +17,7 @@ public class QuartzJobConfiguration {
                 .storeDurably(true)
                 .build();
     }
-    @Bean
-    public Trigger vacationEndJobTrigger() {
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronDefault);
-        return TriggerBuilder.newTrigger()
-                .withIdentity(TriggerKey.triggerKey(
-                        "vacationEndJobTrigger",
-                        "vacationEndJobTriggerGroup"))
-                .forJob(scheduleVacationEndJob())
-                .withSchedule(cronScheduleBuilder)
-                .build();
-    }
+
     @Bean("scheduled.vacation.start.job")
     public JobDetail scheduleVacationStartJob() {
         return JobBuilder
@@ -35,13 +25,24 @@ public class QuartzJobConfiguration {
                 .storeDurably(true)
                 .build();
     }
-    @Bean
-    public Trigger vacationStartJobTrigger() {
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronDefault);
+
+    public Trigger vacationEndJobTrigger(String cronExpression) {
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
+        return TriggerBuilder.newTrigger()
+                .withIdentity(TriggerKey.triggerKey(
+                        "vacationEndJobTrigger",
+                        "vacation.end.job"))
+                .forJob(scheduleVacationEndJob())
+                .withSchedule(cronScheduleBuilder)
+                .build();
+    }
+
+    public Trigger vacationStartJobTrigger(String cronExpression) {
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
         return TriggerBuilder.newTrigger()
                 .withIdentity(TriggerKey.triggerKey(
                         "vacationStartJobTrigger",
-                        "vacationStartJobTriggerGroup"))
+                        "vacation.start.job"))
                 .forJob(scheduleVacationStartJob())
                 .withSchedule(cronScheduleBuilder)
                 .build();

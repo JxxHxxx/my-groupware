@@ -42,7 +42,7 @@ public class JobConfigApiController {
 
     // 스케줄 시간 갱신 API
     @PatchMapping("/admin/batch/jobs")
-    public ResponseEntity<?> reschedule(@RequestBody  ScheduleJobUpdateRequest request) {
+    public ResponseEntity<?> reschedule(@RequestBody ScheduleJobUpdateRequest request) {
         jobConfigService.rescheduleBatchJob(request);
         return ResponseEntity.ok("");
     }

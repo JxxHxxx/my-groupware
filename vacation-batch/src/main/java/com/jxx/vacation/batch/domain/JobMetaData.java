@@ -46,13 +46,28 @@ public class JobMetaData {
     @Column(name = "CRON_EXPRESSION")
     @Comment(value = "실행 주기 크론 표현식")
     private String cronExpression;
+    @Column(name = "TRIGGER_NAME")
+    @Comment(value = "트리거 이름")
+    private String triggerName;
+    @Column(name = "TRIGGER_GROUP")
+    @Comment(value = "트리거 그룹")
+    private String triggerGroup;
+
     @Comment(value = "논리 FK, 잡 메타테이블 PK")
     @OneToMany(mappedBy = "jobMetaData")
     private List<JobParam> jobParams = new ArrayList<>();
 
     @Builder
-    public JobMetaData(String jobName, String jobDescription, boolean used, LocalDateTime enrolledTime, String executionType,
-                       LocalTime executionTime, Integer executionDuration, String cronExpression) {
+    public JobMetaData(String jobName,
+                       String jobDescription,
+                       boolean used,
+                       LocalDateTime enrolledTime,
+                       String executionType,
+                       LocalTime executionTime,
+                       Integer executionDuration,
+                       String cronExpression,
+                       String triggerName,
+                       String triggerGroup) {
         this.jobName = jobName;
         this.jobDescription = jobDescription;
         this.used = used;
@@ -61,6 +76,8 @@ public class JobMetaData {
         this.executionTime = executionTime;
         this.executionDuration = executionDuration;
         this.cronExpression = cronExpression;
+        this.triggerName = triggerName;
+        this.triggerGroup = triggerGroup;
     }
 
 
@@ -73,8 +90,13 @@ public class JobMetaData {
             this.executionType = "etc";
         }
 
-
         this.cronExpression = cronExpression;
         this.executionTime = CronExpression.parse(cronExpression).next(LocalDateTime.now()).toLocalTime();
+    }
+
+    public void validateTriggerIdentity(String triggerName, String triggerGroup){
+        if (!this.triggerName.equals(triggerName) || !this.triggerGroup.equals(triggerGroup)) {
+            throw new AdminClientException("AC02", "트리거 동일성 검증에 실패했습니다.");
+        }
     }
 }

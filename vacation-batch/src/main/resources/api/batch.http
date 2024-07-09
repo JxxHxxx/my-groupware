@@ -111,3 +111,25 @@ Content-Type: application/json
     }
   ]
 }
+
+### 스케줄러 수정 END JOB
+PATCH http://localhost:8070/admin/batch/jobs
+Content-Type: application/json
+
+{
+  "originalJobBeanName": "vacation.end.job",
+  "cronExpression": "0 5 0 * * ?",
+  "triggerName": "vacationEndJobTrigger",
+  "triggerGroup": "vacation.end.job"
+}
+
+### 스케줄러 수정
+PATCH http://localhost:8070/admin/batch/jobs
+Content-Type: application/json
+
+{
+  "originalJobBeanName": "vacation.start.job",
+  "cronExpression": "0 1 0 * * ?",
+  "triggerName": "vacationStartJobTrigger",
+  "triggerGroup": "vacation.start.job"
+}

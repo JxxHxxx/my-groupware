@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.vacation.batch.infra.QuartzExploreMapper">
+    <select id="findByGroupName"
+    parameterType="String"
+    resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
+        SELECT
+        QCT.TRIGGER_NAME ,
+        QCT.TRIGGER_GROUP ,
+        QCT.CRON_EXPRESSION
+        FROM QRTZ_CRON_TRIGGERS QCT
+        <where>
+            <if test="triggerGroupName != null and triggerGroupName != ''"></if>
+            AND QCT.TRIGGER_GROUP = #{triggerGroupName}
+        </where>
+    </select>
+</mapper>

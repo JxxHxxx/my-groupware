@@ -127,19 +127,22 @@ public class JobConfigService {
         if (!CronExpression.isValidExpression(cronExpression)) {
             throw new AdminClientException("잘못된 크론 표현식 입니다.", "AC01");
         }
+        JobMetaData findJobMetaData = jobMetaDataRepository.findByJobName(request.getOriginalJobBeanName())
+                .orElseThrow(() -> new AdminClientException(request.getOriginalJobBeanName() + "은 존재하지 않는 JobBeanName 입니다."));
+
+        findJobMetaData.validateTriggerIdentity(request.getTriggerName(), request.getTriggerGroup());
 
         // 갱신할 스케줄러 주기
         CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
         // Quartz 트리거 찾기
         TriggerKey triggerKey = TriggerKey.triggerKey(request.getTriggerName(), request.getTriggerGroup());
 
+
         Trigger trigger = TriggerBuilder.newTrigger()
                 .forJob(SCHEDULE_JOB_PREFIX + request.getOriginalJobBeanName()) // QuartzJobBean 이름을 명시,
                 .withIdentity(triggerKey)
                 .withSchedule(cronScheduleBuilder)
                 .build();
-        JobMetaData findJobMetaData = jobMetaDataRepository.findByJobName(request.getOriginalJobBeanName())
-                .orElseThrow(() -> new AdminClientException(request.getOriginalJobBeanName() + "은 존재하지 않는 JobBeanName 입니다."));
 
         try {
             scheduler.rescheduleJob(triggerKey, trigger);
