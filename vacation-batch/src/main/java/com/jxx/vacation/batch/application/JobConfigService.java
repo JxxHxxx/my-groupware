@@ -6,6 +6,7 @@ import com.jxx.vacation.batch.domain.JobParam;
 import com.jxx.vacation.batch.dto.request.EnrollJobForm;
 import com.jxx.vacation.batch.dto.request.EnrollJobParam;
 import com.jxx.vacation.batch.dto.request.JobHistoryCond;
+import com.jxx.vacation.batch.dto.request.ScheduleJobUpdateRequest;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
 import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
@@ -16,6 +17,7 @@ import com.jxx.vacation.batch.infra.JobParamRepository;
 import com.jxx.vacation.core.common.pagination.PageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class JobConfigService {
     private final JobParamRepository jobParamRepository;
     private final ApplicationContext appContext;
     private final JobCustomMapper jobCustomMapper;
+    private final Scheduler scheduler;
 
     // create
 
@@ -116,10 +119,39 @@ public class JobConfigService {
     }
 
     // update
-    @Transactional
-    public void updateBatchJob() {
+    private final static String SCHEDULE_JOB_PREFIX = "scheduled.";
 
+    @Transactional
+    public void rescheduleBatchJob(ScheduleJobUpdateRequest request) {
+        String cronExpression = request.getCronExpression();
+        if (!CronExpression.isValidExpression(cronExpression)) {
+            throw new AdminClientException("잘못된 크론 표현식 입니다.", "AC01");
+        }
+
+        // 갱신할 스케줄러 주기
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
+        // Quartz 트리거 찾기
+        TriggerKey triggerKey = TriggerKey.triggerKey(request.getTriggerName(), request.getTriggerGroup());
+
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .forJob(SCHEDULE_JOB_PREFIX + request.getOriginalJobBeanName()) // QuartzJobBean 이름을 명시,
+                .withIdentity(triggerKey)
+                .withSchedule(cronScheduleBuilder)
+                .build();
+        JobMetaData findJobMetaData = jobMetaDataRepository.findByJobName(request.getOriginalJobBeanName())
+                .orElseThrow(() -> new AdminClientException(request.getOriginalJobBeanName() + "은 존재하지 않는 JobBeanName 입니다."));
+
+        try {
+            scheduler.rescheduleJob(triggerKey, trigger);
+        } catch (SchedulerException e) {
+            log.error("스케줄러 갱신중에 오류가 발생했습니다", e);
+            throw new RuntimeException(e);
+        }
+
+        findJobMetaData.updateExecutionInfo(request.getCronExpression());
+        // 응답 결과
     }
+
     // read
     public Page<JobHistoryResponse> pageJobHistories(JobHistoryCond cond, int page, int size) {
         List<JobHistoryResponse> jobHistories = jobCustomMapper.findJobExecutionHistory(cond);

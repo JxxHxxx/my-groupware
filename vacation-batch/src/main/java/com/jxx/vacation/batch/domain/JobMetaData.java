@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.scheduling.support.CronExpression;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -42,13 +43,16 @@ public class JobMetaData {
     @Column(name = "EXECUTION_DURATION")
     @Comment(value = "실행 주기")
     private Integer executionDuration;
+    @Column(name = "CRON_EXPRESSION")
+    @Comment(value = "실행 주기 크론 표현식")
+    private String cronExpression;
     @Comment(value = "논리 FK, 잡 메타테이블 PK")
     @OneToMany(mappedBy = "jobMetaData")
     private List<JobParam> jobParams = new ArrayList<>();
 
     @Builder
     public JobMetaData(String jobName, String jobDescription, boolean used, LocalDateTime enrolledTime, String executionType,
-                       LocalTime executionTime, Integer executionDuration) {
+                       LocalTime executionTime, Integer executionDuration, String cronExpression) {
         this.jobName = jobName;
         this.jobDescription = jobDescription;
         this.used = used;
@@ -56,5 +60,21 @@ public class JobMetaData {
         this.executionType = executionType;
         this.executionTime = executionTime;
         this.executionDuration = executionDuration;
+        this.cronExpression = cronExpression;
+    }
+
+
+    public void updateExecutionInfo(String cronExpression) {
+        boolean dailyScheduler = cronExpression.endsWith("* * ?");
+        if (dailyScheduler) {
+            this.executionType = "daily";
+        }
+        else {
+            this.executionType = "etc";
+        }
+
+
+        this.cronExpression = cronExpression;
+        this.executionTime = CronExpression.parse(cronExpression).next(LocalDateTime.now()).toLocalTime();
     }
 }

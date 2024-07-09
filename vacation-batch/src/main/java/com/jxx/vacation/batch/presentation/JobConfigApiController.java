@@ -3,6 +3,7 @@ package com.jxx.vacation.batch.presentation;
 import com.jxx.vacation.batch.application.JobConfigService;
 import com.jxx.vacation.batch.dto.request.EnrollJobForm;
 import com.jxx.vacation.batch.dto.request.JobHistoryCond;
+import com.jxx.vacation.batch.dto.request.ScheduleJobUpdateRequest;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
 import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
@@ -37,5 +38,12 @@ public class JobConfigApiController {
                                      @ModelAttribute @Validated JobHistoryCond cond) {
         Page<JobHistoryResponse> responses = jobConfigService.pageJobHistories(cond, page, size);
         return ResponseEntity.ok(responses);
+    }
+
+    // 스케줄 시간 갱신 API
+    @PatchMapping("/admin/batch/jobs")
+    public ResponseEntity<?> reschedule(@RequestBody  ScheduleJobUpdateRequest request) {
+        jobConfigService.rescheduleBatchJob(request);
+        return ResponseEntity.ok("");
     }
 }

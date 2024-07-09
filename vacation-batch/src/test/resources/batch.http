@@ -94,3 +94,25 @@ Content-Type: application/json
 ### 조회
 GET http://localhost:8070/admin/batch/jobs-hist
 Content-Type: application/json
+
+###
+PATCH http://localhost:8070/admin/batch/jobs
+Content-Type: application/json
+
+{
+  "originalJobBeanName": "vacation.start.job",
+  "cronExpression": "0 1 0 * * ?",
+  "triggerName": "vacationStartJobTrigger",
+  "triggerGroup": "vacationStartJobTriggerGroup"
+}
+
+###
+PATCH http://localhost:8070/admin/batch/jobs
+Content-Type: application/json
+
+{
+  "originalJobBeanName": "vacation.end.job",
+  "cronExpression": "0 5 0 * * ?",
+  "triggerName": "vacationEndJobTrigger",
+  "triggerGroup": "vacationEndJobTriggerGroup"
+}

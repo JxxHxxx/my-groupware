@@ -1,5 +1,6 @@
 package com.jxx.vacation.batch.presentation;
 
+import com.jxx.vacation.batch.domain.AdminClientException;
 import com.jxx.vacation.batch.exception.JxxJobExecutionException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,12 @@ public class JobExecutionExceptionHandler {
     public ResponseEntity<?> handle(JobInstanceAlreadyCompleteException exception) {
         log.error("이미 완료된 잡 ID를 재실행하려고 합니다.", exception);
         return ResponseEntity.badRequest().body(new SimpleErrMsg("B01","이미 완료된 Job 인스턴스 입니다."));
+    }
+
+    @ExceptionHandler(AdminClientException.class)
+    public ResponseEntity<?> handle(AdminClientException exception) {
+        log.error("관리자 기능 사용중에 오류가 발생했습니다.");
+        return ResponseEntity.badRequest().body((new SimpleErrMsg(exception.getErrCode(), exception.getMessage())));
     }
 
     @Getter

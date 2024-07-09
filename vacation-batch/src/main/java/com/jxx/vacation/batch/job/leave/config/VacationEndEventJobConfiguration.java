@@ -38,7 +38,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VacationEndEventJobConfiguration {
 
-    private static final String JOB_NAME = "vacation.end.job";
+    protected static final String JOB_NAME = "vacation.end.job";
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 

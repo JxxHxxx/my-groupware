@@ -41,7 +41,7 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 @RequiredArgsConstructor
 public class VacationStartEventJobConfiguration {
 
-    private static final String JOB_NAME = "vacation.start.job";
+    protected static final String JOB_NAME = "vacation.start.job";
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 
