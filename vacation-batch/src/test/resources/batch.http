@@ -103,7 +103,7 @@ Content-Type: application/json
   "originalJobBeanName": "vacation.start.job",
   "cronExpression": "0 1 0 * * ?",
   "triggerName": "vacationStartJobTrigger",
-  "triggerGroup": "vacationStartJobTriggerGroup"
+  "triggerGroup": "vacation.start.job"
 }
 
 ###
@@ -114,5 +114,5 @@ Content-Type: application/json
   "originalJobBeanName": "vacation.end.job",
   "cronExpression": "0 5 0 * * ?",
   "triggerName": "vacationEndJobTrigger",
-  "triggerGroup": "vacationEndJobTriggerGroup"
+  "triggerGroup": "vacation.end.job"
 }

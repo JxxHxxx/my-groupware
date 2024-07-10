@@ -13,8 +13,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class ApplicationContextRefreshListener implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -30,17 +32,42 @@ public class ApplicationContextRefreshListener implements ApplicationListener<Co
         QuartzJobConfiguration quartzJobConfiguration = new QuartzJobConfiguration();
         CronTriggerResponse res1 = quartzExploreMapper.findByGroupName("vacation.end.job");
         CronTriggerResponse res2 = quartzExploreMapper.findByGroupName("vacation.start.job");
-        Trigger vacationEndJobTrigger = quartzJobConfiguration.vacationEndJobTrigger(res1.getCronExpression());
-        Trigger vacationStartJobTrigger = quartzJobConfiguration.vacationStartJobTrigger(res2.getCronExpression());
+        if (Objects.nonNull(res1)) {
+            Trigger vacationEndJobTrigger = quartzJobConfiguration.vacationEndJobTrigger(res1.getCronExpression());
+            beanFactory.registerSingleton("vacation.end.job.vacationEndJobTrigger", vacationEndJobTrigger);
+            try {
+                scheduler.rescheduleJob(vacationEndJobTrigger.getKey(), vacationEndJobTrigger);
+            } catch (SchedulerException e) {
+                throw new RuntimeException(e);
+            }
+            // 신규
+        } else {
+            Trigger vacationEndJobTrigger = quartzJobConfiguration.vacationEndJobTrigger("0 0 0 1 1 ? 2100");
+            beanFactory.registerSingleton("vacation.end.job.vacationEndJobTrigger", vacationEndJobTrigger);
+            try {
+                scheduler.scheduleJob(vacationEndJobTrigger);
+            } catch (SchedulerException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-        beanFactory.registerSingleton("vacationEndJobTrigger", vacationEndJobTrigger);
-        beanFactory.registerSingleton("vacationStartJobTrigger", vacationStartJobTrigger);
-
-        try {
-            scheduler.rescheduleJob(vacationEndJobTrigger.getKey(), vacationEndJobTrigger);
-            scheduler.rescheduleJob(vacationStartJobTrigger.getKey(),vacationStartJobTrigger);
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
+        if (Objects.nonNull(res2)) {
+            Trigger vacationStartJobTrigger = quartzJobConfiguration.vacationStartJobTrigger(res2.getCronExpression());
+            beanFactory.registerSingleton("vacation.start.job.vacationStartJobTrigger", vacationStartJobTrigger);
+            try {
+                scheduler.rescheduleJob(vacationStartJobTrigger.getKey(), vacationStartJobTrigger);
+            } catch (SchedulerException e) {
+                throw new RuntimeException(e);
+            }
+            // 신규
+        } else {
+            Trigger vacationStartJobTrigger = quartzJobConfiguration.vacationStartJobTrigger("0 0 0 1 1 ? 2100");
+            beanFactory.registerSingleton("vacation.start.job.vacationStartJobTrigger", vacationStartJobTrigger);
+            try {
+                scheduler.scheduleJob(vacationStartJobTrigger);
+            } catch (SchedulerException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

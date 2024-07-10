@@ -155,6 +155,14 @@ public class JobConfigService {
         // 응답 결과
     }
 
+    /**
+     * 메모링 상에 올라간 Scheduler 를 DB상의 JobMetaData에 관련 정보를 제공한다.
+     */
+    @Transactional
+    public void createJobMetaData() {
+
+    }
+
     // read
     public Page<JobHistoryResponse> pageJobHistories(JobHistoryCond cond, int page, int size) {
         List<JobHistoryResponse> jobHistories = jobCustomMapper.findJobExecutionHistory(cond);

@@ -37,6 +37,11 @@ public class QuartzJobConfiguration {
                 .build();
     }
 
+//    @Bean(name = "vacation.end.job.vacationEndJobTrigger")
+    public Trigger VacationEndJobTriggerV2() {
+        return vacationEndJobTrigger("0 0 0 1 1 ? 2100");
+    }
+
     public Trigger vacationStartJobTrigger(String cronExpression) {
         CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
         return TriggerBuilder.newTrigger()
@@ -46,5 +51,10 @@ public class QuartzJobConfiguration {
                 .forJob(scheduleVacationStartJob())
                 .withSchedule(cronScheduleBuilder)
                 .build();
+    }
+
+//    @Bean(name = "vacation.start.job.vacationStartJobTrigger")
+    public Trigger vacationStartJobTriggerV2() {
+        return vacationStartJobTrigger("0 0 0 1 1 ? 2100");
     }
 }

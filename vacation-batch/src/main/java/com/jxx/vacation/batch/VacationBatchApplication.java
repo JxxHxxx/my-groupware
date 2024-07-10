@@ -58,10 +58,15 @@ public class VacationBatchApplication {
         for (String triggerName : JobTriggerNames) {
             Trigger trigger = context.getBean(triggerName, Trigger.class);
 
-            LocalDateTime fireTime = trigger.getNextFireTime()
-                    .toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
+            LocalDateTime fireTime = null;
+            try {
+                fireTime = trigger.getNextFireTime()
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+            } catch (Exception e) {
+                log.warn("", e);
+            }
 
             log.info("\n=========================================" +
                     "\nTrigger Name : {} " +
