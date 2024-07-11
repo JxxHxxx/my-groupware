@@ -118,10 +118,8 @@ POST http://localhost:8070/admin/batch/triggers
 Content-Type: application/json
 
 {
-  "jobName": "vacationStartJob",
-  "triggerName" : "vacationStartJobTrigger",
-  "triggerGroup" : "vacationStartJobGroup",
-  "cronExpression" : "0 * * * * ?"
+  "jobName": "vacation.start.job",
+  "cronExpression" : "0 1 0 * * ?"
 }
 
 ### TRIGGER 등록 2
@@ -129,9 +127,7 @@ POST http://localhost:8070/admin/batch/triggers
 Content-Type: application/json
 
 {
-  "jobName": "vacationEndJob",
-  "triggerName" : "vacationEndJobTrigger",
-  "triggerGroup" : "vacationEndJobGroup",
+  "jobName": "vacation.end.job",
   "cronExpression" : "0 3 0 * * ?"
 }
 
@@ -139,9 +135,9 @@ Content-Type: application/json
 PATCH http://localhost:8070/admin/batch/triggers/pause?jobName=vacationStartJob
 
 ### 스케줄링 정보 확인
-GET http://localhost:8070/admin/batch/triggers?triggerName=vacationEndJobTrigger
+GET http://localhost:8070/admin/batch/triggers?triggerName=vacation.end.job.trigger
 Content-Type: application/json
 
 ### 스케줄링 정보 확인
-GET http://localhost:8070/admin/batch/triggers?triggerName=vacationStartJobTrigger
+GET http://localhost:8070/admin/batch/triggers?triggerName=vacation.start.job.trigger
 Content-Type: application/json

@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Getter
 @RequiredArgsConstructor
 public class SchedulingResponse {
+    private final String jobName;
+    private final String jobDescription;
     private final String triggerName;
     private final String triggerGroup;
     private final String triggerState;

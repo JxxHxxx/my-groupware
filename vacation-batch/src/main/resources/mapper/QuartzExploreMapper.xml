@@ -27,12 +27,27 @@
     <select id="findSchedulingInformation"
             parameterType="string"
             resultType="com.jxx.vacation.batch.dto.response.SchedulingResponse">
-        SELECT QT.TRIGGER_NAME,
+        SELECT QT.JOB_NAME,
+               JD.DESCRIPTION,
+               QT.TRIGGER_NAME,
                QT.TRIGGER_GROUP,
                QT.TRIGGER_STATE,
                CT.CRON_EXPRESSION
         FROM QRTZ_TRIGGERS QT
                  JOIN QRTZ_CRON_TRIGGERS CT ON QT.TRIGGER_NAME = CT.TRIGGER_NAME
+                 JOIN QRTZ_JOB_DETAILS JD ON QT.JOB_NAME  = JD.JOB_NAME
         WHERE QT.TRIGGER_NAME = #{triggerName};
+    </select>
+    <select id="findAllSchedulingInformation"
+            resultType="com.jxx.vacation.batch.dto.response.SchedulingResponse">
+        SELECT QT.JOB_NAME,
+               JD.DESCRIPTION,
+               QT.TRIGGER_NAME,
+               QT.TRIGGER_GROUP,
+               QT.TRIGGER_STATE,
+               CT.CRON_EXPRESSION
+        FROM QRTZ_TRIGGERS QT
+                 JOIN QRTZ_CRON_TRIGGERS CT ON QT.TRIGGER_NAME = CT.TRIGGER_NAME
+                 JOIN QRTZ_JOB_DETAILS JD ON QT.JOB_NAME  = JD.JOB_NAME
     </select>
 </mapper>

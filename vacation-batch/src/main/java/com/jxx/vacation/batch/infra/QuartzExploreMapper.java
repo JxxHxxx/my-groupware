@@ -14,5 +14,6 @@ public interface QuartzExploreMapper {
     CronTriggerResponse findByGroupName(@Param("triggerGroupName") String triggerGroupName);
     List<CronTriggerResponse> findAll();
     SchedulingResponse findSchedulingInformation(@Param("triggerName") String triggerName);
+    List<SchedulingResponse> findAllSchedulingInformation();
 
 }

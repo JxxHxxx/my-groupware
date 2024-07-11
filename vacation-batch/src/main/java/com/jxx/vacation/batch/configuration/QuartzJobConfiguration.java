@@ -14,7 +14,7 @@ public class QuartzJobConfiguration {
         return JobBuilder
                 .newJob(QuartzVacationStartEventJob.class)
                 .storeDurably(true)
-                .withIdentity("vacationStartJob")
+                .withIdentity("vacation.start.job")
                 .withDescription("Quartz 연차 시작 배치 잡")
                 .build();
     }
@@ -23,7 +23,7 @@ public class QuartzJobConfiguration {
         return JobBuilder
                 .newJob(QuartzVacationEndEventJob.class)
                 .storeDurably(true) // DB 저장 X
-                .withIdentity("vacationEndJob")
+                .withIdentity("vacation.end.job")
                 .withDescription("Quartz 연차 종료 배치 잡")
                 .build();
     }

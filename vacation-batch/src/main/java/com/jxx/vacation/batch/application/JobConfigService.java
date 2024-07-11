@@ -42,6 +42,8 @@ public class JobConfigService {
     private final QuartzExploreMapper quartzExploreMapper;
     private final Scheduler scheduler;
 
+    private static final String TRIGGER_NAME_SUX = ".trigger";
+    private static final String TRIGGER_GROUP_SUX = ".trigger.group";
     // create
 
     @Transactional
@@ -131,8 +133,10 @@ public class JobConfigService {
     @Transactional
     public TriggerCreateResponse createTrigger(TriggerCreateRequest request) {
         CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(request.cronExpression());
+        String triggerName = request.jobName() + TRIGGER_NAME_SUX;
+        String triggerGroup = request.jobName() + TRIGGER_GROUP_SUX;
         CronTrigger cronTrigger = TriggerBuilder.newTrigger()
-                .withIdentity(TriggerKey.triggerKey(request.triggerName(), request.triggerGroup()))
+                .withIdentity(TriggerKey.triggerKey(triggerName, triggerGroup))
                 .forJob(request.jobName())
                 .withSchedule(cronScheduleBuilder)
                 .build();
@@ -170,7 +174,7 @@ public class JobConfigService {
         String triggerGroupName = cronTriggerResponse.getTriggerGroup();
         TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
         try {
-            JobDetail jobDetail = scheduler.getJobDetail(JobKey.jobKey(triggerName.replace("Trigger", "")));
+            JobDetail jobDetail = scheduler.getJobDetail(JobKey.jobKey(triggerName.replace(TRIGGER_NAME_SUX, "")));
             Trigger trigger = TriggerBuilder.newTrigger()
                     .forJob(jobDetail) // QuartzJobBean 이름을 명시,
                     .withIdentity(triggerKey)
@@ -206,6 +210,11 @@ public class JobConfigService {
 
     public SchedulingResponse readTriggerInformation(String triggerName) {
         SchedulingResponse schedulingResponse = quartzExploreMapper.findSchedulingInformation(triggerName);
+        if (Objects.isNull(schedulingResponse)) {
+            throw new AdminClientException("조건을 만족하는 트리거는 존재하지 않습니다", "AC02");
+        }
+
+
         LocalDate fireDate = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
                 .next(LocalDateTime.now()).toLocalDate();
         LocalTime fireTime = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
@@ -217,7 +226,26 @@ public class JobConfigService {
         } else {
             schedulingResponse.setUsed(true);
         }
-
         return schedulingResponse;
+    }
+
+    public List<SchedulingResponse> readAllTriggerInformation() {
+        List<SchedulingResponse> schedulingResponses = quartzExploreMapper.findAllSchedulingInformation();
+
+        for (SchedulingResponse schedulingResponse : schedulingResponses) {
+            LocalDate fireDate = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
+                    .next(LocalDateTime.now()).toLocalDate();
+            LocalTime fireTime = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
+                    .next(LocalDateTime.now()).toLocalTime();
+            LocalDateTime nextFireTime = LocalDateTime.of(fireDate, fireTime);
+            schedulingResponse.setNextFireTime(nextFireTime);
+            if (Objects.equals(schedulingResponse.getTriggerState(), "PAUSED")){
+                schedulingResponse.setUsed(false);
+            } else {
+                schedulingResponse.setUsed(true);
+            }
+        }
+
+        return schedulingResponses;
     }
 }

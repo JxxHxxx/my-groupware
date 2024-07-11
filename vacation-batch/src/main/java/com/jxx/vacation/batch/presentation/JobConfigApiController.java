@@ -81,4 +81,10 @@ public class JobConfigApiController {
         SchedulingResponse schedulingResponse = jobConfigService.readTriggerInformation(triggerName);
         return ResponseEntity.ok(schedulingResponse);
     }
+
+    @GetMapping("/admin/batch/triggers/all")
+    public ResponseEntity<?> readAllTriggerInformation() {
+        List<SchedulingResponse> schedulingResponse = jobConfigService.readAllTriggerInformation();
+        return ResponseEntity.ok(schedulingResponse);
+    }
 }
