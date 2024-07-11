@@ -3,17 +3,12 @@ package com.jxx.vacation.batch.application;
 import com.jxx.vacation.batch.domain.AdminClientException;
 import com.jxx.vacation.batch.domain.JobMetaData;
 import com.jxx.vacation.batch.domain.JobParam;
-import com.jxx.vacation.batch.dto.request.EnrollJobForm;
-import com.jxx.vacation.batch.dto.request.EnrollJobParam;
-import com.jxx.vacation.batch.dto.request.JobHistoryCond;
-import com.jxx.vacation.batch.dto.request.ScheduleJobUpdateRequest;
-import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
-import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
-import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
-import com.jxx.vacation.batch.dto.response.JobParamResponse;
+import com.jxx.vacation.batch.dto.request.*;
+import com.jxx.vacation.batch.dto.response.*;
 import com.jxx.vacation.batch.infra.JobCustomMapper;
 import com.jxx.vacation.batch.infra.JobMetaDataRepository;
 import com.jxx.vacation.batch.infra.JobParamRepository;
+import com.jxx.vacation.batch.infra.QuartzExploreMapper;
 import com.jxx.vacation.core.common.pagination.PageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 @Slf4j
@@ -37,6 +35,7 @@ public class JobConfigService {
     private final JobParamRepository jobParamRepository;
     private final ApplicationContext appContext;
     private final JobCustomMapper jobCustomMapper;
+    private final QuartzExploreMapper quartzExploreMapper;
     private final Scheduler scheduler;
 
     // create
@@ -118,56 +117,77 @@ public class JobConfigService {
                 .toList();
     }
 
-    // update
-    private final static String SCHEDULE_JOB_PREFIX = "scheduled.";
-
-    @Transactional
-    public void rescheduleBatchJob(ScheduleJobUpdateRequest request) {
-        String cronExpression = request.getCronExpression();
-        if (!CronExpression.isValidExpression(cronExpression)) {
-            throw new AdminClientException("잘못된 크론 표현식 입니다.", "AC01");
-        }
-        JobMetaData findJobMetaData = jobMetaDataRepository.findByJobName(request.getOriginalJobBeanName())
-                .orElseThrow(() -> new AdminClientException(request.getOriginalJobBeanName() + "은 존재하지 않는 JobBeanName 입니다."));
-
-        findJobMetaData.validateTriggerIdentity(request.getTriggerName(), request.getTriggerGroup());
-
-        // 갱신할 스케줄러 주기
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-        // Quartz 트리거 찾기
-        TriggerKey triggerKey = TriggerKey.triggerKey(request.getTriggerName(), request.getTriggerGroup());
-
-
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .forJob(SCHEDULE_JOB_PREFIX + request.getOriginalJobBeanName()) // QuartzJobBean 이름을 명시,
-                .withIdentity(triggerKey)
-                .withSchedule(cronScheduleBuilder)
-                .build();
-
-        try {
-            scheduler.rescheduleJob(triggerKey, trigger);
-        } catch (SchedulerException e) {
-            log.error("스케줄러 갱신중에 오류가 발생했습니다", e);
-            throw new RuntimeException(e);
-        }
-
-        findJobMetaData.updateExecutionInfo(request.getCronExpression());
-        // 응답 결과
-    }
-
-    /**
-     * 메모링 상에 올라간 Scheduler 를 DB상의 JobMetaData에 관련 정보를 제공한다.
-     */
-    @Transactional
-    public void createJobMetaData() {
-
-    }
-
     // read
     public Page<JobHistoryResponse> pageJobHistories(JobHistoryCond cond, int page, int size) {
         List<JobHistoryResponse> jobHistories = jobCustomMapper.findJobExecutionHistory(cond);
         PageService pageService = new PageService(page, size);
         return pageService.convertToPage(jobHistories);
+    }
 
+    @Transactional
+    public TriggerCreateResponse createTrigger(TriggerCreateRequest request) {
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(request.cronExpression());
+        CronTrigger cronTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(TriggerKey.triggerKey(request.triggerName(), request.triggerGroup()))
+                .forJob(request.jobName())
+                .withSchedule(cronScheduleBuilder)
+                .build();
+
+        // 트리거를 저장한다.
+        try {
+            scheduler.scheduleJob(cronTrigger);
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+
+        TriggerKey triggerKey = cronTrigger.getKey();
+        return new TriggerCreateResponse(
+                triggerKey.getName(),
+                triggerKey.getGroup(),
+                cronTrigger.getCronExpression(),
+                cronTrigger.getJobKey().getName());
+    }
+
+    @Transactional
+    public void rescheduleTrigger(ScheduleJobUpdateRequest request) {
+        String cronExp = request.getCronExpression();
+        if (!CronExpression.isValidExpression(cronExp)) {
+            throw new AdminClientException("잘못된 크론 표현식 입니다.", "AC01");
+        }
+
+        CronTriggerResponse cronTriggerResponse = quartzExploreMapper.findByGroupName(request.getTriggerGroup());
+        if (Objects.isNull(cronTriggerResponse)) {
+            throw new AdminClientException("조건을 만족하는 트리거는 존재하지 않습니다", "AC02");
+        }
+        // 갱신할 스케줄러 주기
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExp);
+        // Quartz 트리거 찾기
+        String triggerName = cronTriggerResponse.getTriggerName();
+        String triggerGroupName = cronTriggerResponse.getTriggerGroup();
+        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
+        try {
+            JobDetail jobDetail = scheduler.getJobDetail(JobKey.jobKey(triggerName.replace("Trigger", "")));
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .forJob(jobDetail) // QuartzJobBean 이름을 명시,
+                    .withIdentity(triggerKey)
+                    .withSchedule(cronScheduleBuilder)
+                    .build();
+
+            Date newlyDate = scheduler.rescheduleJob(triggerKey, trigger);
+
+            LocalDateTime newlyFirstFireTime = newlyDate
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            log.info("\n=========================================" +
+                    "\nOccur Trigger renewal Event" +
+                    "\nQuartz Job Name : {} " +
+                    "\nTrigger Name : {}" +
+                    "\nNewly First Execution Time : {} " +
+                    "\nCronExpression : {} " +
+                    "\n=========================================", jobDetail.getKey().getName(), triggerName, newlyFirstFireTime, request.getCronExpression());
+        } catch (SchedulerException e) {
+            throw new AdminClientException("조건을 만족하는 Job이 존재하지 않습니다.", "AC03");
+        }
     }
 }

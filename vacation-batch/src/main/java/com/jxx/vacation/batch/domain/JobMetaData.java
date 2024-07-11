@@ -80,6 +80,7 @@ public class JobMetaData {
         this.triggerGroup = triggerGroup;
     }
 
+    // 이거 미완성임 executionTime 잘못됨
 
     public void updateExecutionInfo(String cronExpression) {
         boolean dailyScheduler = cronExpression.endsWith("* * ?");
@@ -98,5 +99,9 @@ public class JobMetaData {
         if (!this.triggerName.equals(triggerName) || !this.triggerGroup.equals(triggerGroup)) {
             throw new AdminClientException("AC02", "트리거 동일성 검증에 실패했습니다.");
         }
+    }
+
+    public LocalTime getNextFireTime() {
+        return CronExpression.parse(cronExpression).next(LocalDateTime.now()).toLocalTime();
     }
 }

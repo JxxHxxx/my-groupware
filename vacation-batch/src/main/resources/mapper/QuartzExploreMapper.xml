@@ -17,4 +17,12 @@
             AND QCT.TRIGGER_GROUP = #{triggerGroupName}
         </where>
     </select>
+    <select id="findAll"
+            resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
+        SELECT
+        QCT.TRIGGER_NAME ,
+        QCT.TRIGGER_GROUP ,
+        QCT.CRON_EXPRESSION
+        FROM QRTZ_CRON_TRIGGERS QCT
+    </select>
 </mapper>

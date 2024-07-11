@@ -100,19 +100,37 @@ PATCH http://localhost:8070/admin/batch/jobs
 Content-Type: application/json
 
 {
-  "originalJobBeanName": "vacation.start.job",
-  "cronExpression": "0 1 0 * * ?",
-  "triggerName": "vacationStartJobTrigger",
-  "triggerGroup": "vacation.start.job"
+  "cronExpression": "0 3 0 * * ?",
+  "triggerGroup": "vacationEndJobGroup"
 }
 
-###
+### 10초 마다로 수정
 PATCH http://localhost:8070/admin/batch/jobs
 Content-Type: application/json
 
 {
-  "originalJobBeanName": "vacation.end.job",
-  "cronExpression": "0 5 0 * * ?",
-  "triggerName": "vacationEndJobTrigger",
-  "triggerGroup": "vacation.end.job"
+  "cronExpression": "0 1 0 * * ?",
+  "triggerGroup": "vacationStartJobGroup"
+}
+
+### TRIGGER 등록 1
+POST http://localhost:8070/admin/triggers
+Content-Type: application/json
+
+{
+  "jobName": "vacationStartJob",
+  "triggerName" : "vacationStartJobTrigger",
+  "triggerGroup" : "vacationStartJobGroup",
+  "cronExpression" : "0 * * * * ?"
+}
+
+### TRIGGER 등록 2
+POST http://localhost:8070/admin/triggers
+Content-Type: application/json
+
+{
+  "jobName": "vacationEndJob",
+  "triggerName" : "vacationEndJobTrigger",
+  "triggerGroup" : "vacationEndJobGroup",
+  "cronExpression" : "0 * * * * ?"
 }

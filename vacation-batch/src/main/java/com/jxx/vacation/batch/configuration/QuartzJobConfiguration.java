@@ -9,52 +9,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class QuartzJobConfiguration {
 
-    private final String cronDefault = "0 0 0 1 1 ? 2100"; // 2100년 1월 1일에 실행됨
-    @Bean("scheduled.vacation.end.job")
-    public JobDetail scheduleVacationEndJob() {
-        return JobBuilder
-                .newJob(QuartzVacationEndEventJob.class)
-                .storeDurably(true)
-                .build();
-    }
-
     @Bean("scheduled.vacation.start.job")
     public JobDetail scheduleVacationStartJob() {
         return JobBuilder
                 .newJob(QuartzVacationStartEventJob.class)
                 .storeDurably(true)
+                .withIdentity("vacationStartJob")
+                .withDescription("Quartz 연차 시작 배치 잡")
                 .build();
     }
-
-    public Trigger vacationEndJobTrigger(String cronExpression) {
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-        return TriggerBuilder.newTrigger()
-                .withIdentity(TriggerKey.triggerKey(
-                        "vacationEndJobTrigger",
-                        "vacation.end.job"))
-                .forJob(scheduleVacationEndJob())
-                .withSchedule(cronScheduleBuilder)
+    @Bean("scheduled.vacation.end.job")
+    public JobDetail scheduleVacationEndJob() {
+        return JobBuilder
+                .newJob(QuartzVacationEndEventJob.class)
+                .storeDurably(true) // DB 저장 X
+                .withIdentity("vacationEndJob")
+                .withDescription("Quartz 연차 종료 배치 잡")
                 .build();
-    }
-
-//    @Bean(name = "vacation.end.job.vacationEndJobTrigger")
-    public Trigger VacationEndJobTriggerV2() {
-        return vacationEndJobTrigger("0 0 0 1 1 ? 2100");
-    }
-
-    public Trigger vacationStartJobTrigger(String cronExpression) {
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-        return TriggerBuilder.newTrigger()
-                .withIdentity(TriggerKey.triggerKey(
-                        "vacationStartJobTrigger",
-                        "vacation.start.job"))
-                .forJob(scheduleVacationStartJob())
-                .withSchedule(cronScheduleBuilder)
-                .build();
-    }
-
-//    @Bean(name = "vacation.start.job.vacationStartJobTrigger")
-    public Trigger vacationStartJobTriggerV2() {
-        return vacationStartJobTrigger("0 0 0 1 1 ? 2100");
     }
 }

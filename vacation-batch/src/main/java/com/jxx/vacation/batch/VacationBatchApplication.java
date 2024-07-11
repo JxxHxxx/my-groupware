@@ -1,7 +1,8 @@
 package com.jxx.vacation.batch;
 
 
-
+import com.jxx.vacation.batch.dto.response.CronTriggerResponse;
+import com.jxx.vacation.batch.infra.QuartzExploreMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -10,8 +11,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,73 +28,71 @@ import java.util.*;
 public class VacationBatchApplication {
 
     private final ApplicationContext context;
-    private static List<String> JobBeanNames;
-    private static List<String> JobTriggerNames;
+    private final Scheduler scheduler;
+    private static List<String> jobBeanNames;
+    private final QuartzExploreMapper quartzExploreMapper;
 
     public static void main(String[] args) {
         SpringApplication.run(VacationBatchApplication.class, args);
     }
 
-    @EventListener(ContextRefreshedEvent.class)
+    @EventListener(ApplicationReadyEvent.class)
     public void init() {
         // application Start
         log.info("\n=========================================" +
                 "\nVacation Batch App Start Success" +
                 "\nDevelop JxxHxx " +
                 "\n=========================================");
+        jobBeanNames = getJobBeanNames();
 
-        JobBeanNames = getJobBeanNames();
-
-        for (String jobBeanName : JobBeanNames) {
-            log.info("\n=========================================" +
-                    "\nJob Name : {} " +
-                    "\nFirst Execution Time : ..." +
-                    "\nPeriod : ..." +
-                    "\n=========================================", jobBeanName);
-        }
-
-        log.info("\nTotal enrolled job : {}", JobBeanNames.size());
-
-        JobTriggerNames = getJobTriggerNames();
-        for (String triggerName : JobTriggerNames) {
-            Trigger trigger = context.getBean(triggerName, Trigger.class);
-
-            LocalDateTime fireTime = null;
+        // 스케줄링된 Job 들 확인
+        List<CronTriggerResponse> cronTriggerResponses = quartzExploreMapper.findAll();
+        for (CronTriggerResponse response : cronTriggerResponses) {
             try {
-                fireTime = trigger.getNextFireTime()
+                Trigger trigger = scheduler.getTrigger(TriggerKey.triggerKey(response.getTriggerName(), response.getTriggerGroup()));
+                JobKey jobKey = trigger.getJobKey();
+
+                LocalDateTime firstFireTime = trigger.getNextFireTime()
                         .toInstant()
                         .atZone(ZoneId.systemDefault())
                         .toLocalDateTime();
-            } catch (Exception e) {
-                log.warn("", e);
+                log.info("\n=========================================" +
+                        "\nQuartz Job Name : {} " +
+                        "\nTrigger Name : {}" +
+                        "\nFirst Execution Time : {} " +
+                        "\nCronExpression : {} " +
+                        "\n=========================================", jobKey.getName(), trigger.getKey().getName(), firstFireTime, response.getCronExpression());
+
+            } catch (SchedulerException e) {
+                log.warn("DB <-> 애플리케이션 간 트리거 동기화가 되지 않았습니다. triggerName {}", response.getTriggerName());
             }
-
-            log.info("\n=========================================" +
-                    "\nTrigger Name : {} " +
-                    "\nNext Execution Time : {}" +
-                    "\nPeriod : ..." +
-                    "\n=========================================", triggerName, fireTime);
         }
-
     }
 
+    /** Quartz 로 스케줄링된 Job 들 확인 **/
     @Scheduled(cron = "0 0/1 * * * *")
     public void checkActivateTrigger() {
-        StringBuilder jobActiveLog = new StringBuilder("\n=========================================");
+        List<CronTriggerResponse> cronTriggerResponses = quartzExploreMapper.findAll();
+        for (CronTriggerResponse response : cronTriggerResponses) {
+            try {
+                Trigger trigger = scheduler.getTrigger(TriggerKey.triggerKey(response.getTriggerName(), response.getTriggerGroup()));
+                JobKey jobKey = trigger.getJobKey();
 
-        Map<String, Trigger> triggers = context.getBeansOfType(Trigger.class);
-        Set<String> triggerNames = triggers.keySet();
-        for (String triggerName : triggerNames) {
-            Trigger trigger = context.getBean(triggerName, Trigger.class);
-            LocalDateTime fireTime = trigger.getNextFireTime()
-                    .toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-            jobActiveLog.append("\ntriggerName : " + triggerName + " next execute time : " + fireTime);
+                LocalDateTime firstFireTime = trigger.getNextFireTime()
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+                log.info("\n=========================================" +
+                        "\nQuartz Job Name : {} " +
+                        "\nTrigger Name : {}" +
+                        "\nNext Execution Time : {} " +
+                        "\nCronExpression : {} " +
+                        "\n=========================================", jobKey.getName(), trigger.getKey().getName(), firstFireTime, response.getCronExpression());
+
+            } catch (SchedulerException e) {
+                log.warn("DB <-> 애플리케이션 간 트리거 동기화가 되지 않았습니다. triggerName {}", response.getTriggerName());
+            }
         }
-
-        jobActiveLog.append("\n=========================================");
-        log.info("{}", jobActiveLog);
     }
 
     private List<String> getJobBeanNames() {
@@ -101,22 +100,17 @@ public class VacationBatchApplication {
                 .toList();
     }
 
+    /** spring Bean 으로 등록된 Job - 수동 실행을 위해 모니터링 해야 한다. **/
     @Scheduled(cron = "0 0/1 * * * *")
     public void checkActivateJob() {
         BeanFactory beanFactory = context.getAutowireCapableBeanFactory();
 
         StringBuilder jobActiveLog = new StringBuilder("\n=========================================");
-        for (String jobBeanName : JobBeanNames) {
+        for (String jobBeanName : jobBeanNames) {
             boolean isActive = beanFactory.containsBean(jobBeanName);
             jobActiveLog.append("\njobBeanName : " + jobBeanName + " isActive : " + isActive);
         }
         jobActiveLog.append("\n=========================================");
         log.info("{}", jobActiveLog);
-
-    }
-
-    private List<String> getJobTriggerNames() {
-        return Arrays.stream(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, Trigger.class))
-                .toList();
     }
 }

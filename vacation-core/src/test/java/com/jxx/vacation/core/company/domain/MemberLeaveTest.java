@@ -11,6 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -36,6 +37,13 @@ class MemberLeaveTest {
 
         assertThatThrownBy(() -> memberLeave.checkRemainingLeaveBiggerThan(requestVacationDate))
                 .isInstanceOf(MemberLeaveException.class);
+    }
+
+    @Test
+    void test() {
+        StringBuilder failContentBuilder = new StringBuilder();
+        boolean equals = Objects.equals(failContentBuilder.toString(), "");
+        System.out.println(equals);
     }
 
 }

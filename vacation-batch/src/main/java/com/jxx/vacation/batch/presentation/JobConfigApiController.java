@@ -4,9 +4,11 @@ import com.jxx.vacation.batch.application.JobConfigService;
 import com.jxx.vacation.batch.dto.request.EnrollJobForm;
 import com.jxx.vacation.batch.dto.request.JobHistoryCond;
 import com.jxx.vacation.batch.dto.request.ScheduleJobUpdateRequest;
+import com.jxx.vacation.batch.dto.request.TriggerCreateRequest;
 import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
 import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
 import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
+import com.jxx.vacation.batch.dto.response.TriggerCreateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +42,28 @@ public class JobConfigApiController {
         return ResponseEntity.ok(responses);
     }
 
-    // 스케줄 시간 갱신 API
+
+    /**
+     * 트리거 등록 API
+     * 트리거는 등록되자마자 설정된 cronExpression 에 맞춰 동작한다.
+     * @param request
+     * @return
+     */
+    @PostMapping("/admin/triggers")
+    public ResponseEntity<?> createTrigger(@RequestBody TriggerCreateRequest request) {
+        TriggerCreateResponse response = jobConfigService.createTrigger(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 트리거 수정 API
+     * @param request
+     * @return
+     */
     @PatchMapping("/admin/batch/jobs")
-    public ResponseEntity<?> reschedule(@RequestBody ScheduleJobUpdateRequest request) {
-        jobConfigService.rescheduleBatchJob(request);
-        return ResponseEntity.ok("");
+    public ResponseEntity<?> rescheduleTrigger(@RequestBody ScheduleJobUpdateRequest request) {
+        jobConfigService.rescheduleTrigger(request);
+        return ResponseEntity.ok("갱신 완료");
     }
 }
