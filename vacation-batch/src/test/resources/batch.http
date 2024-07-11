@@ -96,25 +96,25 @@ GET http://localhost:8070/admin/batch/jobs-hist
 Content-Type: application/json
 
 ###
-PATCH http://localhost:8070/admin/batch/jobs
-Content-Type: application/json
-
-{
-  "cronExpression": "0 3 0 * * ?",
-  "triggerGroup": "vacationEndJobGroup"
-}
-
-### 10초 마다로 수정
-PATCH http://localhost:8070/admin/batch/jobs
+PATCH http://localhost:8070/admin/batch/triggers
 Content-Type: application/json
 
 {
   "cronExpression": "0 1 0 * * ?",
+  "triggerGroup": "vacationEndJobGroup"
+}
+
+### 10초 마다로 수정
+PATCH http://localhost:8070/admin/batch/triggers
+Content-Type: application/json
+
+{
+  "cronExpression": "0 3 0 * * ?",
   "triggerGroup": "vacationStartJobGroup"
 }
 
 ### TRIGGER 등록 1
-POST http://localhost:8070/admin/triggers
+POST http://localhost:8070/admin/batch/triggers
 Content-Type: application/json
 
 {
@@ -125,12 +125,23 @@ Content-Type: application/json
 }
 
 ### TRIGGER 등록 2
-POST http://localhost:8070/admin/triggers
+POST http://localhost:8070/admin/batch/triggers
 Content-Type: application/json
 
 {
   "jobName": "vacationEndJob",
   "triggerName" : "vacationEndJobTrigger",
   "triggerGroup" : "vacationEndJobGroup",
-  "cronExpression" : "0 * * * * ?"
+  "cronExpression" : "0 3 0 * * ?"
 }
+
+### 스케줄러 중지 프로토
+PATCH http://localhost:8070/admin/batch/triggers/pause?jobName=vacationStartJob
+
+### 스케줄링 정보 확인
+GET http://localhost:8070/admin/batch/triggers?triggerName=vacationEndJobTrigger
+Content-Type: application/json
+
+### 스케줄링 정보 확인
+GET http://localhost:8070/admin/batch/triggers?triggerName=vacationStartJobTrigger
+Content-Type: application/json

@@ -5,8 +5,8 @@
 
 <mapper namespace="com.jxx.vacation.batch.infra.QuartzExploreMapper">
     <select id="findByGroupName"
-    parameterType="String"
-    resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
+            parameterType="String"
+            resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
         SELECT
         QCT.TRIGGER_NAME ,
         QCT.TRIGGER_GROUP ,
@@ -19,10 +19,20 @@
     </select>
     <select id="findAll"
             resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
-        SELECT
-        QCT.TRIGGER_NAME ,
-        QCT.TRIGGER_GROUP ,
-        QCT.CRON_EXPRESSION
+        SELECT QCT.TRIGGER_NAME,
+               QCT.TRIGGER_GROUP,
+               QCT.CRON_EXPRESSION
         FROM QRTZ_CRON_TRIGGERS QCT
+    </select>
+    <select id="findSchedulingInformation"
+            parameterType="string"
+            resultType="com.jxx.vacation.batch.dto.response.SchedulingResponse">
+        SELECT QT.TRIGGER_NAME,
+               QT.TRIGGER_GROUP,
+               QT.TRIGGER_STATE,
+               CT.CRON_EXPRESSION
+        FROM QRTZ_TRIGGERS QT
+                 JOIN QRTZ_CRON_TRIGGERS CT ON QT.TRIGGER_NAME = CT.TRIGGER_NAME
+        WHERE QT.TRIGGER_NAME = #{triggerName};
     </select>
 </mapper>

@@ -13,13 +13,17 @@ import com.jxx.vacation.core.common.pagination.PageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.quartz.impl.jdbcjobstore.TriggerStatus;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -174,7 +178,6 @@ public class JobConfigService {
                     .build();
 
             Date newlyDate = scheduler.rescheduleJob(triggerKey, trigger);
-
             LocalDateTime newlyFirstFireTime = newlyDate
                     .toInstant()
                     .atZone(ZoneId.systemDefault())
@@ -189,5 +192,32 @@ public class JobConfigService {
         } catch (SchedulerException e) {
             throw new AdminClientException("조건을 만족하는 Job이 존재하지 않습니다.", "AC03");
         }
+    }
+
+    /** 트리거 중지 **/
+    @Transactional
+    public void pauseJobFromScheduler(String jobName) {
+        try {
+            scheduler.pauseJob(JobKey.jobKey(jobName));
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public SchedulingResponse readTriggerInformation(String triggerName) {
+        SchedulingResponse schedulingResponse = quartzExploreMapper.findSchedulingInformation(triggerName);
+        LocalDate fireDate = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
+                .next(LocalDateTime.now()).toLocalDate();
+        LocalTime fireTime = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
+                .next(LocalDateTime.now()).toLocalTime();
+        LocalDateTime nextFireTime = LocalDateTime.of(fireDate, fireTime);
+        schedulingResponse.setNextFireTime(nextFireTime);
+        if (Objects.equals(schedulingResponse.getTriggerState(), "PAUSED")){
+            schedulingResponse.setUsed(false);
+        } else {
+            schedulingResponse.setUsed(true);
+        }
+
+        return schedulingResponse;
     }
 }

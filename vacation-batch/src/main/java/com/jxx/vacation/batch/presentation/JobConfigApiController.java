@@ -5,12 +5,10 @@ import com.jxx.vacation.batch.dto.request.EnrollJobForm;
 import com.jxx.vacation.batch.dto.request.JobHistoryCond;
 import com.jxx.vacation.batch.dto.request.ScheduleJobUpdateRequest;
 import com.jxx.vacation.batch.dto.request.TriggerCreateRequest;
-import com.jxx.vacation.batch.dto.response.EnrollJobResponse;
-import com.jxx.vacation.batch.dto.response.JobHistoryResponse;
-import com.jxx.vacation.batch.dto.response.JobMetadataResponse;
-import com.jxx.vacation.batch.dto.response.TriggerCreateResponse;
+import com.jxx.vacation.batch.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,11 +47,11 @@ public class JobConfigApiController {
      * @param request
      * @return
      */
-    @PostMapping("/admin/triggers")
+    @PostMapping("/admin/batch/triggers")
     public ResponseEntity<?> createTrigger(@RequestBody TriggerCreateRequest request) {
         TriggerCreateResponse response = jobConfigService.createTrigger(request);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -61,9 +59,26 @@ public class JobConfigApiController {
      * @param request
      * @return
      */
-    @PatchMapping("/admin/batch/jobs")
+    @PatchMapping("/admin/batch/triggers")
     public ResponseEntity<?> rescheduleTrigger(@RequestBody ScheduleJobUpdateRequest request) {
         jobConfigService.rescheduleTrigger(request);
         return ResponseEntity.ok("갱신 완료");
+    }
+
+    /**
+     *
+     * @param jobName : scheduler 에 등록된 jobName 임 즉 jobDetails 의 Name
+     * @return
+     */
+    @PatchMapping("/admin/batch/triggers/pause")
+    public ResponseEntity<?> pauseJobFromScheduler(@RequestParam("jobName") String jobName) {
+        jobConfigService.pauseJobFromScheduler(jobName);
+        return ResponseEntity.ok(jobName + "스케줄러 중지 완료");
+    }
+
+    @GetMapping("/admin/batch/triggers")
+    public ResponseEntity<?> readTriggerInformation(@RequestParam("triggerName") String triggerName) {
+        SchedulingResponse schedulingResponse = jobConfigService.readTriggerInformation(triggerName);
+        return ResponseEntity.ok(schedulingResponse);
     }
 }
