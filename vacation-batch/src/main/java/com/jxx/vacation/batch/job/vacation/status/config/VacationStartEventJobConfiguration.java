@@ -27,6 +27,8 @@ import javax.sql.DataSource;
 
 import java.util.List;
 
+import static com.jxx.vacation.batch.GlobalJobConstant.VACATION_END_JOB_NAME;
+import static com.jxx.vacation.batch.GlobalJobConstant.VACATION_START_JOB_NAME;
 import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 
 /**
@@ -41,13 +43,12 @@ import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 @RequiredArgsConstructor
 public class VacationStartEventJobConfiguration {
 
-    protected static final String JOB_NAME = "vacation.start.job";
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 
-    @Bean(name = JOB_NAME)
+    @Bean(name = VACATION_START_JOB_NAME)
     public Job vacationStartEventJob(JobRepository jobRepository) {
-        return new JobBuilder(JOB_NAME, jobRepository)
+        return new JobBuilder(VACATION_START_JOB_NAME, jobRepository)
                 .start(step(jobRepository))
                 .build();
     }

@@ -23,6 +23,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.List;
 
+import static com.jxx.vacation.batch.GlobalJobConstant.VACATION_END_JOB_NAME;
+
 
 /**
  * LeaveAdjust 잡은 3가지 데이터 쓰기 작업을 합니다.
@@ -37,14 +39,12 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class VacationEndEventJobConfiguration {
-
-    protected static final String JOB_NAME = "vacation.end.job";
     private final PlatformTransactionManager transactionManager;
     private final DataSource dataSource;
 
-    @Bean(name = JOB_NAME)
+    @Bean(name = VACATION_END_JOB_NAME)
     public Job VacationEndEventJob(JobRepository jobRepository) {
-        return new JobBuilder(JOB_NAME, jobRepository)
+        return new JobBuilder(VACATION_END_JOB_NAME, jobRepository)
                 .start(step(jobRepository))
                 .build();
     }

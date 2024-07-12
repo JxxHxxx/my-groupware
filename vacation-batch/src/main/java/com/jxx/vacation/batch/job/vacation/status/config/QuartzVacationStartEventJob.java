@@ -1,6 +1,5 @@
 package com.jxx.vacation.batch.job.vacation.status.config;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -16,7 +15,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static com.jxx.vacation.batch.job.vacation.status.config.VacationStartEventJobConfiguration.JOB_NAME;
+import static com.jxx.vacation.batch.GlobalJobConstant.VACATION_START_JOB_NAME;
 
 
 @Slf4j
@@ -27,7 +26,7 @@ public class QuartzVacationStartEventJob extends QuartzJobBean {
     private final JobLauncher jobLauncher;
     private final JobExplorer jobExplorer;
 
-    public QuartzVacationStartEventJob(@Qualifier(value = JOB_NAME) Job job, JobLauncher jobLauncher, JobExplorer jobExplorer) {
+    public QuartzVacationStartEventJob(@Qualifier(value = VACATION_START_JOB_NAME) Job job, JobLauncher jobLauncher, JobExplorer jobExplorer) {
         this.job = job;
         this.jobLauncher = jobLauncher;
         this.jobExplorer = jobExplorer;
@@ -35,7 +34,7 @@ public class QuartzVacationStartEventJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        log.info("execute by quartz-scheduler start {}", JOB_NAME);
+        log.info("execute by quartz-scheduler start {}", VACATION_START_JOB_NAME);
         LocalDate processDate = LocalDate.now();
 
         JobParameters jobParameters = new JobParametersBuilder(this.jobExplorer)

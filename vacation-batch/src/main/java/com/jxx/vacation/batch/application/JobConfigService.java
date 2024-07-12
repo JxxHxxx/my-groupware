@@ -13,13 +13,11 @@ import com.jxx.vacation.core.common.pagination.PageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.quartz.impl.jdbcjobstore.TriggerStatus;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +26,8 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import static org.springframework.scheduling.support.CronExpression.*;
 
 
 @Slf4j
@@ -46,6 +46,7 @@ public class JobConfigService {
     private static final String TRIGGER_GROUP_SUX = ".trigger.group";
     // create
 
+    //TODO 트리거 추가로 이에 맞게 수정해야함
     @Transactional
     public EnrollJobResponse enrollBatchJob(EnrollJobForm form) {
         BeanFactory beanFactory = appContext.getAutowireCapableBeanFactory();
@@ -65,11 +66,7 @@ public class JobConfigService {
         JobMetaData jobMetaData = JobMetaData.builder()
                 .jobName(form.jobName())
                 .jobDescription(form.jobDescription())
-                .used(form.used())
                 .enrolledTime(LocalDateTime.now())
-                .executionType(form.executeType())
-                .executionTime(form.executionTime())
-                .executionDuration(form.executionDuration())
                 .build();
 
         List<JobParam> jobParams = form.jobParams()
@@ -101,10 +98,7 @@ public class JobConfigService {
                 savedJobMetaData.getPk(),
                 savedJobMetaData.getJobName(),
                 savedJobMetaData.getJobDescription(),
-                savedJobMetaData.getExecutionType(),
                 savedJobMetaData.getEnrolledTime(),
-                savedJobMetaData.getExecutionTime(),
-                savedJobMetaData.getExecutionDuration(),
                 enrollJobParams);
     }
 
@@ -113,8 +107,6 @@ public class JobConfigService {
         return jobMetaData.stream().map(job -> new JobMetadataResponse(
                         job.getJobName(),
                         job.getJobDescription(),
-                        job.isUsed(),
-                        job.getExecutionTime(),
                         job.getJobParams().stream().map(param -> new JobParamResponse(
                                 param.getParameterKey(),
                                 param.getParamDescription(),
@@ -208,44 +200,52 @@ public class JobConfigService {
         }
     }
 
-    public SchedulingResponse readTriggerInformation(String triggerName) {
-        SchedulingResponse schedulingResponse = quartzExploreMapper.findSchedulingInformation(triggerName);
-        if (Objects.isNull(schedulingResponse)) {
+    public JobSchedulingResponse readTriggerInformation(String triggerName) {
+        JobSchedulingResponse jobSchedulingResponse = quartzExploreMapper.findSchedulingInformation(triggerName);
+        if (Objects.isNull(jobSchedulingResponse)) {
             throw new AdminClientException("조건을 만족하는 트리거는 존재하지 않습니다", "AC02");
         }
 
 
-        LocalDate fireDate = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
-                .next(LocalDateTime.now()).toLocalDate();
-        LocalTime fireTime = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
-                .next(LocalDateTime.now()).toLocalTime();
-        LocalDateTime nextFireTime = LocalDateTime.of(fireDate, fireTime);
-        schedulingResponse.setNextFireTime(nextFireTime);
-        if (Objects.equals(schedulingResponse.getTriggerState(), "PAUSED")){
-            schedulingResponse.setUsed(false);
-        } else {
-            schedulingResponse.setUsed(true);
-        }
-        return schedulingResponse;
+        reconJobSchedulingResponse(jobSchedulingResponse);
+        return jobSchedulingResponse;
     }
 
-    public List<SchedulingResponse> readAllTriggerInformation() {
-        List<SchedulingResponse> schedulingResponses = quartzExploreMapper.findAllSchedulingInformation();
+    public List<JobSchedulingResponse> readAllTriggerInformation() {
+        List<JobSchedulingResponse> jobSchedulingResponses = quartzExploreMapper.findAllSchedulingInformation();
 
-        for (SchedulingResponse schedulingResponse : schedulingResponses) {
-            LocalDate fireDate = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
-                    .next(LocalDateTime.now()).toLocalDate();
-            LocalTime fireTime = org.springframework.scheduling.support.CronExpression.parse(schedulingResponse.getCronExpression())
-                    .next(LocalDateTime.now()).toLocalTime();
+        for (JobSchedulingResponse jobSchedulingResponse : jobSchedulingResponses) {
+            reconJobSchedulingResponse(jobSchedulingResponse);
+        }
+        return jobSchedulingResponses;
+    }
+
+    private static void reconJobSchedulingResponse(JobSchedulingResponse jobSchedulingResponse) {
+        String cronExpression = jobSchedulingResponse.getCronExpression();
+
+        if (Objects.nonNull(cronExpression) && CronExpression.isValidExpression(cronExpression)) {
+            LocalDate fireDate = parse(cronExpression).next(LocalDateTime.now()).toLocalDate();
+            LocalTime fireTime = parse(cronExpression).next(LocalDateTime.now()).toLocalTime();
             LocalDateTime nextFireTime = LocalDateTime.of(fireDate, fireTime);
-            schedulingResponse.setNextFireTime(nextFireTime);
-            if (Objects.equals(schedulingResponse.getTriggerState(), "PAUSED")){
-                schedulingResponse.setUsed(false);
-            } else {
-                schedulingResponse.setUsed(true);
-            }
+            jobSchedulingResponse.setNextFireTime(nextFireTime);
         }
 
-        return schedulingResponses;
+        // 트리거 상태가 PAUSE 중지 이거나 NULL (트리거가 없을 때)
+        String triggerState = jobSchedulingResponse.getTriggerState();
+        if (Objects.equals(triggerState, "PAUSED") || Objects.isNull(triggerState)){
+            jobSchedulingResponse.setSchedulingUsed(false);
+        } else {
+            jobSchedulingResponse.setSchedulingUsed(true);
+        }
+    }
+
+    public List<JobParamResponse> findJobParameterBy(String jobName) {
+        JobMetaData jobMetaData = jobMetaDataRepository.fetchByJobName(jobName)
+                .orElseThrow(() -> new AdminClientException("존재하지 않는 잡 이름입니다.", "AC05"));
+
+        List<JobParam> jobParams = jobMetaData.getJobParams();
+        return jobParams.stream()
+                .map(jp -> new JobParamResponse(jp.getParameterKey(), jp.getParamDescription(), jp.getPlaceHolder(), jp.isRequired()))
+                .toList();
     }
 }

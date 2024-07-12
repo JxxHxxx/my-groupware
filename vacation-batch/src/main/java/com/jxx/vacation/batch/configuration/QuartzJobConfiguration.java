@@ -6,6 +6,9 @@ import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.jxx.vacation.batch.GlobalJobConstant.VACATION_END_JOB_NAME;
+import static com.jxx.vacation.batch.GlobalJobConstant.VACATION_START_JOB_NAME;
+
 @Configuration
 public class QuartzJobConfiguration {
 
@@ -14,7 +17,7 @@ public class QuartzJobConfiguration {
         return JobBuilder
                 .newJob(QuartzVacationStartEventJob.class)
                 .storeDurably(true)
-                .withIdentity("vacation.start.job")
+                .withIdentity(VACATION_START_JOB_NAME)
                 .withDescription("Quartz 연차 시작 배치 잡")
                 .build();
     }
@@ -22,8 +25,8 @@ public class QuartzJobConfiguration {
     public JobDetail scheduleVacationEndJob() {
         return JobBuilder
                 .newJob(QuartzVacationEndEventJob.class)
-                .storeDurably(true) // DB 저장 X
-                .withIdentity("vacation.end.job")
+                .storeDurably(true)
+                .withIdentity(VACATION_END_JOB_NAME)
                 .withDescription("Quartz 연차 종료 배치 잡")
                 .build();
     }

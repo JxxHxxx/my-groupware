@@ -26,28 +26,34 @@
     </select>
     <select id="findSchedulingInformation"
             parameterType="string"
-            resultType="com.jxx.vacation.batch.dto.response.SchedulingResponse">
-        SELECT QT.JOB_NAME,
-               JD.DESCRIPTION,
-               QT.TRIGGER_NAME,
-               QT.TRIGGER_GROUP,
-               QT.TRIGGER_STATE,
-               CT.CRON_EXPRESSION
-        FROM QRTZ_TRIGGERS QT
-                 JOIN QRTZ_CRON_TRIGGERS CT ON QT.TRIGGER_NAME = CT.TRIGGER_NAME
-                 JOIN QRTZ_JOB_DETAILS JD ON QT.JOB_NAME  = JD.JOB_NAME
+            resultType="com.jxx.vacation.batch.dto.response.JobSchedulingResponse">
+        SELECT MD.JOB_META_DATA_PK ,
+               MD.JOB_NAME ,
+               MD.JOB_DESCRIPTION ,
+               MD.ENROLLED_TIME ,
+               QT.TRIGGER_TYPE ,
+               QT.TRIGGER_NAME ,
+               QT.TRIGGER_GROUP ,
+               QT.TRIGGER_STATE ,
+               QCT.CRON_EXPRESSION
+        FROM JXX_BATCH_JOB_META_DATA MD
+                 LEFT JOIN QRTZ_TRIGGERS QT ON MD.JOB_NAME = QT.JOB_NAME
+                 LEFT JOIN QRTZ_CRON_TRIGGERS QCT ON QT.TRIGGER_NAME = QCT.TRIGGER_NAME
         WHERE QT.TRIGGER_NAME = #{triggerName};
     </select>
     <select id="findAllSchedulingInformation"
-            resultType="com.jxx.vacation.batch.dto.response.SchedulingResponse">
-        SELECT QT.JOB_NAME,
-               JD.DESCRIPTION,
-               QT.TRIGGER_NAME,
-               QT.TRIGGER_GROUP,
-               QT.TRIGGER_STATE,
-               CT.CRON_EXPRESSION
-        FROM QRTZ_TRIGGERS QT
-                 JOIN QRTZ_CRON_TRIGGERS CT ON QT.TRIGGER_NAME = CT.TRIGGER_NAME
-                 JOIN QRTZ_JOB_DETAILS JD ON QT.JOB_NAME  = JD.JOB_NAME
+            resultType="com.jxx.vacation.batch.dto.response.JobSchedulingResponse">
+        SELECT MD.JOB_META_DATA_PK ,
+               MD.JOB_NAME ,
+               MD.JOB_DESCRIPTION ,
+               MD.ENROLLED_TIME ,
+               QT.TRIGGER_TYPE ,
+               QT.TRIGGER_NAME ,
+               QT.TRIGGER_GROUP ,
+               QT.TRIGGER_STATE ,
+               QCT.CRON_EXPRESSION
+        FROM JXX_BATCH_JOB_META_DATA MD
+                 LEFT JOIN QRTZ_TRIGGERS QT ON MD.JOB_NAME = QT.JOB_NAME
+                 LEFT JOIN QRTZ_CRON_TRIGGERS QCT ON QT.TRIGGER_NAME = QCT.TRIGGER_NAME;
     </select>
 </mapper>

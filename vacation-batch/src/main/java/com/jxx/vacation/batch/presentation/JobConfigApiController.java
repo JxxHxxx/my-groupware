@@ -33,6 +33,12 @@ public class JobConfigApiController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("/admin/batch/jobs/{job-name}/parameters")
+    public ResponseEntity<?> getJobParameters(@PathVariable("job-name") String jobName) {
+        List<JobParamResponse> responses = jobConfigService.findJobParameterBy(jobName);
+        return ResponseEntity.ok(responses);
+    }
+
     @GetMapping("/admin/batch/jobs-hist")
     public ResponseEntity<?> getJobs(@RequestParam("page") int page, @RequestParam int size,
                                      @ModelAttribute @Validated JobHistoryCond cond) {
@@ -78,13 +84,13 @@ public class JobConfigApiController {
 
     @GetMapping("/admin/batch/triggers")
     public ResponseEntity<?> readTriggerInformation(@RequestParam("triggerName") String triggerName) {
-        SchedulingResponse schedulingResponse = jobConfigService.readTriggerInformation(triggerName);
-        return ResponseEntity.ok(schedulingResponse);
+        JobSchedulingResponse jobSchedulingResponse = jobConfigService.readTriggerInformation(triggerName);
+        return ResponseEntity.ok(jobSchedulingResponse);
     }
 
     @GetMapping("/admin/batch/triggers/all")
     public ResponseEntity<?> readAllTriggerInformation() {
-        List<SchedulingResponse> schedulingResponse = jobConfigService.readAllTriggerInformation();
-        return ResponseEntity.ok(schedulingResponse);
+        List<JobSchedulingResponse> jobSchedulingResponse = jobConfigService.readAllTriggerInformation();
+        return ResponseEntity.ok(jobSchedulingResponse);
     }
 }
