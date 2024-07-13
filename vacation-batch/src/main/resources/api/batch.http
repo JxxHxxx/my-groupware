@@ -112,6 +112,24 @@ Content-Type: application/json
   ]
 }
 
+### 트리거 등록 API 1
+POST http://localhost:8070/admin/batch/triggers
+Content-Type: application/json
+
+{
+  "jobName" : "vacation.end.job",
+  "cronExpression" : "0 5 0 * * ?"
+}
+
+### 트리거 등록 API 2
+POST http://localhost:8070/admin/batch/triggers
+Content-Type: application/json
+
+{
+  "jobName" : "vacation.start.job",
+  "cronExpression" : "0 1 0 * * ?"
+}
+
 ### 스케줄러 수정 END JOB
 PATCH http://localhost:8070/admin/batch/jobs
 Content-Type: application/json
@@ -133,3 +151,4 @@ Content-Type: application/json
   "triggerName": "vacationStartJobTrigger",
   "triggerGroup": "vacation.start.job"
 }
+

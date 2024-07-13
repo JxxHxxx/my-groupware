@@ -84,7 +84,7 @@ public class VacationStartEventJobConfiguration {
                         "JVM.VACATION_STATUS " +
                         "FROM JXX_VACATION_MASTER JVM " +
                         "JOIN JXX_VACATION_DURATION JVD ON JVM.VACATION_ID  = JVD.VACATION_ID " +
-                        "WHERE START_DATE_TIME> ? " +
+                        "WHERE START_DATE_TIME >= ? " +
                         "AND START_DATE_TIME < DATE_ADD(?, INTERVAL 1 DAY)")
                 .rowMapper(new VacationItemRowMapper())
                 .name("vacationItemJdbcReader")

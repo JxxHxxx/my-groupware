@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.jxx.vacation.batch.job.parameters.JxxJobParameter.*;
 
@@ -56,14 +57,23 @@ public class JobExecutionService {
         validator.validate(reqeustJobParameters);
 
         String runId = String.valueOf(reqeustJobParameters.getParameter(JOB_PARAM_RUN_ID.keyName()));
-
         JobParameters jobParameters = new JobParametersBuilder(reqeustJobParameters, jobExplorer)
                 .addJobParameter(JOB_PARAM_RUN_ID.keyName(), runId, String.class, true)
                 .toJobParameters();
+
+        Map<String, JobParameter<?>> parameters = reqeustJobParameters.getParameters();
+        StringBuilder jobParamStringBuilder = new StringBuilder();
+        // RUN ID 를 제외한 JobParameter 정보
+        parameters.entrySet()
+                .stream()
+                .forEach(entry -> jobParamStringBuilder.append(" name :" + entry.getKey() + " value : " + entry.getValue() + "\n"));
+
         log.info("\n=========================================" +
-                "\nTry job name {} " +
-                "\nExecute by API & run.id {}" +
-                "\n=========================================", job.getName(), runId);
+                "\nTry to execute jobName {} " +
+                "\nRequest by ADMIN API " +
+                "\nJobParameter Information" +
+                "\n{}" +
+                "=========================================", job.getName(), jobParamStringBuilder);
 
         return jobLauncher.run(job, jobParameters)
                 .getExitStatus();

@@ -24,7 +24,7 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
             log.info("[PROCESS VID:{}][FILTER][memberId:{} inactive][member {}, org {}]", vacationId, memberId, item.isMemberActive(), item.isOrgActive());
             return null;
         } else if (!ongoingVacationStatus) {
-            log.info("[PROCESS VID:{}][FILTER][memberId:{} vacationStatus:{}][vacation must be ongoing]", vacationId, memberId, vacationStatus);
+            log.info("[PROCESS VID:{}][FILTER][memberId:{} VACATION-STATUS:{}][VACATION-STATUS must be ONGOING]", vacationId, memberId, vacationStatus);
             return null;
         } else if (!LeaveDeduct.DEDUCT.equals(LeaveDeduct.valueOf(item.getLeaveDeduct()))) {
             log.info("[PROCESS VID:{}][FILTER][memberId:{} companyId:{}][is set deducted value false]", vacationId, memberId, item.getCompanyId());
@@ -35,8 +35,7 @@ public class LeaveItemValidateProcessor implements ItemProcessor<LeaveItem, Leav
         }
 
         item.updateVacationStatusToCompleted();
-        log.info("[PROCESS VID:{}][COMPLETED][memberId:{} inactive][member {}, org {}]", vacationId, memberId, item.isMemberActive(), item.isOrgActive());
-
+        log.info("[PROCESS VID:{}][SUCCESS][memberId:{} inactive][member {}, org {}]", vacationId, memberId, item.isMemberActive(), item.isOrgActive());
         return item;
     }
 }
