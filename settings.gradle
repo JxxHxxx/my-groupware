@@ -1,6 +1,6 @@
 rootProject.name = 'app'
 
-include('vacation-core')
-include('vacation-api')
-include('vacation-messaging')
-include('vacation-batch')
+include('groupware-core')
+include('groupware-api')
+include('groupware-messaging')
+include('groupware-batch')

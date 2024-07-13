@@ -35,15 +35,15 @@ out/
 
 ### VS Code ###
 .vscode/
-/vacation-api/src/main/resources/application.yml
-/vacation-batch/src/main/resources/application.yml
-/vacation-core/src/main/resources/application.yml
-/vacation-messaging/src/main/resources/application.yml
+/groupware-api/src/main/resources/application.yml
+/groupware-batch/src/main/resources/application.yml
+/groupware-core/src/main/resources/application.yml
+/groupware-messaging/src/main/resources/application.yml
 /log.base.dir_IS_UNDEFINED/access/api.log
 /log.base.dir_IS_UNDEFINED/was/jxx-vacation.log
-/vacation-batch/src/main/resources/logback-spring.xml
-/vacation-batch/src/main/resources/logback.properties
-/vacation-batch/src/test/resources/application.yml
-/vacation-messaging/src/main/resources/logback.properties
-/vacation-messaging/src/main/resources/logback-spring.xml
-/vacation-messaging/src/test/resources/application.yml
+/groupware-batch/src/main/resources/logback-spring.xml
+/groupware-batch/src/main/resources/logback.properties
+/groupware-batch/src/test/resources/application.yml
+/groupware-messaging/src/main/resources/logback.properties
+/groupware-messaging/src/main/resources/logback-spring.xml
+/groupware-messaging/src/test/resources/application.yml
