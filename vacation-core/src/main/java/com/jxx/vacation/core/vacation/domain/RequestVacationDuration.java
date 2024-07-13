@@ -22,7 +22,7 @@ public class RequestVacationDuration {
     public void reconcliation(VacationType vacationType) {
         if (MORE_DAY.equals(vacationType)) {
             startDateTime = LocalDateTime.of(startDateTime.getYear(), startDateTime.getMonth(), startDateTime.getDayOfMonth(), 0, 0, 0);
-            endDateTime = LocalDateTime.of(startDateTime.getYear(), startDateTime.getMonth(), startDateTime.getDayOfMonth(), 23, 59, 59);
+            endDateTime = LocalDateTime.of(endDateTime.getYear(), endDateTime.getMonth(), endDateTime.getDayOfMonth(), 23, 59, 59);
         }
     }
 }
