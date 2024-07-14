@@ -3,10 +3,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jxx.vacation.api.vacation.query.VacationDynamicMapper">
+<mapper namespace="com.jxx.groupware.api.vacation.query.VacationDynamicMapper">
     <select id="search"
-            parameterType="com.jxx.vacation.api.vacation.query.VacationSearchCondition"
-            resultType="com.jxx.vacation.core.vacation.projection.VacationProjection"
+            parameterType="com.jxx.groupware.api.vacation.query.VacationSearchCondition"
+            resultType="com.jxx.groupware.core.vacation.projection.VacationProjection"
     >
         SELECT V.VACATION_ID,
         V.REQUESTER_ID,

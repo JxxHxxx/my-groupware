@@ -3,11 +3,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jxx.vacation.batch.infra.JobCustomMapper">
+<mapper namespace="com.jxx.groupware.batch.infra.JobCustomMapper">
 
     <select id="findJobExecutionHistory"
-            parameterType="com.jxx.vacation.batch.dto.request.JobHistoryCond"
-            resultType="com.jxx.vacation.batch.dto.response.JobHistoryResponse">
+            parameterType="com.jxx.groupware.batch.dto.request.JobHistoryCond"
+            resultType="com.jxx.groupware.batch.dto.response.JobHistoryResponse">
 
         SELECT BJE.JOB_EXECUTION_ID,
         BJE.JOB_INSTANCE_ID,

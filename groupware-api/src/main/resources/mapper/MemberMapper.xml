@@ -3,11 +3,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jxx.vacation.api.member.query.MemberDynamicMapper">
+<mapper namespace="com.jxx.groupware.api.member.query.MemberDynamicMapper">
 
     <select id="search"
-            parameterType="com.jxx.vacation.api.member.dto.request.MemberSearchCondition"
-            resultType="com.jxx.vacation.api.member.dto.response.MemberProjection">
+            parameterType="com.jxx.groupware.api.member.dto.request.MemberSearchCondition"
+            resultType="com.jxx.groupware.api.member.dto.response.MemberProjection">
         SELECT
         JMLM.MEMBER_PK,
         JMLM.ENTERED_DATE,

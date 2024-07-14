@@ -3,10 +3,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jxx.vacation.batch.infra.QuartzExploreMapper">
+<mapper namespace="com.jxx.groupware.batch.infra.QuartzExploreMapper">
     <select id="findByGroupName"
             parameterType="String"
-            resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
+            resultType="com.jxx.groupware.batch.dto.response.CronTriggerResponse">
         SELECT
         QCT.TRIGGER_NAME ,
         QCT.TRIGGER_GROUP ,
@@ -18,7 +18,7 @@
         </where>
     </select>
     <select id="findAll"
-            resultType="com.jxx.vacation.batch.dto.response.CronTriggerResponse">
+            resultType="com.jxx.groupware.batch.dto.response.CronTriggerResponse">
         SELECT QCT.TRIGGER_NAME,
                QCT.TRIGGER_GROUP,
                QCT.CRON_EXPRESSION
@@ -26,7 +26,7 @@
     </select>
     <select id="findSchedulingInformation"
             parameterType="string"
-            resultType="com.jxx.vacation.batch.dto.response.JobSchedulingResponse">
+            resultType="com.jxx.groupware.batch.dto.response.JobSchedulingResponse">
         SELECT MD.JOB_META_DATA_PK ,
                MD.JOB_NAME ,
                MD.JOB_DESCRIPTION ,
@@ -42,7 +42,7 @@
         WHERE QT.TRIGGER_NAME = #{triggerName};
     </select>
     <select id="findAllSchedulingInformation"
-            resultType="com.jxx.vacation.batch.dto.response.JobSchedulingResponse">
+            resultType="com.jxx.groupware.batch.dto.response.JobSchedulingResponse">
         SELECT MD.JOB_META_DATA_PK ,
                MD.JOB_NAME ,
                MD.JOB_DESCRIPTION ,
