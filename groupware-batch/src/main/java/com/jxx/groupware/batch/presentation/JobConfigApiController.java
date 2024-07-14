@@ -40,7 +40,8 @@ public class JobConfigApiController {
     }
 
     @GetMapping("/admin/batch/jobs-hist")
-    public ResponseEntity<?> getJobs(@RequestParam("page") int page, @RequestParam int size,
+    public ResponseEntity<?> getJobs(@RequestParam(value = "page", defaultValue = "0") int page,
+                                     @RequestParam(value = "size", defaultValue = "10") int size,
                                      @ModelAttribute @Validated JobHistoryCond cond) {
         Page<JobHistoryResponse> responses = jobConfigService.pageJobHistories(cond, page, size);
         return ResponseEntity.ok(responses);

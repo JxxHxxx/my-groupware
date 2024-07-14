@@ -68,7 +68,7 @@ public class VacationApiController {
     /*** 휴가 취소 API
      * 1. 추가 요구 사항 - 결재가 올라간 휴가를 취소할 경우, 결재 라인에 알려야 한다. */
 
-    @PostMapping("/api/vacations/{vacation-id}/cancel")
+    @DeleteMapping("/api/vacations/{vacation-id}")
     public ResponseEntity<?> cancelVacation(@PathVariable(name = "vacation-id") Long vacationId) {
         VacationServiceResponse response = vacationService.cancelVacation(vacationId);
         return ResponseEntity.ok(response);

@@ -20,7 +20,7 @@ public enum VacationStatus {
 
     private final String description;
 
-    public static final List<VacationStatus> CANCEL_POSSIBLE_GROUP = List.of(REQUEST, REJECT, APPROVED);
+    public static final List<VacationStatus> CANCEL_POSSIBLE_GROUP = List.of(CREATE);
     // 휴가 신청 시, 신청 가능한 일 수 인지 파악해야 할 때, 필요한 그룹
     public static final List<VacationStatus> CONFIRMING_GROUP = List.of(REQUEST, APPROVED);
 
@@ -46,5 +46,4 @@ public enum VacationStatus {
     public static boolean isApproved(VacationStatus vacationStatus) {
         return APPROVED.equals(vacationStatus);
     }
-
 }

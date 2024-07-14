@@ -121,6 +121,11 @@ project(':groupware-api') {
         // SQL 로그 출력용
         implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
 
+        // 타 시스템 PATCH, PUT API 호출
+        // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+        implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
+
+
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'com.h2database:h2'
         testImplementation 'org.awaitility:awaitility:4.2.0'

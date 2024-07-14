@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.groupware.api.common.web.RequestUri;
 import com.jxx.groupware.api.common.web.ServerCommunicationException;
 import com.jxx.groupware.api.common.web.SimpleRestClient;
-import com.jxx.groupware.api.vacation.dto.request.ConfirmRaiseRequest;
+import com.jxx.groupware.api.vacation.dto.request.ConfirmRaiseOrCancelRequest;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.core.common.generator.ConfirmDocumentIdGenerator;
@@ -31,7 +31,7 @@ public class ConfirmRaiseApiAdapter implements BiFunction<Vacation, MemberLeave,
     public ConfirmDocumentRaiseResponse apply(Vacation vacation, MemberLeave memberLeave) {
         String companyId = memberLeave.receiveCompanyId();
         String confirmDocumentId = ConfirmDocumentIdGenerator.execute(companyId, vacation.getId());
-        ConfirmRaiseRequest confirmRaiseRequest = new ConfirmRaiseRequest(companyId, memberLeave.receiveDepartmentId(), memberLeave.getMemberId());
+        ConfirmRaiseOrCancelRequest confirmRaiseOrCancelRequest = new ConfirmRaiseOrCancelRequest(companyId, memberLeave.receiveDepartmentId(), memberLeave.getMemberId());
 
         UriComponents uriComponents = UriComponentsBuilder
                 .fromUriString(CONFIRM_SERVER_HOST)
@@ -47,10 +47,10 @@ public class ConfirmRaiseApiAdapter implements BiFunction<Vacation, MemberLeave,
         ConfirmDocumentRaiseResponse raiseResponse = null;
         try {
             // TODO JsonProcessingException 에러도 SimpleRestClient 에서 처리하는게 깔끔할 듯
-            result = simpleRestClient.post(uriComponents, confirmRaiseRequest, ResponseResult.class);
+            result = simpleRestClient.post(uriComponents, confirmRaiseOrCancelRequest, ResponseResult.class);
             raiseResponse = simpleRestClient.convertTo(result, ConfirmDocumentRaiseResponse.class);
         } catch (ServerCommunicationException exception) {
-            if (exception.getStatusCode() == 400 && ConfirmStatus.RAISE.name().equals(exception.getResponseCode()))  {
+            if (exception.getStatusCode() == 400 && ConfirmStatus.RAISE.name().equals(exception.getErrorCode()))  {
                 /** 결재 서버에서만 반영되고 휴가 서버 반영 안될 경우 처리 **/
                 log.info("결재 서버에는 이미 반영되었습니다. 결재 서버와 휴가 서버의 데이터 동기화를 위한 처리를 진행합니다.");
                 return new ConfirmDocumentRaiseResponse("", "", ConfirmStatus.RAISE.name());

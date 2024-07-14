@@ -17,7 +17,7 @@ public class JobExecutionApiController {
 
     private final JobExecutionService jobExecutionService;
 
-    @PostMapping("/batch/job/run")
+    @PostMapping("/admin/batch/job/run")
     public ResponseEntity<?> runJob(@RequestBody JobLauncherRequest request) throws Exception{
         ExitStatus exitStatus = jobExecutionService.runJob(request.getJobParameters());
         return ResponseEntity.ok(exitStatus.toString());

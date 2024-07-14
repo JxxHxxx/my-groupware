@@ -2,9 +2,12 @@ package com.jxx.groupware.api.vacation.application;
 
 import com.jxx.groupware.api.excel.application.CompanyVacationTypePolicyExcelReader;
 import com.jxx.groupware.api.excel.application.ExcelReader;
+import com.jxx.groupware.api.vacation.application.function.ConfirmCancelApiAdapter;
 import com.jxx.groupware.api.vacation.application.function.ConfirmRaiseApiAdapter;
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse;
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
+import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationDurationForm;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.api.vacation.dto.request.VacationTypePolicyForm;
@@ -36,6 +39,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus.*;
 import static com.jxx.groupware.core.vacation.domain.entity.VacationStatus.*;
 
 @Slf4j
@@ -268,20 +272,37 @@ public class VacationService {
                 vacation.getVacationStatus());
     }
 
-    @Transactional
     public VacationServiceResponse cancelVacation(Long vacationId) {
+        ConfirmCancelApiAdapter confirmCancelApiAdapter = new ConfirmCancelApiAdapter();
+        return cancelVacation(vacationId, confirmCancelApiAdapter);
+    }
+
+    protected VacationServiceResponse cancelVacation(Long vacationId,
+                                                     BiFunction<Vacation, MemberLeave, ConfirmDocumentCancelResponse> apiAdapter) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow();
         MemberLeave memberLeave = memberLeaveRepository.findByMemberId(vacation.getRequesterId())
                 .orElseThrow();
-
+        // 취소 가능한 상태인지 검증
         VacationManager vacationManager = VacationManager.updateVacation(memberLeave, vacation);
         vacationManager.validateMemberActive();
-        // TODO 상신 요청자를 요청자에서 받고 있지 않음, 세션 or Body 받아서 요청자 누군지 검증해야 함 - 일단 vacation 생성자로 ㄱㄱ
-        Vacation cancelVacation = vacationManager.cancel();
-        vacationHistRepository.save(new VacationHistory(cancelVacation, History.update(vacation.getRequesterId())));
+        // 타 시스템 결재 서버 취소 API 호출
+        ConfirmDocumentCancelResponse response = apiAdapter.apply(vacation, memberLeave);
 
-
+        // 트랜잭션 시작
+        TransactionStatus txStatus = platformTransactionManager.getTransaction(TransactionDefinition.withDefaults());
+        try {
+            if (CANCEL.equals(response.confirmStatus())) {
+                Vacation cancelVacation = vacationManager.cancel();
+                vacationHistRepository.save(new VacationHistory(cancelVacation, History.update(vacation.getRequesterId())));
+            }
+        } catch (Exception e) {
+            platformTransactionManager.rollback(txStatus);
+            log.error("DB 통신 과정중에 오류가 발생하여 롤백합니다.");
+            throw new RuntimeException(e);
+        }
+        platformTransactionManager.commit(txStatus);
+        // 트랜잭션 종료
         return vacationServiceResponse(vacation, memberLeave);
     }
 
@@ -298,7 +319,7 @@ public class VacationService {
     @Transactional
     public VacationServiceResponse fetchVacationStatus(Long vacationId, VacationStatus vacationStatus) {
         Vacation vacation = vacationRepository.findById(vacationId).orElseThrow();
-        if (!(vacationStatus.equals(APPROVED) || vacationStatus.equals(REJECT)))
+        if (!(vacationStatus.equals(APPROVED) || vacationStatus.equals(VacationStatus.REJECT)))
             throw new VacationClientException("잘못된 요청입니다.");
 
         if (!REQUEST.equals(vacation.getVacationStatus())) {

@@ -182,8 +182,61 @@ class VacationManagerTest {
     // 상신 가능 여부 확인
 
     // 상신
+    @DisplayName("VacationStatus.CREATE 일 때만 휴가 취소가 가능하며" +
+            "취소할 시, vacationStatus 가 CANCEL 로 변경된다.")
+    @Test
+    void cancel_success_case() {
+        Organization organization = CoreEntityFactory.defalutOrganization();
+        MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization);
+
+        Vacation createdVacation = Vacation.builder()
+                .vacationStatus(VacationStatus.CREATE)
+                .build();
+
+        VacationManager vacationManager = VacationManager.updateVacation(memberLeave, createdVacation);
+
+        Vacation canceledVacation = vacationManager.cancel();
+        assertThat(canceledVacation.getVacationStatus()).isEqualTo(VacationStatus.CANCELED);
+    }
 
     // 취소 (결재 취소)
+    @DisplayName("VacationStatus.CREATE 일 때만 휴가는 취소 가능하다. " +
+            "그 외 상태일 때는 취소 불가능하고 VacationClientException 예외가 발생한다" +
+            "CANCELED 상태일 경우 예외 메시지가 조금 다르게 출력되기에 아래 테스트 케이스에서 추가 작성")
+    @EnumSource(names = {"REQUEST", "REJECT", "APPROVED", "NON_REQUIRED", "ONGOING", "COMPLETED", "FAIL", "ERROR"})
+    @ParameterizedTest
+    void cancel_fail_case(VacationStatus vacationStatus) {
+        Organization organization = CoreEntityFactory.defalutOrganization();
+        MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization);
+
+        Vacation createdVacation = Vacation.builder()
+                .vacationStatus(vacationStatus)
+                .build();
+
+        VacationManager vacationManager = VacationManager.updateVacation(memberLeave, createdVacation);
+
+        assertThatThrownBy(vacationManager::cancel)
+                .isInstanceOf(VacationClientException.class)
+                .hasMessageContaining("취소 가능한 상태의 휴가가 아닙니다. 현재 휴가 상태:");
+    }
+    @DisplayName("VacationStatus.CANCEL 일 때 휴가 취소를 요청할 경우 " +
+            "VacationClientException 예외가 발생하며" +
+            "취소 메시지는 상기 테스트와 조금 다르게 '이미 취소된 휴가입니다.' 라는 메시지가 나온다.")
+    @Test
+    void cancel_fail_case_cuz_already_canceled_vacation() {
+        Organization organization = CoreEntityFactory.defalutOrganization();
+        MemberLeave memberLeave = CoreEntityFactory.defaultMemberLeave(organization);
+
+        Vacation createdVacation = Vacation.builder()
+                .vacationStatus(VacationStatus.CANCELED)
+                .build();
+
+        VacationManager vacationManager = VacationManager.updateVacation(memberLeave, createdVacation);
+
+        assertThatThrownBy(vacationManager::cancel)
+                .isInstanceOf(VacationClientException.class)
+                .hasMessage("이미 취소된 휴가입니다.");
+    }
 
     // 수정
 }

@@ -16,7 +16,7 @@ import org.springframework.web.client.RestClientException;
 import java.net.ConnectException;
 
 @Slf4j
-@RestControllerAdvice(basePackages = {"com.jxx.vacation.api.vacation"})
+@RestControllerAdvice(basePackages = {"com.jxx.groupware.api.vacation"})
 public class VacationApiExceptionHandler {
 
     @ExceptionHandler(UnAuthenticationException.class)

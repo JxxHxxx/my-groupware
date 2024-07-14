@@ -210,8 +210,11 @@ public class VacationManager {
 
     // 휴가 취소 (결재 문서를 취소)
     public Vacation cancel() {
-        if (!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {
-            throw new IllegalArgumentException("취소 불가능한 상태입니다.");
+        if (CANCELED.equals(vacation.getVacationStatus())) {
+            throw new VacationClientException("이미 취소된 휴가입니다.");
+        }
+        else if(!CANCEL_POSSIBLE_GROUP.contains(vacation.getVacationStatus())) {
+            throw new VacationClientException("취소 가능한 상태의 휴가가 아닙니다. 현재 휴가 상태:" + vacation.getVacationStatus());
         }
         vacation.changeVacationStatus(CANCELED);
         return vacation;

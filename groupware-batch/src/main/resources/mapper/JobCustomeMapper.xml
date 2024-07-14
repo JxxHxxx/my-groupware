@@ -27,6 +27,7 @@
                ]]>
             </if>
         </where>
+        ORDER BY BJE.START_TIME DESC;
     </select>
 
 </mapper>
