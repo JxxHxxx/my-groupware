@@ -1,0 +1,13 @@
+
+
+### 회사코드 생성
+POST http://localhost:8080/test/company-codes
+Content-Type: application/json
+
+{
+  "companyId": "SPY",
+  "companyName": "스파이의료센터"
+}
+
+### 회사코드 조회
+GET http://localhost:8080/test/company-codes
