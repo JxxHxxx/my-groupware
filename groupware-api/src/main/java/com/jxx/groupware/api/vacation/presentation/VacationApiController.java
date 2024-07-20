@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,7 +41,7 @@ public class VacationApiController {
     }
 
     @PostMapping("/api/vacations/all")
-    public ResponseEntity<?> createVacations(@RequestBody @Validated List<RequestVacationForm> form) {
+    public ResponseEntity<?> createVacations(@RequestBody @Valid List<RequestVacationForm> form) {
         vacationService.createVacations(form);
 
         return ResponseEntity.ok("!");
@@ -61,7 +60,7 @@ public class VacationApiController {
 
     @PatchMapping("/api/vacations/{vacation-id}")
     public ResponseEntity<?> updateVacation(@PathVariable(name = "vacation-id") Long vacationId,
-                                            @RequestBody UpdateVacationForm form) {
+                                            @RequestBody @Valid UpdateVacationForm form) {
         VacationServiceResponse response = vacationService.updateVacation(vacationId, form);
         return ResponseEntity.ok(response);
     }

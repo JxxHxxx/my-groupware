@@ -11,7 +11,6 @@ import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.message.domain.MessageQ;
 import com.jxx.groupware.core.message.infra.MessageQRepository;
 import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
-import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationDurationForm;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.groupware.core.vacation.domain.entity.*;
@@ -218,7 +217,7 @@ class VacationServiceTest {
         // 월, 화 -> 수, 목, 금 으로 변경
         UpdateVacationForm updateVacationForm = new UpdateVacationForm(
                 "위임자ID", "위임자명", "사유",
-                List.of(new UpdateVacationDurationForm(
+                List.of(new RequestVacationDuration(
                         vacationDurationDto.vacationDurationId(),
                         LocalDateTime.of(2024, 3, 6, 0, 0),
                         LocalDateTime.of(2024, 3, 8, 0, 0))),

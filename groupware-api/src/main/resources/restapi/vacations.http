@@ -245,17 +245,44 @@ DELETE http://localhost:8080/api/vacations/137
 Content-Type: application/json
 
 ### 휴가 수정
-PATCH http://localhost:8080/api/vacations/140
+PATCH http://localhost:8080/api/vacations/145
 Content-Type:application/json
 
 {
-  "delegatorId": "U00071",
-  "delegatorName": "김하늘",
+  "delegatorId": "",
+  "delegatorName": "",
   "reason": "겨율 휴가",
-  "updateVacationDurationForms": [{
-    "vacationDurationId": 1,
-    "startDateTime": "2024-07-22T00:00:00",
-    "endDateTime": "2024-06-25T00:00:00"
-  }],
-  "contentPk": 142
+  "requestVacationDurations": [
+    {
+      "vacationDurationId": 145,
+      "startDateTime": "2024-08-25T00:00:00",
+      "endDateTime": "2024-08-26T00:00:00"
+    },
+    {
+      "vacationDurationId": 147,
+      "startDateTime": "2024-08-21T00:00:00",
+      "endDateTime": "2024-08-22T00:00:00"
+    },
+    {
+      "vacationDurationId": 146,
+      "startDateTime": "2024-08-27T00:00:00",
+      "endDateTime": "2024-08-28T00:00:00"
+    },
+    {
+      "vacationDurationId": 148,
+      "startDateTime": "2024-09-01T00:00:00",
+      "endDateTime": "2024-09-02T00:00:00"
+    },
+    {
+      "vacationDurationId": 149,
+      "startDateTime": "2024-09-03T00:00:00",
+      "endDateTime": "2024-09-05T00:00:00"
+    },
+    {
+      "vacationDurationId": null,
+      "startDateTime": "2024-09-05T00:00:00",
+      "endDateTime": "2024-09-06T00:00:00"
+    }
+  ],
+  "contentPk": 147
 }

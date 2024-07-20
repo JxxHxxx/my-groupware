@@ -13,6 +13,11 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
 
     @Query(value = "select v from Vacation v " +
             "join fetch VacationDuration vd " +
+            "where v.requesterId =:requesterId")
+    List<Vacation> fetchAllByRequesterId(@Param("requesterId") String requesterId);
+
+    @Query(value = "select v from Vacation v " +
+            "join fetch VacationDuration vd " +
             "where v.companyId=:companyId and v.vacationType ='COMMON_VACATION'")
     List<Vacation> findCommonVacation(@Param("companyId") String companyId);
 

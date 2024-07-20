@@ -7,7 +7,7 @@ import com.jxx.groupware.api.vacation.application.function.ConfirmRaiseApiAdapte
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse;
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
-import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationDurationForm;
+import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import static com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus.*;
@@ -125,23 +126,49 @@ public class VacationService {
 
         VacationManager vacationManager = VacationManager.updateVacation(memberLeave, vacation);
         vacationManager.validateUpdatePossible();
-        // 수정할 수 있는 정보 - 사유, 대리자, 휴가 기간
-        List<UpdateVacationDurationForm> updateVacationDurationForms = form.updateVacationDurationForms();
-        // 휴가 기간 업데이트
-        for (UpdateVacationDurationForm vdForm : updateVacationDurationForms) {
-            VacationDuration findVacationDuration = vacationManager.getVacationDurations().stream()
-                    .filter(vd -> vd.identifyVacationDuration(vdForm.vacationDurationId()))
-                    .findFirst().orElseThrow(() -> new VacationClientException(
-                            "휴가 수정을 할 수 없습니다. 관리자에게 문의해주세요. vacationId: " + vacationId + " vacationDuration:" + vdForm.vacationDurationId()));
-            findVacationDuration.updateStartAndEndDateTime(vdForm.startDateTime(), vdForm.endDateTime());
-        }
-        // N + 1 발생함, persistenceContext 에 수정된 VacationDuration 을 가지고 있기 떄문에 업데이트된 휴가 기간으로 불러옴
-        List<Vacation> createdVacations = vacationRepository.findAllByRequesterId(vacation.getRequesterId());
 
+        // 수정할 수 있는 정보 - 사유, 대리자, 휴가 기간
+        List<RequestVacationDuration> updateVacationDurations = form.requestVacationDurations();
+
+        // 기존 휴가 기간을 업데이트하는 파라미터
+        List<RequestVacationDuration> existedVacationDurationUpdated = updateVacationDurations.stream()
+                .filter(vd -> Objects.nonNull(vd.getVacationDurationId()))
+                .toList();
+        // 휴가 기간 업데이트 -> 기존 기간 수정 / 신규 기간 추가 CASE
+        List<VacationDuration> vacationDurations = vacationManager.getVacationDurations();
+        for (VacationDuration vacationDuration : vacationDurations) {
+            RequestVacationDuration updateVacationDuration = existedVacationDurationUpdated.stream()
+                    .filter(exvd -> Objects.equals(exvd.getVacationDurationId(), vacationDuration.getId()))
+                    .findFirst().orElseThrow(() -> new VacationClientException("알 수 없는 에러"));
+            // 더티 체킹 발생
+            vacationDuration.updateStartAndEndDateTime(updateVacationDuration.getStartDateTime(), updateVacationDuration.getEndDateTime());
+        }
+
+        // 신규 휴가 기간을 업데이트하는 파라미터 vacationDurationId 가 null 인 경우가 신규라고 약속
+        List<RequestVacationDuration> newVacationDurationUpdated = updateVacationDurations.stream()
+                .filter(vd -> Objects.isNull(vd.getVacationDurationId()))
+                .toList();
+
+        List<VacationDuration> newVacationDurations = newVacationDurationUpdated.stream()
+                .map(nvd -> {
+                    VacationDuration vacationDuration = new VacationDuration(
+                            nvd.getStartDateTime(), nvd.getEndDateTime(), vacation.getLeaveDeduct(), vacation.vacationType());
+                    vacationDuration.mappingVacation(vacation);
+                    return vacationDuration;
+                })
+                .toList();
+
+        // 이후 vacationDuration id 가지고 작업을 해야되서 Flush 해야됨
+        vacationDurationRepository.saveAllAndFlush(newVacationDurations);
+
+        // 기존 휴가들과의 검증이 필요함.
+        List<Vacation> createdVacations = vacationRepository.fetchAllByRequesterId(vacation.getRequesterId());
+        // 검증
         vacationManager.validateVacationDatesAreDuplicated(createdVacations);
         if (LeaveDeduct.isLeaveDeductVacation(vacation.getLeaveDeduct())) {
             vacationManager.validateRemainingLeaveIsBiggerThanConfirmingVacationsAnd(createdVacations);
         }
+
         vacationManager.updateLastDuration();
 
         eventPublisher.publishEvent(new VacationUpdatedEvent(
