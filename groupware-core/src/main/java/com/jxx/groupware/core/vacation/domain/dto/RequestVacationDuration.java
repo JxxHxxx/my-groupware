@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.vacation.domain;
+package com.jxx.groupware.core.vacation.domain.dto;
 
 import com.jxx.groupware.core.vacation.domain.entity.VacationType;
 import lombok.Getter;

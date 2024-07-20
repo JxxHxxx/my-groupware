@@ -13,6 +13,7 @@ import com.jxx.groupware.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.groupware.api.vacation.query.VacationSearchCondition;
 import com.jxx.groupware.core.vacation.projection.VacationProjection;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class VacationApiController {
      * 결재 서버에서 결재 문서 ID 값을 가져와야 함 */
 
     @PostMapping("/api/vacations")
-    public ResponseEntity<VacationServiceResponse> createVacation(@RequestBody @Validated RequestVacationForm form) {
+    public ResponseEntity<VacationServiceResponse> createVacation(@RequestBody @Valid RequestVacationForm form) {
         VacationServiceResponse response = vacationService.createVacation(form);
         return ResponseEntity.ok(response);
     }

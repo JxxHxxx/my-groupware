@@ -7,7 +7,6 @@ import com.jxx.groupware.api.vacation.application.function.ConfirmRaiseApiAdapte
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse;
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationDurationForm;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.api.vacation.dto.request.VacationTypePolicyForm;

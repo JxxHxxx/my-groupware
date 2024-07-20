@@ -20,12 +20,12 @@ Content-Type: application/json
       "endDateTime": "2024-07-05T00:00"
     }
   ],
-  "title" : "휴가신청서",
-  "reason" : "개인사정",
-  "requesterName" : "손철수",
-  "delegatorName" : "",
-  "departmentId" : "",
-  "departmentName" : "지역네트워크사업팀"
+  "title": "휴가신청서",
+  "reason": "개인사정",
+  "requesterName": "손철수",
+  "delegatorName": "",
+  "departmentId": "",
+  "departmentName": "지역네트워크사업팀"
 }
 
 ### 휴가 신청 2
@@ -113,6 +113,7 @@ Content-Type: application/json
   "delegatorId": "SPY00290",
   "delegatorName": "허민용"
 }
+
 ### 휴가 수정
 PATCH http://localhost:8080/api/vacations/1
 Content-Type: application/json
@@ -170,8 +171,8 @@ Content-Type: application/json
 
 {
   "requesterId": "U00001",
-  "vacationType" : "MORE_DAY",
-  "leaveDeduct" : "DEDUCT",
+  "vacationType": "MORE_DAY",
+  "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
       "startDateTime": "2024-11-11T00:00",
@@ -242,3 +243,19 @@ Content-Type: application/json
 ### 휴가 취소(결재 서버 올라와있어야 함)
 DELETE http://localhost:8080/api/vacations/137
 Content-Type: application/json
+
+### 휴가 수정
+PATCH http://localhost:8080/api/vacations/140
+Content-Type:application/json
+
+{
+  "delegatorId": "U00071",
+  "delegatorName": "김하늘",
+  "reason": "겨율 휴가",
+  "updateVacationDurationForms": [{
+    "vacationDurationId": 1,
+    "startDateTime": "2024-07-22T00:00:00",
+    "endDateTime": "2024-06-25T00:00:00"
+  }],
+  "contentPk": 142
+}

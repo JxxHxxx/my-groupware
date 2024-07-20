@@ -10,7 +10,7 @@ import com.jxx.groupware.core.common.generator.ConfirmDocumentIdGenerator;
 import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.message.domain.MessageQ;
 import com.jxx.groupware.core.message.infra.MessageQRepository;
-import com.jxx.groupware.core.vacation.domain.RequestVacationDuration;
+import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationDurationForm;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.core.vacation.domain.dto.VacationDurationDto;

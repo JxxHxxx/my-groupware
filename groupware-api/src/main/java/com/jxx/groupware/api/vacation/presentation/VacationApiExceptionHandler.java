@@ -9,11 +9,14 @@ import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 
 import java.net.ConnectException;
+import java.util.List;
 
 @Slf4j
 @RestControllerAdvice(basePackages = {"com.jxx.groupware.api.vacation"})
@@ -37,13 +40,22 @@ public class VacationApiExceptionHandler {
         Integer statusCode = exception.getStatusCode();
         return ResponseEntity.status(statusCode)
                 .body(new ResponseResult<>(statusCode, exception.getMessage(), null));
-
     }
 
     @ExceptionHandler({ConnectException.class, RestClientException.class})
     public ResponseEntity<?> handleServerServiceException(ConnectException exception) {
         return ResponseEntity.internalServerError()
                 .body(new ResponseResult<>(500, exception.getMessage(), null));
+
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleExcelFileReadException(MethodArgumentNotValidException exception) {
+        List<String> errMsgs = exception.getAllErrors().stream()
+                .map(err -> err.getDefaultMessage())
+                .toList();
+        return ResponseEntity.badRequest()
+                .body(new ResponseResult<>(400, errMsgs.toString(), null));
 
     }
 

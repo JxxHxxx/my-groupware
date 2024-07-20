@@ -5,8 +5,8 @@ POST http://localhost:8080/test/company-codes
 Content-Type: application/json
 
 {
-  "companyId": "SPY",
-  "companyName": "스파이의료센터"
+  "companyId": "BNG",
+  "companyName": "바바베이커리"
 }
 
 ### 회사코드 조회
