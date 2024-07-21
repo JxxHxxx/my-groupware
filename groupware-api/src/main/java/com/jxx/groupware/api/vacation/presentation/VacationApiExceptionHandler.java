@@ -9,7 +9,6 @@ import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,13 +49,19 @@ public class VacationApiExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleExcelFileReadException(MethodArgumentNotValidException exception) {
+    public ResponseEntity<?> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
         List<String> errMsgs = exception.getAllErrors().stream()
                 .map(err -> err.getDefaultMessage())
                 .toList();
-        return ResponseEntity.badRequest()
-                .body(new ResponseResult<>(400, errMsgs.toString(), null));
 
+        String errMsg = "";
+        if (!errMsgs.isEmpty()) {
+            errMsg = errMsgs.get(0);
+        }
+
+        // 총 예외 메시지 수 표시 errMsgs.size()
+        return ResponseEntity.badRequest()
+                .body(new ResponseResult<>(400, errMsg, errMsgs.size()));
     }
 
     @ExceptionHandler(ExcelFileReadException.class)
@@ -64,6 +69,5 @@ public class VacationApiExceptionHandler {
         log.error("[{}][{}]", exception.purpose(), exception.getMessage());
         return ResponseEntity.badRequest()
                 .body(new ResponseResult<>(400, exception.getMessage(), exception.purpose()));
-
     }
 }

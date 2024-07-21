@@ -47,3 +47,6 @@ out/
 /groupware-messaging/src/main/resources/logback.properties
 /groupware-messaging/src/main/resources/logback-spring.xml
 /groupware-messaging/src/test/resources/application.yml
+/groupware-messaging/src/test/resources/log4jdbc.log4j2.properties
+/groupware-messaging/src/test/resources/logback.properties
+/groupware-messaging/src/test/resources/logback-spring.xml
