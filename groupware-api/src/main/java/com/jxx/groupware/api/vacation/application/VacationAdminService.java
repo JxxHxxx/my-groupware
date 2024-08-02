@@ -2,10 +2,7 @@ package com.jxx.groupware.api.vacation.application;
 
 import com.jxx.groupware.api.member.application.UserSession;
 import com.jxx.groupware.api.vacation.application.cache.SimpleCacheContext;
-import com.jxx.groupware.api.vacation.dto.request.CommonVacationForm;
-import com.jxx.groupware.api.vacation.dto.request.CommonVacationServiceForm;
-import com.jxx.groupware.api.vacation.dto.request.CompanyVacationTypePolicyForm;
-import com.jxx.groupware.api.vacation.dto.request.CompanyVacationTypePolicyRequest;
+import com.jxx.groupware.api.vacation.dto.request.*;
 import com.jxx.groupware.api.vacation.dto.response.CommonVacationServiceResponse;
 import com.jxx.groupware.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
@@ -13,6 +10,7 @@ import com.jxx.groupware.api.vacation.listener.CommonVacationCreateEvent;
 import com.jxx.groupware.core.common.Creator;
 import com.jxx.groupware.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.groupware.core.vacation.domain.entity.*;
+import com.jxx.groupware.core.vacation.domain.exeception.VacationAdminException;
 import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException;
 import com.jxx.groupware.core.vacation.infra.*;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.jxx.groupware.core.vacation.domain.entity.LeaveDeduct.*;
 
@@ -42,21 +41,35 @@ public class VacationAdminService {
     private static final String COMMON_VACATION_DEPARTMENT_CODE = "ALL";
 
     @Transactional
-    public List<VacationTypePolicyResponse> addCompanyVacationTypePolicies(CompanyVacationTypePolicyRequest policyRequest) {
-        List<CompanyVacationTypePolicyForm> forms = policyRequest.form();
-        List<CompanyVacationTypePolicy> policies = forms.stream()
-                .map(form -> new CompanyVacationTypePolicy(
-                        form.companyId(),
-                        VacationType.valueOf(form.vacationType()),
-                        form.vacationDay(),
-                        new Creator(policyRequest.adminId(),"ADMIN-API")))
-                .toList();
+    public List<VacationTypePolicyResponse> addCompanyVacationTypePolicies(CompanyVacationTypePolicyRequest request, String adminId) {
+        String companyId = request.companyId();
+        List<VacationTypePolicyForm> vacationTypePolicyForms = request.vacationTypePolicyForms();
+        // 중복 차단을 위한...
+        List<VacationType> findVacationTypes = companyVacationTypePolicyRepository.findByCompanyId(companyId)
+                .stream()
+                .map(CompanyVacationTypePolicy::getVacationType).toList();
 
-        List<CompanyVacationTypePolicy> savedPolicies = companyVacationTypePolicyRepository.saveAll(policies);
+        List<VacationType> requestVacationTypes = vacationTypePolicyForms.stream()
+                .map(p -> VacationType.valueOf(p.vacationType())).toList();
+
+        Optional<VacationType> oVacationType = requestVacationTypes.stream().filter(findVacationTypes::contains).findFirst();
+        if (oVacationType.isPresent()) {
+            VacationType vacationType = oVacationType.get();
+            throw new VacationAdminException(vacationType.name() + "/"+ vacationType.getDescription() + "은 이미 등록된 TypePolicy 입니다.");
+        }
+
+        List<CompanyVacationTypePolicy> companyVacationTypePolicies = vacationTypePolicyForms.stream()
+                .map(tpf -> new CompanyVacationTypePolicy(
+                        companyId,
+                        VacationType.valueOf(tpf.vacationType()),
+                        tpf.vacationDay(),
+                        new Creator(adminId, "ADMIN-API")
+                )).toList();
+
+        List<CompanyVacationTypePolicy> savedPolicies = companyVacationTypePolicyRepository.saveAll(companyVacationTypePolicies);
         return savedPolicies.stream()
                 .map(policy -> new VacationTypePolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
                 .toList();
-
     }
 
     // TODO Form 에서 LeaveDeduct Enum 을 받는 식으로 하자.

@@ -3,10 +3,7 @@ package com.jxx.groupware.api.vacation.presentation;
 import com.jxx.groupware.api.member.application.AuthService;
 import com.jxx.groupware.api.member.application.UserSession;
 import com.jxx.groupware.api.vacation.application.VacationAdminService;
-import com.jxx.groupware.api.vacation.dto.request.CommonVacationForm;
-import com.jxx.groupware.api.vacation.dto.request.CommonVacationServiceForm;
-import com.jxx.groupware.api.vacation.dto.request.CompanyVacationTypePolicyForm;
-import com.jxx.groupware.api.vacation.dto.request.CompanyVacationTypePolicyRequest;
+import com.jxx.groupware.api.vacation.dto.request.*;
 import com.jxx.groupware.api.vacation.dto.response.CommonVacationServiceResponse;
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
@@ -47,13 +44,13 @@ public class VacationAdminController {
     // 연차 충전 2024 -> 2025년으로 갔을 때 -> 이건 배치로 가야될듯.
 
     //
-    @PostMapping("/admin/vacations/family-occasion-policies")
-    public ResponseEntity<?> addCompanyVacationTypePolicies(@RequestBody List<CompanyVacationTypePolicyForm> form, HttpServletRequest httpRequest) {
+    @PostMapping("/admin/vacations/type-policies")
+    public ResponseEntity<?> addCompanyVacationTypePolicies(@RequestBody CompanyVacationTypePolicyRequest form, HttpServletRequest httpRequest) {
         UserSession userSession = authService.getUserSession(httpRequest);
-        CompanyVacationTypePolicyRequest request = new CompanyVacationTypePolicyRequest(userSession.getMemberId(), form);
+        String adminId = userSession.getMemberId();
         // 관리자 처리 로직
-        List<VacationTypePolicyResponse> responses = vacationAdminService.addCompanyVacationTypePolicies(request);
+        List<VacationTypePolicyResponse> responses = vacationAdminService.addCompanyVacationTypePolicies(form, adminId);
 
-        return ResponseEntity.ok(new ResponseResult<>(200, "경조 정책 생성 완료", responses));
+        return ResponseEntity.status(201).body(new ResponseResult<>(201, "경조 정책 생성 완료", responses));
     }
 }

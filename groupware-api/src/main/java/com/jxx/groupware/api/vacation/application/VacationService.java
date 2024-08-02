@@ -7,10 +7,8 @@ import com.jxx.groupware.api.vacation.application.function.ConfirmRaiseApiAdapte
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse;
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationDurationForm;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
-import com.jxx.groupware.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.groupware.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
@@ -342,20 +340,6 @@ public class VacationService {
         ExcelReader<CompanyVacationTypePolicy> excelReader = new CompanyVacationTypePolicyExcelReader(inputStream);
         List<CompanyVacationTypePolicy> vacationTypePolicies = excelReader.readAllRow();
         vacationTypePolicies.stream().forEach(vtp -> vtp.setCreator(new Creator(memberId, "API")));
-        companyVacationTypePolicyRepository.saveAll(vacationTypePolicies);
-    }
-
-    @Transactional
-    public void setCompanyVacationPolicies(List<VacationTypePolicyForm> forms, String memberId) throws IOException {
-        List<CompanyVacationTypePolicy> vacationTypePolicies = forms.stream()
-                .map(form -> CompanyVacationTypePolicy.builder()
-                        .vacationType(VacationType.valueOf(form.vacationType()))
-                        .vacationDay(form.vacationDay())
-                        .creator(new Creator(memberId, "API"))
-                        .companyId(form.companyId())
-                        .build())
-                .toList();
-
         companyVacationTypePolicyRepository.saveAll(vacationTypePolicies);
     }
 

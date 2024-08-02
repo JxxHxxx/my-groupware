@@ -113,19 +113,17 @@ public class VacationApiController {
         return ResponseEntity.ok(new ResponseResult<>(200, "요청 완료", response));
     }
 
+    @GetMapping("/api/vacations/type-policies")
+    public ResponseEntity<?> get(@RequestParam(name = "companyId") String companyId) {
+        List<VacationTypePolicyResponse> response = vacationService.findCompanyVacationTypePolicies(companyId);
+        return ResponseEntity.ok(new ResponseResult<>(200, "특별 휴가 정책 조회 응답", response));
+    }
+
+    /** 관리자 API로 변경 해야 할 듯 **/
     @PostMapping("/api/vacations/set-vacation-type-policy")
     public ResponseEntity<?> setCompanyVacationPolicies(@RequestParam("file") MultipartFile file, HttpServletRequest httpRequest) throws IOException {
         UserSession userSession = authService.getUserSession(httpRequest);
         vacationService.setCompanyVacationPolicies(file.getInputStream(), userSession.getMemberId());
         return ResponseEntity.ok(200);
     }
-
-    // JSON 버전
-    @PostMapping("/api/vacations/set-vacation-type-policy-v2")
-    public ResponseEntity<?> setCompanyVacationPolicies(@RequestBody List<VacationTypePolicyForm> forms, HttpServletRequest httpRequest) throws IOException {
-        UserSession userSession = authService.getUserSession(httpRequest);
-        vacationService.setCompanyVacationPolicies(forms, userSession.getMemberId());
-        return ResponseEntity.ok(200);
-    }
-
 }

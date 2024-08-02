@@ -5,6 +5,7 @@ import com.jxx.groupware.api.excel.ExcelFileReadException;
 import com.jxx.groupware.api.member.presentation.UnAuthenticationException;
 import com.jxx.groupware.api.vacation.dto.response.ClientExceptionResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
+import com.jxx.groupware.core.vacation.domain.exeception.VacationAdminException;
 import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,13 @@ public class VacationApiExceptionHandler {
         log.error("[{}][{}]", exception.purpose(), exception.getMessage());
         return ResponseEntity.badRequest()
                 .body(new ResponseResult<>(400, exception.getMessage(), exception.purpose()));
+
+    }
+
+    @ExceptionHandler(VacationAdminException.class)
+    public ResponseEntity<?> handleExcelFileReadException(VacationAdminException exception) {
+        return ResponseEntity.badRequest()
+                .body(new ResponseResult<>(400, exception.getMessage(), null));
 
     }
 }
