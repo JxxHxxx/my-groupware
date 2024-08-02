@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.vacation.domain;
+package com.jxx.groupware.core.vacation.domain.dto;
 
 import com.jxx.groupware.core.vacation.domain.entity.VacationType;
 import lombok.Getter;
@@ -11,10 +11,18 @@ import static com.jxx.groupware.core.vacation.domain.entity.VacationType.*;
 @Getter
 @NoArgsConstructor
 public class RequestVacationDuration {
+    private Long vacationDurationId;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
 
     public RequestVacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        this.vacationDurationId = null;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+    }
+
+    public RequestVacationDuration(Long vacationDurationId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        this.vacationDurationId = vacationDurationId;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
     }

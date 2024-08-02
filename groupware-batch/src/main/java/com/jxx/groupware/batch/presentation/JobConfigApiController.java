@@ -6,11 +6,11 @@ import com.jxx.groupware.batch.dto.request.JobHistoryCond;
 import com.jxx.groupware.batch.dto.request.ScheduleJobUpdateRequest;
 import com.jxx.groupware.batch.dto.request.TriggerCreateRequest;
 import com.jxx.groupware.batch.dto.response.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class JobConfigApiController {
     @GetMapping("/admin/batch/jobs-hist")
     public ResponseEntity<?> getJobs(@RequestParam(value = "page", defaultValue = "0") int page,
                                      @RequestParam(value = "size", defaultValue = "10") int size,
-                                     @ModelAttribute @Validated JobHistoryCond cond) {
+                                     @ModelAttribute @Valid JobHistoryCond cond) {
         Page<JobHistoryResponse> responses = jobConfigService.pageJobHistories(cond, page, size);
         return ResponseEntity.ok(responses);
     }

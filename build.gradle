@@ -87,6 +87,7 @@ project(':groupware-core') {
         implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2")
         // json 타입 컬럼을 사용하기 위한 프로젝트 START
         implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.7.0'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations'
         // json 타입 컬럼을 사용하기 위한 프로젝트 START END
         testImplementation 'org.springframework.boot:spring-boot-starter-test'

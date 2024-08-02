@@ -1,6 +1,7 @@
 package com.jxx.groupware.api.vacation.dto.request;
 
-import com.jxx.groupware.core.vacation.domain.RequestVacationDuration;
+import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
+import com.jxx.groupware.core.vacation.domain.dto.validation.constraint.DurationsConstraint;
 import com.jxx.groupware.core.vacation.domain.entity.LeaveDeduct;
 import com.jxx.groupware.core.vacation.domain.entity.VacationType;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ public record RequestVacationForm(
         String requesterId,
         VacationType vacationType,
         LeaveDeduct leaveDeduct,
+        @DurationsConstraint
         List<RequestVacationDuration> requestVacationDurations,
         String title,
         String reason,
