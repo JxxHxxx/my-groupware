@@ -9,7 +9,6 @@ import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
 import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
-import com.jxx.groupware.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.groupware.core.vacation.domain.dto.VacationDurationDto;
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
@@ -378,6 +377,7 @@ public class VacationService {
                 .map(policy -> new VacationTypePolicyResponse(
                         policy.getCompanyId(),
                         policy.getVacationType(),
+                        policy.getVacationTypeName(),
                         policy.getVacationDay()))
                 .toList();
     }

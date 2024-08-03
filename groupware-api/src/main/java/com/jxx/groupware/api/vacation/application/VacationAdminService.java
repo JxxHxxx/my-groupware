@@ -59,16 +59,21 @@ public class VacationAdminService {
         }
 
         List<CompanyVacationTypePolicy> companyVacationTypePolicies = vacationTypePolicyForms.stream()
-                .map(tpf -> new CompanyVacationTypePolicy(
-                        companyId,
-                        VacationType.valueOf(tpf.vacationType()),
-                        tpf.vacationDay(),
-                        new Creator(adminId, "ADMIN-API")
-                )).toList();
+                .map(tpf -> CompanyVacationTypePolicy.builder()
+                        .companyId(companyId)
+                        .vacationType(VacationType.valueOf(tpf.vacationType()))
+                        .vacationDay(tpf.vacationDay())
+                        .creator(new Creator(adminId, "ADMIN-API"))
+                        .vacationTypeName(tpf.vacationTypeName())
+                        .build()).toList();
 
         List<CompanyVacationTypePolicy> savedPolicies = companyVacationTypePolicyRepository.saveAll(companyVacationTypePolicies);
         return savedPolicies.stream()
-                .map(policy -> new VacationTypePolicyResponse(policy.getCompanyId(), policy.getVacationType(), policy.getVacationDay()))
+                .map(policy -> new VacationTypePolicyResponse(
+                        policy.getCompanyId(),
+                        policy.getVacationType(),
+                        policy.getVacationTypeName(),
+                        policy.getVacationDay()))
                 .toList();
     }
 

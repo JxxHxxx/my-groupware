@@ -5,6 +5,7 @@ import com.jxx.groupware.core.vacation.domain.entity.VacationType;
 public record VacationTypePolicyResponse(
         String companyId,
         VacationType vacationType,
+        String vacationTypeName,
         Float vacationDay
 ) {
 }

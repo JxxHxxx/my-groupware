@@ -26,6 +26,9 @@ public class CompanyVacationTypePolicy {
     @Comment("휴가(경조) 유형")
     @Enumerated(EnumType.STRING)
     private VacationType vacationType;
+    @Column(name = "VACATION_TYPE_NAME")
+    @Comment("휴가(경조) 명")
+    private String vacationTypeName;
     @Column(name = "VACATION_DAY")
     @Comment("경조 유형에 따른 휴가 일 수")
     private Float vacationDay;
@@ -33,9 +36,10 @@ public class CompanyVacationTypePolicy {
     private Creator creator;
 
     @Builder
-    public CompanyVacationTypePolicy(String companyId, VacationType vacationType, Float vacationDay, Creator creator) {
+    public CompanyVacationTypePolicy(String companyId, VacationType vacationType, String vacationTypeName, Float vacationDay, Creator creator) {
         this.companyId = companyId;
         this.vacationType = vacationType;
+        this.vacationTypeName = vacationTypeName;
         this.vacationDay = vacationDay;
         this.creator = creator;
     }
