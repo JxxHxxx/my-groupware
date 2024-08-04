@@ -86,8 +86,8 @@ Content-Type: application/json
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-05-02T00:00",
-      "endDateTime": "2024-05-03T00:00"
+      "startDateTime": "2024-08-05T00:00",
+      "endDateTime": "2024-08-06T00:00"
     }
   ]
 }

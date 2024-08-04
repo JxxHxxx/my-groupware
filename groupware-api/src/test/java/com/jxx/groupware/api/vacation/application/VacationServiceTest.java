@@ -102,6 +102,7 @@ class VacationServiceTest {
         RequestVacationForm vacationForm = new RequestVacationForm(
                 memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
                 List.of(new RequestVacationDuration(
+                        1l,
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",
@@ -130,7 +131,7 @@ class VacationServiceTest {
                 .contains(List.of(LocalDateTime.of(2024, 3, 1, 0, 0)));
 
         assertThat(responses).extracting(response -> response.vacationDuration().stream().map(dto -> dto.endDateTime()).toList())
-                .contains(List.of(LocalDateTime.of(2024, 3, 5, 0, 0)));
+                .contains(List.of(LocalDateTime.of(2024, 3, 5, 23, 59, 59)));
 
         assertThat(responses).extracting("vacationStatus")
                 .containsExactly(VacationStatus.CREATE);
@@ -164,6 +165,7 @@ class VacationServiceTest {
         RequestVacationForm vacationForm = new RequestVacationForm(
                 memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
                 List.of(new RequestVacationDuration(
+                        1l,
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 30, 0, 0))
                 ), "휴가신청서",
@@ -191,6 +193,7 @@ class VacationServiceTest {
         RequestVacationForm vacationForm = new RequestVacationForm(
                 memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
                 List.of(new RequestVacationDuration(
+                        1l,
                         LocalDateTime.of(2024, 3, 4, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",
@@ -207,7 +210,7 @@ class VacationServiceTest {
         assertThat(vacationDurationDto.startDateTime())
                 .isEqualTo(LocalDateTime.of(2024, 3, 4, 0, 0));
         assertThat(vacationDurationDto.endDateTime())
-                .isEqualTo(LocalDateTime.of(2024, 3, 5, 0, 0));
+                .isEqualTo(LocalDateTime.of(2024, 3, 5, 23, 59, 59));
         assertThat(vacationDurationDto.useLeaveValue())
                 .isEqualTo(2);
         /** 휴가 생성 END **/
@@ -248,6 +251,7 @@ class VacationServiceTest {
         RequestVacationForm vacationForm = new RequestVacationForm(
                 memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
                 List.of(new RequestVacationDuration(
+                        1l,
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",
@@ -279,6 +283,7 @@ class VacationServiceTest {
         RequestVacationForm vacationForm = new RequestVacationForm(
                 memberLeave.getMemberId(), VacationType.MORE_DAY, LeaveDeduct.DEDUCT,
                 List.of(new RequestVacationDuration(
+                        1l,
                         LocalDateTime.of(2024, 3, 1, 0, 0),
                         LocalDateTime.of(2024, 3, 5, 0, 0))
                 ), "휴가신청서",

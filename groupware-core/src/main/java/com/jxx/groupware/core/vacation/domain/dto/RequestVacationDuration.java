@@ -15,12 +15,6 @@ public class RequestVacationDuration {
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
 
-    public RequestVacationDuration(LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        this.vacationDurationId = null;
-        this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;
-    }
-
     public RequestVacationDuration(Long vacationDurationId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this.vacationDurationId = vacationDurationId;
         this.startDateTime = startDateTime;

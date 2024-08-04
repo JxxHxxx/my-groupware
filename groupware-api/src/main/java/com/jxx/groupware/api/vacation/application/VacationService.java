@@ -20,6 +20,7 @@ import com.jxx.groupware.core.common.Creator;
 import com.jxx.groupware.core.common.history.History;
 import com.jxx.groupware.core.vacation.domain.entity.*;
 import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException;
+import com.jxx.groupware.core.vacation.domain.service.VacationTypePolicyValidator;
 import com.jxx.groupware.core.vacation.infra.*;
 
 import com.jxx.groupware.core.vacation.projection.VacationProjection;
@@ -62,8 +63,18 @@ public class VacationService {
     @Transactional
     public VacationServiceResponse createVacation(RequestVacationForm vacationForm) {
         String requesterId = vacationForm.requesterId();
+        // 사용자 검증
         MemberLeave memberLeave = memberLeaveRepository.findMemberLeaveByMemberId(requesterId)
                 .orElseThrow(() -> new VacationClientException("requesterId " + requesterId + " not found", requesterId));
+        String memberCompanyId = memberLeave.receiveCompanyId();
+
+        // 경조사일 경우, 경조사 정책 검증
+        List<CompanyVacationTypePolicy> companyVacationTypePolicies = companyVacationTypePolicyRepository
+                .findByCompanyId(memberCompanyId);
+        VacationTypePolicyValidator vacationTypePolicyValidator = new VacationTypePolicyValidator(companyVacationTypePolicies);
+        for (RequestVacationDuration vacationDuration : vacationForm.requestVacationDurations()) {
+            vacationTypePolicyValidator.validate(vacationForm.vacationType(), memberCompanyId, vacationDuration);
+        }
 
         VacationManager vacationManager = VacationManager.createVacation(memberLeave, vacationForm.vacationType(), vacationForm.leaveDeduct());
 
