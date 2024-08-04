@@ -20,50 +20,56 @@ Content-Type: application/json
   "password": "U00001"
 }
 
-### 특별 휴가 정책 추가 SPY
+
+### 특별 휴가 정책 추가 JXX
 POST http://localhost:8080/admin/vacations/type-policies
 Content-Type: application/json
 
 {
-  "companyId": "SPY",
+  "companyId": "JXX",
   "vacationTypePolicyForms": [
     {
       "vacationType": "MARRIAGE_SELF",
+      "vacationTypeName" : "결혼",
       "vacationDay": 7
     },
     {
       "vacationType": "MARRIAGE_CHILD",
+      "vacationTypeName" : "자녀의 결혼",
+      "vacationDay": 5
+    },
+    {
+      "vacationType": "CHILD_BIRTH_SELF",
+      "vacationTypeName" : "출산 휴가",
+      "vacationDay": 180
+    },
+    {
+      "vacationType": "CHILD_BIRTH_SPOUSE",
+      "vacationTypeName" : "배우자의 출산",
+      "vacationDay": 60
+    },
+    {
+      "vacationType": "REVERSE_FORCES",
+      "vacationTypeName" : "예비군 훈련",
+      "vacationDay": 1
+    },
+    {
+      "vacationType": "DEATH_GRAND_PARENT_SELF",
+      "vacationTypeName" : "조부모상",
+      "vacationDay": 3
+    },
+    {
+      "vacationType": "DEATH_PARENT_SELF",
+      "vacationTypeName" : "부모친상",
+      "vacationDay": 7
+    },
+    {
+      "vacationType": "DEATH_SIBLING_SELF",
+      "vacationTypeName" : "형제상",
       "vacationDay": 5
     }
   ]
 }
-
-### 특별 휴가 정책 추가 BNG
-POST http://localhost:8080/admin/vacations/type-policies
-Content-Type: application/json
-
-{
-  "companyId": "BNG",
-  "vacationTypePolicyForms": [
-    {
-      "vacationType": "MARRIAGE_SELF",
-      "vacationDay": 7
-    },
-    {
-      "vacationType": "MARRIAGE_CHILD",
-      "vacationDay": 3
-    },
-    {
-      "vacationType": "CHILD_BIRTH_SELF",
-      "vacationDay": 365
-    },
-    {
-      "vacationType": "CHILD_BIRTH_SPOUSE",
-      "vacationDay": 90
-    }
-  ]
-}
-
 
 
 ### 관리자 로그인!!
