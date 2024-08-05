@@ -3,6 +3,7 @@ package com.jxx.groupware.core.vacation.domain.entity;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 필드 type 은 휴가 유형을 나타냄 P:개인 F:가족경조 C:그외
@@ -30,18 +31,21 @@ public enum VacationType {
     COMMON_VACATION("공동 연차", "C");
 
     private final String description;
-    private final String type;
+    private final String code;
 
-    VacationType(String description, String type) {
+    VacationType(String description, String code) {
         this.description = description;
-        this.type = type;
+        this.code = code;
     }
 
     public static final List<VacationType> HALF_VACATION_TYPE = List.of(HALF_MORNING, HALF_AFTERNOON);
 
     public static final List<String> DEDUCT_TYPE = List.of("P", "C");
 
-    protected boolean deductType() {
-        return DEDUCT_TYPE.contains(type);
+    /**
+     * @desc : 경조사인지 확인하는 로직
+     * **/
+    public static boolean isSpecialVacationType(VacationType vacationType) {
+        return Objects.equals(vacationType.code, "F");
     }
 }

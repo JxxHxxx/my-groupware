@@ -69,11 +69,13 @@ public class VacationService {
         String memberCompanyId = memberLeave.receiveCompanyId();
 
         // 경조사일 경우, 경조사 정책 검증
-        List<CompanyVacationTypePolicy> companyVacationTypePolicies = companyVacationTypePolicyRepository
-                .findByCompanyId(memberCompanyId);
-        VacationTypePolicyValidator vacationTypePolicyValidator = new VacationTypePolicyValidator(companyVacationTypePolicies);
-        for (RequestVacationDuration vacationDuration : vacationForm.requestVacationDurations()) {
-            vacationTypePolicyValidator.validate(vacationForm.vacationType(), memberCompanyId, vacationDuration);
+        if (VacationType.isSpecialVacationType(vacationForm.vacationType())) {
+            List<CompanyVacationTypePolicy> companyVacationTypePolicies = companyVacationTypePolicyRepository
+                    .findByCompanyId(memberCompanyId);
+            VacationTypePolicyValidator vacationTypePolicyValidator = new VacationTypePolicyValidator(companyVacationTypePolicies);
+            for (RequestVacationDuration vacationDuration : vacationForm.requestVacationDurations()) {
+                vacationTypePolicyValidator.validate(vacationForm.vacationType(), memberCompanyId, vacationDuration);
+            }
         }
 
         VacationManager vacationManager = VacationManager.createVacation(memberLeave, vacationForm.vacationType(), vacationForm.leaveDeduct());
