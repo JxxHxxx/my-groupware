@@ -42,10 +42,10 @@ public class LeaveItemReaderFactory {
                 " ON JMLM.MEMBER_ID = JVM.REQUESTER_ID " +
                 " JOIN JXX_VACATION_DURATION JVD " +
                 " ON JVD.VACATION_ID = JVM.VACATION_ID " +
-                " WHERE JVD.END_DATE_TIME > ? AND JVD.END_DATE_TIME < DATE_ADD(?, INTERVAL 1 DAY);";
+                " WHERE JVD.END_DATE_TIME > DATE_SUB(?, INTERVAL 1 DAY) AND JVD.END_DATE_TIME < ?;";
 
         JobContext context = JobSynchronizationManager.getContext();
-
+        // 실행 시간을 파라미터로 받는다 예를 들어 2024-08-05 가 들어오면 2024-08-04 일의 휴가가 종료 처리 된다.
         String executeDateTime = String.valueOf(context.getJobParameters().get(JOB_PARAM_EXECUTE_DATE_TIME.keyName()));
 
         return new JdbcCursorItemReaderBuilder<LeaveItem>()
