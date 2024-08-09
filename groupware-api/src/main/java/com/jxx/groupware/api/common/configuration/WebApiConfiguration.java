@@ -27,10 +27,11 @@ public class WebApiConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ApiAccessLogInterceptor())
-                .order(1);
         registry.addInterceptor(new AdminApiAuthenticationInterceptor(authService))
                 .addPathPatterns("/admin/**")
+                .order(1);
+
+        registry.addInterceptor(new ApiAccessLogInterceptor())
                 .order(2);
     }
 }

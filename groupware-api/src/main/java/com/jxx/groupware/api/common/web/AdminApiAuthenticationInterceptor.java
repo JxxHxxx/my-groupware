@@ -2,6 +2,8 @@ package com.jxx.groupware.api.common.web;
 
 import com.jxx.groupware.api.member.application.AuthService;
 import com.jxx.groupware.api.member.application.UserSession;
+import com.jxx.groupware.core.vacation.domain.exeception.AuthClientException;
+import com.jxx.groupware.core.vacation.domain.exeception.AuthorizationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +25,9 @@ public class AdminApiAuthenticationInterceptor implements HandlerInterceptor {
         log.info("관리자 API 호출 : 사용자 {} 관리자 권한을 검증합니다.", userSession.getMemberId());
 
         // 임시 관리자 ID
-        if (!"U00001".equals(userSession.getMemberId())) {
-            log.warn("admin api call by {}", userSession.getMemberId());
-            return false;
+        if (!"manager".equals(userSession.getMemberId())) {
+            log.warn("관리자가 아닌 사용자가 관리자 API에 접근을 시도했습니다. 접근 시도자 ID:{}", userSession.getMemberId());
+            throw new AuthorizationException("요청에 대한 권한이 존재하지 않습니다");
         }
         return true;
     }

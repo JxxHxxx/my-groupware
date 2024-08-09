@@ -86,6 +86,7 @@ public class VacationAdminService {
         List<LocalDate> vacationDates = commonVacationForm.vacationDates();
 
         String companyId = commonVacationForm.companyId();
+        // 애플리케이션 캐시에서 긁어옮
         if (SimpleCacheContext.notExistCompany(companyId)) {
             throw new VacationClientException("존재하지 않는 회사 코드 " + companyId +  " 입니다.");
         }
