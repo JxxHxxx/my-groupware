@@ -19,7 +19,7 @@ import java.util.UUID;
 @Table(name = "JXX_WORK_TICKET_MASTER",
         indexes = {
         @Index(name = "IDX_WORK_TICKET_ID", columnList = "WORK_TICKET_ID"),
-        @Index(name = "IDX_CPN_REQ_ID", columnList = "COMPANY_ID, REQUESTER_ID")})
+        @Index(name = "IDX_CPN_REQ_ID", columnList = "REQUESTER_COMPANY_ID, REQUESTER_ID")})
 public class WorkTicket {
 
     @Id
@@ -28,24 +28,26 @@ public class WorkTicket {
     @Comment("작업 티켓 PK")
     private Long workTicketPk;
     @Column(name = "WORK_TICKET_ID")
-    @Comment("작업 티켓 ID ")
+    @Comment("작업 티켓 ID")
     private String workTicketId;
+    @Column(name = "REQUEST_CONTENT")
     @Comment("요청 내용")
     private String requestContent;
-    @Comment("요청자 소속 회사 ID")
-    private String companyId;
-    @Comment("요청자 ID")
-    private String requesterId;
-    @Comment("요청자 이름")
-    private String requesterName;
+    @Embedded
+    private WorkRequester workRequester;
+    @Column(name = "CHARGE_DEPARTMENT_ID")
     @Comment("담당 부서(작업을 수행할) ID")
     private String chargeDepartmentId;
+    @Column(name = "CREATED_TIME")
     @Comment("생성 시간")
     private LocalDateTime createdTime;
+    @Column(name = "WORK_STATUS")
     @Comment("작업 진행 상태")
     private WorkStatus workStatus;
+    @Column(name = "MODIFIED_TIME")
     @Comment("변경 시간")
     private LocalDateTime modifiedTime;
+    @Column(name = "WORK_DETAIL_PK")
     @OneToOne(fetch = FetchType.LAZY)
     @Comment("작업 내용 간접키")
     private WorkDetail workDetail;
@@ -53,14 +55,12 @@ public class WorkTicket {
     private List<WorkTicketAttachment> workTicketAttachment = new ArrayList<>();
 
     @Builder
-    public WorkTicket(String requestContent, String companyId, String requesterId, String requesterName,
+    public WorkTicket(String requestContent, WorkRequester workRequester,
                       String chargeDepartmentId, LocalDateTime createdTime, WorkStatus workStatus, LocalDateTime modifiedTime,
                       WorkDetail workDetail) {
         this.workTicketId = UUID.randomUUID().toString();
         this.requestContent = requestContent;
-        this.companyId = companyId;
-        this.requesterId = requesterId;
-        this.requesterName = requesterName;
+        this.workRequester = workRequester;
         this.chargeDepartmentId = chargeDepartmentId;
         this.createdTime = createdTime;
         this.workStatus = workStatus;

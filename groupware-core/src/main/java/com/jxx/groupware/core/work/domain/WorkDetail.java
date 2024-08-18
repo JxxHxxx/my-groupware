@@ -17,40 +17,49 @@ import java.time.LocalDateTime;
 public class WorkDetail {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    @Comment("작업 내역 PK")
     private Long workDetailPk;
+    @Column(name = "ANALYZE_CONTENT")
     @Comment("작업 분석 내용")
     private String analyzeContent;
+    @Column(name = "ANALYZE_COMPLETED_TIME")
     @Comment("작업 분석 완료 시간")
-    private LocalDateTime analyzeCompleteTime;
-
+    private LocalDateTime analyzeCompletedTime;
+    @Column(name = "WORK_PLAN_CONTENT")
     @Comment("작업 계획 내용")
     private String workPlanContent;
+    @Column(name = "WORK_PLAN_COMPLETED_TIME")
     @Comment("작업 계획 완료 시간")
-    private LocalDateTime workPlanCompleteTime;
-
+    private LocalDateTime workPlanCompletedTime;
+    @Column(name = "EXPECT_DEADLINE_DATE")
     @Comment("작업 마감 예상일")
-    private LocalDate expectDeadLineDate;
-
+    private LocalDate expectDeadlineDate;
+    @Column(name = "RECEIVER_ID")
     @Comment("접수자 ID")
     private String receiverId;
+    @Column(name = "RECEIVER_NAME")
     @Comment("접수자 이름")
     private String receiverName;
+    @Column(name = "CREATE_TIME")
     @Comment("생성 시간")
     private LocalDateTime createTime;
-    @Comment("선처리 여부")
+    @Column(name = "PRE_REFLECT")
+    @Comment("작업 선처리 여부")
     private Boolean preReflect;
-    @Comment("선처리 사유")
+    @Column(name = "PRE_REFLECT_REASON")
+    @Comment("작업 선처리 사유")
     private String preReflectReason;
 
     @Builder
-    public WorkDetail(String analyzeContent, LocalDateTime analyzeCompleteTime, String workPlanContent,
-                      LocalDateTime workPlanCompleteTime, LocalDate expectDeadLineDate, String receiverId,
+    public WorkDetail(String analyzeContent, LocalDateTime analyzeCompletedTime, String workPlanContent,
+                      LocalDateTime workPlanCompletedTime, LocalDate expectDeadlineDate, String receiverId,
                       String receiverName, LocalDateTime createTime, Boolean preReflect, String preReflectReason) {
         this.analyzeContent = analyzeContent;
-        this.analyzeCompleteTime = analyzeCompleteTime;
+        this.analyzeCompletedTime = analyzeCompletedTime;
         this.workPlanContent = workPlanContent;
-        this.workPlanCompleteTime = workPlanCompleteTime;
-        this.expectDeadLineDate = expectDeadLineDate;
+        this.workPlanCompletedTime = workPlanCompletedTime;
+        this.expectDeadlineDate = expectDeadlineDate;
         this.receiverId = receiverId;
         this.receiverName = receiverName;
         this.createTime = createTime;

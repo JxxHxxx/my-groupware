@@ -12,19 +12,19 @@ Content-Type: application/json
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-07-02T00:00",
-      "endDateTime": "2024-07-02T00:00"
+      "startDateTime": "2024-09-09T00:00",
+      "endDateTime": "2024-09-09T00:00"
     },
     {
-      "startDateTime": "2024-07-05T00:00",
-      "endDateTime": "2024-07-05T00:00"
+      "startDateTime": "2024-09-05T00:00",
+      "endDateTime": "2024-09-06T00:00"
     }
   ],
   "title" : "휴가신청서",
   "reason" : "개인사정",
   "requesterName" : "손철수",
-  "delegatorName" : "",
-  "departmentId" : "",
+  "delegatorName" : "황보봄",
+  "departmentId" : "SPY00130",
   "departmentName" : "지역네트워크사업팀"
 }
 
