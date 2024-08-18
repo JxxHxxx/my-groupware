@@ -1,0 +1,16 @@
+
+###
+POST http://localhost:8080/api/work-tickets
+Content-Type: application/json
+
+{
+  "chargeCompanyId": "JXX",
+  "chargeDepartmentId": "J01001",
+  "requestTitle" : "마케팅 부서 회의 요청",
+  "requestContent": "금일 그룹웨어 솔루션 SNS 홍보 활성화 방안 회의 요청드립니다.",
+  "workRequester": {
+    "companyId": "J01030",
+    "id": "U00006",
+    "name": "이승우"
+  }
+}

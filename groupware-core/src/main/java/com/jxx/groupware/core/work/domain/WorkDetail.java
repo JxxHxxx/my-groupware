@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class WorkDetail {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "WORK_DETAIL_PK")
     @Comment("작업 내역 PK")
     private Long workDetailPk;
     @Column(name = "ANALYZE_CONTENT")

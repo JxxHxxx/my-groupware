@@ -29,11 +29,16 @@ public class WorkTicketHistory {
     @Column(name = "WORK_TICKET_ID")
     @Comment("작업 티켓 ID")
     private String workTicketId;
+    @Column(name = "REQUEST_TITLE")
+    @Comment("요청 제목")
+    private String requestTitle;
     @Column(name = "REQUEST_CONTENT")
     @Comment("요청 내용")
     private String requestContent;
     @Embedded
     private WorkRequester workRequester;
+    @Comment("담당 회사(작업을 수행할) ID")
+    private String chargeCompanyId;
     @Column(name = "CHARGE_DEPARTMENT_ID")
     @Comment("담당 부서(작업을 수행할) ID")
     private String chargeDepartmentId;
@@ -48,12 +53,15 @@ public class WorkTicketHistory {
     private LocalDateTime modifiedTime;
 
     @Builder
-    public WorkTicketHistory(Long workTicketPk, String workTicketId, String requestContent, WorkRequester workRequester, String chargeDepartmentId, LocalDateTime createdTime, WorkStatus workStatus,
+    public WorkTicketHistory(Long workTicketPk, String workTicketId, String requestTitle, String requestContent, WorkRequester workRequester,
+                             String chargeCompanyId, String chargeDepartmentId, LocalDateTime createdTime, WorkStatus workStatus,
                              LocalDateTime modifiedTime) {
         this.workTicketPk = workTicketPk;
         this.workTicketId = workTicketId;
+        this.requestTitle = requestTitle;
         this.requestContent = requestContent;
         this.workRequester = workRequester;
+        this.chargeCompanyId = chargeCompanyId;
         this.chargeDepartmentId = chargeDepartmentId;
         this.createdTime = createdTime;
         this.workStatus = workStatus;
