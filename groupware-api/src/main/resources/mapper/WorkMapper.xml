@@ -24,6 +24,12 @@
             <if test="memberId != null and memberId !=''">
                 AND JWTM.REQUESTER_ID = #{memberId}
             </if>
+            <if test="chargeCompanyId != null and chargeCompanyId !=''">
+                AND JWTM.CHARGE_COMPANY_ID = #{chargeCompanyId}
+            </if>
+            <if test="chargeDepartmentId != null and chargeDepartmentId !=''">
+                AND JWTM.CHARGE_DEPARTMENT_ID = #{chargeDepartmentId}
+            </if>
         </where>
     </select>
 
