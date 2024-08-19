@@ -1,6 +1,9 @@
 package com.jxx.groupware.api.work.application;
 
-import com.jxx.groupware.api.work.dto.response.WorkTicketCreateResponse;
+import com.jxx.groupware.api.work.dto.request.WorkTickSearchCond;
+import com.jxx.groupware.api.work.dto.request.WorkTicketCreateRequest;
+import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
+import com.jxx.groupware.api.work.query.WorkTicketMapper;
 import com.jxx.groupware.core.work.domain.WorkStatus;
 import com.jxx.groupware.core.work.domain.WorkTicket;
 import com.jxx.groupware.core.work.domain.WorkTicketHistory;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,11 +26,12 @@ public class WorkService {
 
     private final WorkTicketRepository workTicketRepository;
     private final WorkTicketHistRepository workTicketHistRepository;
+    private final WorkTicketMapper workTicketMapper;
     private final WorkDetailRepository workDetailRepository;
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
 
     @Transactional
-    public WorkTicketCreateResponse createWorkTicket(WorkTicketCreateRequest workTicketCreateRequest) {
+    public WorkTicketServiceResponse createWorkTicket(WorkTicketCreateRequest workTicketCreateRequest) {
         // TODO 회사, 부서 코드, 사용자 ID 유효성 검증을 고민해야 함
 
         WorkTicket workTicket = WorkTicket.builder()
@@ -59,10 +64,10 @@ public class WorkService {
         WorkTicketHistory savedWorkTicketHistory = workTicketHistRepository.save(workTicketHistory);
         log.info("success save workTicket history {}", savedWorkTicketHistory.getWorkTicketId());
 
-        return new WorkTicketCreateResponse(
+        return new WorkTicketServiceResponse(
                 savedWorkTicket.getWorkTicketPk(),
                 savedWorkTicket.getWorkTicketId(),
-                savedWorkTicket.getWorkStatus(),
+                savedWorkTicket.getWorkStatus().toString(),
                 savedWorkTicket.getCreatedTime(),
                 savedWorkTicket.getChargeCompanyId(),
                 savedWorkTicket.getChargeDepartmentId(),
@@ -71,5 +76,10 @@ public class WorkService {
                 savedWorkTicket.getRequestContent(),
                 savedWorkTicket.getWorkRequester()
         );
+    }
+
+    public List<WorkTicketServiceResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
+        return workTicketMapper.search(searchCond);
+
     }
 }

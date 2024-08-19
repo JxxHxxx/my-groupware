@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.groupware.api.work.query.WorkTicketMapper">
+    <select id="search"
+            parameterType="com.jxx.groupware.api.work.dto.request.WorkTickSearchCond"
+            resultMap="workTicketResponseMap"
+    >
+        SELECT JWTM.WORK_TICKET_PK,
+        JWTM.WORK_TICKET_ID,
+        JWTM.WORK_STATUS,
+        JWTM.CREATED_TIME,
+        JWTM.CHARGE_COMPANY_ID,
+        JWTM.CHARGE_DEPARTMENT_ID,
+        JWTM.MODIFIED_TIME,
+        JWTM.REQUEST_TITLE,
+        JWTM.REQUEST_CONTENT,
+        JWTM.REQUESTER_COMPANY_ID,
+        JWTM.REQUESTER_ID,
+        JWTM.REQUESTER_NAME FROM JXX_WORK_TICKET_MASTER AS JWTM
+        <where>
+            <if test="memberId != null and memberId !=''">
+                AND JWTM.REQUESTER_ID = #{memberId}
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="workTicketResponseMap" type="com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse">
+        <id property="workTicketPk" column="WORK_TICKET_PK"></id>
+        <result property="workTicketId" column="WORK_TICKET_ID"></result>
+        <result property="workStatus" column="WORK_STATUS"></result>
+        <result property="createdTime" column="CREATED_TIME"></result>
+        <result property="chargeCompanyId" column="CHARGE_COMPANY_ID"></result>
+        <result property="chargeDepartmentId" column="CHARGE_DEPARTMENT_ID"></result>
+        <result property="modifiedTime" column="MODIFIED_TIME"></result>
+        <result property="requestTitle" column="REQUEST_TITLE"></result>
+        <result property="requestContent" column="REQUEST_CONTENT"></result>
+        <association property="workRequester" resultMap="workRequesterMap"></association>
+
+    </resultMap>
+    <resultMap id="workRequesterMap" type="com.jxx.groupware.core.work.domain.WorkRequester">
+        <result property="companyId" column="REQUESTER_COMPANY_ID"></result>
+        <result property="id" column="REQUESTER_ID"></result>
+        <result property="name" column="REQUESTER_NAME"></result>
+    </resultMap>
+</mapper>

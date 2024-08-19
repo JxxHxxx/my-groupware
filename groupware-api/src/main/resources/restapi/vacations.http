@@ -102,12 +102,12 @@ Content-Type: application/json
   "leaveDeduct": "DEDUCT",
   "requestVacationDurations": [
     {
-      "startDateTime": "2024-07-12T00:00",
-      "endDateTime": "2024-07-12T00:00"
+      "startDateTime": "2024-09-12T00:00",
+      "endDateTime": "2024-09-12T00:00"
     },
     {
-      "startDateTime": "2024-07-14T00:00",
-      "endDateTime": "2024-07-14T00:00"
+      "startDateTime": "2024-09-14T00:00",
+      "endDateTime": "2024-09-14T00:00"
     }
   ],
   "delegatorId": "SPY00290",

@@ -38,16 +38,18 @@ public class WorkTicket {
     private String requestContent;
     @Embedded
     private WorkRequester workRequester;
-    @Column(name = "CHARGE_DEPARTMENT_ID")
+    @Column(name = "CHARGE_COMPANY_ID")
     @Comment("담당 회사(작업을 수행할) ID")
     private String chargeCompanyId;
     @Comment("담당 부서(작업을 수행할) ID")
+    @Column(name = "CHARGE_DEPARTMENT_ID")
     private String chargeDepartmentId;
     @Column(name = "CREATED_TIME")
     @Comment("생성 시간")
     private LocalDateTime createdTime;
     @Column(name = "WORK_STATUS")
     @Comment("작업 진행 상태")
+    @Enumerated(value = EnumType.STRING)
     private WorkStatus workStatus;
     @Column(name = "MODIFIED_TIME")
     @Comment("변경 시간")

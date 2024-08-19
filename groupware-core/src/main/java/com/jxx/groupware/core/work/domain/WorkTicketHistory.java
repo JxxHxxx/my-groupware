@@ -37,6 +37,7 @@ public class WorkTicketHistory {
     private String requestContent;
     @Embedded
     private WorkRequester workRequester;
+    @Column(name = "CHARGE_COMPANY_ID")
     @Comment("담당 회사(작업을 수행할) ID")
     private String chargeCompanyId;
     @Column(name = "CHARGE_DEPARTMENT_ID")
@@ -47,6 +48,7 @@ public class WorkTicketHistory {
     private LocalDateTime createdTime;
     @Column(name = "WORK_STATUS")
     @Comment("작업 진행 상태")
+    @Enumerated(value = EnumType.STRING)
     private WorkStatus workStatus;
     @Column(name = "MODIFIED_TIME")
     @Comment("변경 시간")
