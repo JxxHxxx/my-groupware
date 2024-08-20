@@ -69,4 +69,17 @@ public class WorkTicketHistory {
         this.workStatus = workStatus;
         this.modifiedTime = modifiedTime;
     }
+
+    public WorkTicketHistory(WorkTicket workTicket) {
+        this.workTicketPk = workTicket.getWorkTicketPk();
+        this.workTicketId = workTicket.getWorkTicketId();
+        this.requestTitle = workTicket.getRequestTitle();
+        this.requestContent = workTicket.getRequestContent();
+        this.workRequester = workTicket.getWorkRequester();
+        this.chargeCompanyId = workTicket.getChargeCompanyId();
+        this.chargeDepartmentId = workTicket.getChargeDepartmentId();
+        this.createdTime = workTicket.getCreatedTime();
+        this.workStatus = workTicket.getWorkStatus();
+        this.modifiedTime = workTicket.getModifiedTime();
+    }
 }

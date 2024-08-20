@@ -17,3 +17,13 @@ Content-Type: application/json
 
 ###
 GET http://localhost:8080/api/work-tickets/search?memberId=U00006
+
+
+###
+POST http://localhost:8080/api/work-tickets/11e404e0-dc65-4635-9067-588dd63f8a49/receive
+Content-Type: application/json
+
+{
+  "receiverId": "U00002",
+  "receiverName": "하니"
+}

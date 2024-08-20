@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum WorkStatus {
 
     CREATE("생성"),
+    RECEIVE("접수"),
     ANALYZE("요청 내용 분석"),
     MAKE_PLAN("계획 수립"),
     REQUEST_RAISE("상신 요청"),

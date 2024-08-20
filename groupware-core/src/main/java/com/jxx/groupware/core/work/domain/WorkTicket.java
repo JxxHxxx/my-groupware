@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,5 +74,14 @@ public class WorkTicket {
         this.createdTime = createdTime;
         this.workStatus = workStatus;
         this.modifiedTime = modifiedTime;
+    }
+
+    public void mappingWorkDetail(WorkDetail workDetail) {
+        this.workDetail = workDetail;
+    }
+
+    public void changeWorkStatus(WorkStatus workStatus) {
+        this.workStatus = workStatus;
+        this.modifiedTime = LocalDateTime.now();
     }
 }

@@ -2,11 +2,15 @@ package com.jxx.groupware.api.work.application;
 
 import com.jxx.groupware.api.work.dto.request.WorkTickSearchCond;
 import com.jxx.groupware.api.work.dto.request.WorkTicketCreateRequest;
+import com.jxx.groupware.api.work.dto.request.WorkTicketReceiveRequest;
+import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
+import com.jxx.groupware.core.work.domain.WorkDetail;
 import com.jxx.groupware.core.work.domain.WorkStatus;
 import com.jxx.groupware.core.work.domain.WorkTicket;
 import com.jxx.groupware.core.work.domain.WorkTicketHistory;
+import com.jxx.groupware.core.work.domain.exception.WorkClientException;
 import com.jxx.groupware.core.work.infra.WorkDetailRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketAttachmentRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketHistRepository;
@@ -81,5 +85,39 @@ public class WorkService {
     public List<WorkTicketServiceResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
         return workTicketMapper.search(searchCond);
 
+    }
+
+    @Transactional
+    public WorkDetailServiceResponse receiveWorkTicket(String workTicketId, WorkTicketReceiveRequest request) {
+        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
+                .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
+
+        WorkDetail workDetail = WorkDetail.builder()
+                .receiverId(request.receiverId())
+                .receiverName(request.receiverName())
+                .createTime(LocalDateTime.now())
+                .build();
+
+        WorkDetail savedWorkDetail = workDetailRepository.save(workDetail);
+        // 접수자에 대한 검증 로직 추가 이벤트로 처리할 에정
+
+        // Dirty Checking
+        workTicket.changeWorkStatus(WorkStatus.RECEIVE);
+        workTicket.mappingWorkDetail(savedWorkDetail);
+
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        return new WorkDetailServiceResponse(
+                savedWorkDetail.getWorkDetailPk(),
+                savedWorkDetail.getAnalyzeContent(),
+                workDetail.getAnalyzeCompletedTime(),
+                savedWorkDetail.getWorkPlanContent(),
+                savedWorkDetail.getWorkPlanCompletedTime(),
+                savedWorkDetail.getExpectDeadlineDate(),
+                savedWorkDetail.getReceiverId(),
+                savedWorkDetail.getReceiverName(),
+                savedWorkDetail.getCreateTime(),
+                savedWorkDetail.getPreReflect(),
+                savedWorkDetail.getPreReflectReason());
     }
 }
