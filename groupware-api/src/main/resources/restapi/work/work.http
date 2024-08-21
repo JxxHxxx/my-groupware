@@ -4,14 +4,14 @@ POST http://localhost:8080/api/work-tickets
 Content-Type: application/json
 
 {
-  "chargeCompanyId": "JXX",
-  "chargeDepartmentId": "J01001",
-  "requestTitle" : "마케팅 부서 회의 요청",
-  "requestContent": "금일 그룹웨어 솔루션 SNS 홍보 활성화 방안 회의 요청드립니다.",
+  "chargeCompanyId": "SPY",
+  "chargeDepartmentId": "SPY00102",
+  "requestTitle" : "의료 데이터 추출 요청",
+  "requestContent": "2023년 심혈질관 관련 데이터 추출 요청 드립니다. 지역: 전국 대상: 여성 40~49세, 기록일자 2023.01 ~ 2023.12",
   "workRequester": {
-    "companyId": "J01030",
-    "id": "U00006",
-    "name": "이승우"
+    "companyId": "SPY",
+    "id": "SPY00014",
+    "name": "이승기"
   }
 }
 
@@ -20,10 +20,12 @@ GET http://localhost:8080/api/work-tickets/search?memberId=U00006
 
 
 ###
-POST http://localhost:8080/api/work-tickets/11e404e0-dc65-4635-9067-588dd63f8a49/receive
+POST http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/receive
 Content-Type: application/json
 
 {
-  "receiverId": "U00002",
-  "receiverName": "하니"
+  "receiverCompanyId" :  "SPY",
+  "receiverDepartmentId" :  "SPY00102",
+  "receiverId": "SPY00033",
+  "receiverName": "김태리"
 }

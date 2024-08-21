@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.util.Objects;
+
 @Getter
 @Entity
 @ToString
@@ -62,6 +64,12 @@ public class Organization {
         if (!isActive) {
             throw new InactiveException("활성화 되어있지 않은 조직입니다.");
         }
+    }
+    // 클라이언트에게 받은 compaynId, departmentId 가 서버가 가지고 있는 정보와 동기화되어 있는지 확인하는 로직
+    public boolean isSyncOrganization(String companyId, String departmentId) {
+        boolean companyEqual = Objects.equals(this.companyId, companyId);
+        boolean departmentEqual = Objects.equals(this.departmentId, departmentId);
+        return companyEqual && departmentEqual;
     }
 
 }

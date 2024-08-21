@@ -17,11 +17,13 @@ import com.jxx.groupware.core.work.infra.WorkTicketHistRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -33,6 +35,7 @@ public class WorkService {
     private final WorkTicketMapper workTicketMapper;
     private final WorkDetailRepository workDetailRepository;
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public WorkTicketServiceResponse createWorkTicket(WorkTicketCreateRequest workTicketCreateRequest) {
@@ -92,6 +95,10 @@ public class WorkService {
         WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
                 .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
 
+        if (!Objects.equals(workTicket.getWorkStatus(), WorkStatus.CREATE)) {
+            throw new WorkClientException("티켓:" + workTicketId + "이미 접수되었거나 접수할 수 없는 상태입니다.");
+        }
+
         WorkDetail workDetail = WorkDetail.builder()
                 .receiverId(request.receiverId())
                 .receiverName(request.receiverName())
@@ -100,6 +107,13 @@ public class WorkService {
 
         WorkDetail savedWorkDetail = workDetailRepository.save(workDetail);
         // 접수자에 대한 검증 로직 추가 이벤트로 처리할 에정
+        eventPublisher.publishEvent(
+                new WorkTicketReceiveEvent(
+                        request.receiverId(),
+                        request.receiverCompanyId(),
+                        request.receiverDepartmentId(),
+                        workTicket.getChargeCompanyId(),
+                        workTicket.getChargeDepartmentId()));
 
         // Dirty Checking
         workTicket.changeWorkStatus(WorkStatus.RECEIVE);

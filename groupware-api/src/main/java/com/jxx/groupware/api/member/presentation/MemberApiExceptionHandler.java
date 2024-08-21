@@ -1,6 +1,7 @@
 package com.jxx.groupware.api.member.presentation;
 
 import com.jxx.groupware.api.member.dto.response.CommonResult;
+import com.jxx.groupware.api.member.listener.MemberOrgConsistencyException;
 import com.jxx.groupware.core.vacation.domain.exeception.AuthClientException;
 import com.jxx.groupware.core.vacation.domain.exeception.MemberLeaveException;
 import org.springframework.http.HttpStatus;
@@ -8,12 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(basePackages = {"com.jxx.groupware.api.member"})
+@RestControllerAdvice(basePackages = {"com.jxx.groupware.api.member", "com.jxx.groupware.api.work"})
 public class MemberApiExceptionHandler {
 
-    @ExceptionHandler(UnAuthenticationException.class)
-    public ResponseEntity<?> handleUnAuthenticationException(UnAuthenticationException exception) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler({UnAuthenticationException.class, MemberOrgConsistencyException.class})
+    public ResponseEntity<?> handleUnAuthenticationException(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new CommonResult(HttpStatus.UNAUTHORIZED.value(), exception.getMessage(), "No Contents"));
     }
     @ExceptionHandler(MemberLeaveException.class)
     public ResponseEntity<?> handleMemberLeaveException(MemberLeaveException exception) {
