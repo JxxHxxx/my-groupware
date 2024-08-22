@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -83,5 +83,9 @@ public class WorkTicket {
     public void changeWorkStatus(WorkStatus workStatus) {
         this.workStatus = workStatus;
         this.modifiedTime = LocalDateTime.now();
+    }
+
+    public boolean isNotReceivable() {
+        return !Objects.equals(this.workStatus, WorkStatus.CREATE);
     }
 }

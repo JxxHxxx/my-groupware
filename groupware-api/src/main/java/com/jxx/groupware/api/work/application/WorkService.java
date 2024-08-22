@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -95,7 +94,9 @@ public class WorkService {
         WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
                 .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
 
-        if (!Objects.equals(workTicket.getWorkStatus(), WorkStatus.CREATE)) {
+        if (workTicket.isNotReceivable()) {
+            log.error("\n workTicketId:{} is already received or can't receive \n " +
+                    "now workStatus is {}", workTicket.getWorkTicketId(), workTicket.getWorkStatus());
             throw new WorkClientException("티켓:" + workTicketId + "이미 접수되었거나 접수할 수 없는 상태입니다.");
         }
 
@@ -106,7 +107,7 @@ public class WorkService {
                 .build();
 
         WorkDetail savedWorkDetail = workDetailRepository.save(workDetail);
-        // 접수자에 대한 검증 로직 추가 이벤트로 처리할 에정
+        // Event 처리 - 접수자가 요청 대상 부서의 소속인지 검증
         eventPublisher.publishEvent(
                 new WorkTicketReceiveEvent(
                         request.receiverId(),
