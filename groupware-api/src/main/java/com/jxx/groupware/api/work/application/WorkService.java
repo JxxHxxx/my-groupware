@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -37,18 +38,22 @@ public class WorkService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public WorkTicketServiceResponse createWorkTicket(WorkTicketCreateRequest workTicketCreateRequest) {
-        // TODO 회사, 부서 코드, 사용자 ID 유효성 검증을 고민해야 함
+    public WorkTicketServiceResponse createWorkTicket(WorkTicketCreateRequest request) {
+        // 요청자가 다른 회사에 요청을 하려는 경우 제외
+        if (!Objects.equals(request.workRequester().getCompanyId(), request.chargeCompanyId())) {
+            throw new WorkClientException("다른 회사에 요청을 할 수 없습니다.");
+        }
+        eventPublisher.publishEvent(new WorkTicketCreateEvent(request.chargeCompanyId(), request.chargeDepartmentId()));
 
         WorkTicket workTicket = WorkTicket.builder()
                 .workStatus(WorkStatus.CREATE)
                 .createdTime(LocalDateTime.now())
-                .chargeCompanyId(workTicketCreateRequest.chargeCompanyId())
-                .chargeDepartmentId(workTicketCreateRequest.chargeDepartmentId())
+                .chargeCompanyId(request.chargeCompanyId())
+                .chargeDepartmentId(request.chargeDepartmentId())
                 .modifiedTime(LocalDateTime.now())
-                .requestTitle(workTicketCreateRequest.requestTitle())
-                .requestContent(workTicketCreateRequest.requestContent())
-                .workRequester(workTicketCreateRequest.workRequester())
+                .requestTitle(request.requestTitle())
+                .requestContent(request.requestContent())
+                .workRequester(request.workRequester())
                 .build();
 
         WorkTicket savedWorkTicket = workTicketRepository.save(workTicket);
@@ -59,7 +64,7 @@ public class WorkService {
                 .workTicketId(savedWorkTicket.getWorkTicketId())
                 .workStatus(savedWorkTicket.getWorkStatus())
                 .createdTime(savedWorkTicket.getCreatedTime())
-                .chargeCompanyId(workTicketCreateRequest.chargeCompanyId())
+                .chargeCompanyId(request.chargeCompanyId())
                 .chargeDepartmentId(savedWorkTicket.getChargeDepartmentId())
                 .modifiedTime(savedWorkTicket.getModifiedTime())
                 .requestTitle(savedWorkTicket.getRequestTitle())
