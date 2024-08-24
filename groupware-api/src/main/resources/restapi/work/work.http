@@ -1,5 +1,5 @@
 
-###
+### 작업 티켓 생성 API 1
 POST http://localhost:8080/api/work-tickets
 Content-Type: application/json
 
@@ -15,17 +15,43 @@ Content-Type: application/json
   }
 }
 
+### 작업 티켓 생성 API 2
+POST http://localhost:8080/api/work-tickets
+Content-Type: application/json
+
+{
+  "chargeCompanyId": "SPY",
+  "chargeDepartmentId": "SPY00105",
+  "requestTitle" : "2024년 하반기 신입 직원 응급 의료 교육 자료 요청 ",
+  "requestContent": "상기 제목의 자료 요청드립니다.",
+  "workRequester": {
+    "companyId": "SPY",
+    "id": "SPY00302",
+    "name": "전창환"
+  }
+}
+
 ###
 GET http://localhost:8080/api/work-tickets/search?memberId=U00006
 
 
-###
-POST http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/receive
+### 작업 접수 API
+POST http://localhost:8080/api/work-tickets/d67a2f38-0ab2-49e8-8796-c89076060eaf/receive
 Content-Type: application/json
 
 {
   "receiverCompanyId" :  "SPY",
-  "receiverDepartmentId" :  "SPY00102",
-  "receiverId": "SPY00033",
-  "receiverName": "김태리"
+  "receiverDepartmentId" :  "SPY00105",
+  "receiverId": "SPY00488",
+  "receiverName": "김한샘"
+}
+
+### 작업 분석 단계 진입 API
+PATCH http://localhost:8080/api/work-tickets/d67a2f38-0ab2-49e8-8796-c89076060eaf/begin-analysis
+Content-Type: application/json
+
+{
+  "receiverCompanyId": "SPY",
+  "receiverDepartmentId": "SPY00105",
+  "receiverId": "SPY00488"
 }

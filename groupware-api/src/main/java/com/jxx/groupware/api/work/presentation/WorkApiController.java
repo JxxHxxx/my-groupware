@@ -2,10 +2,12 @@ package com.jxx.groupware.api.work.presentation;
 
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.api.work.application.WorkService;
+import com.jxx.groupware.api.work.dto.request.WorkTicketAnalyzeRequest;
 import com.jxx.groupware.api.work.dto.request.WorkTicketCreateRequest;
 import com.jxx.groupware.api.work.dto.request.WorkTickSearchCond;
 import com.jxx.groupware.api.work.dto.request.WorkTicketReceiveRequest;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
+import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +35,19 @@ public class WorkApiController {
 
     @PostMapping("/api/work-tickets/{work-ticket-id}/receive")
     public ResponseEntity<?> receiveWorkTicket(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketReceiveRequest request) {
-        WorkDetailServiceResponse response = workService.receiveWorkTicket(workTicketId, request);
-        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 접수 완료", response));
+        WorkDetailServiceResponse response = workService.receiveWorkTicketAndCreateWorkDetail(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(201, "작업 티켓 접수, 작업 내역 엔티티 생성", response));
     }
 
+    @PatchMapping("api/work-tickets/{work-ticket-id}/begin-analysis")
+    public ResponseEntity<?> beginWorkDetailAnalysis(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketAnalyzeRequest request) {
+        WorkServiceResponse response = workService.beginWorkDetailAnalysis(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 분석 단계 접수", response));
+    }
+
+    @PatchMapping("api/work-tickets/{work-ticket-id}/complete-analysis")
+    public ResponseEntity<?> completeWorkDetailAnalysis(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketAnalyzeRequest request) {
+        WorkDetailServiceResponse response = workService.completeWorkDetailAnalysis(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 분석 단계 접수", response));
+    }
 }

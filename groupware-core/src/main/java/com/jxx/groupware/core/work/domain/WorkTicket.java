@@ -75,7 +75,7 @@ public class WorkTicket {
         this.workStatus = workStatus;
         this.modifiedTime = modifiedTime;
     }
-
+    /** 연관관계 매핑 **/
     public void mappingWorkDetail(WorkDetail workDetail) {
         this.workDetail = workDetail;
     }
@@ -87,5 +87,18 @@ public class WorkTicket {
 
     public boolean isNotReceivable() {
         return !Objects.equals(this.workStatus, WorkStatus.CREATE);
+    }
+
+    public boolean isNotAnalyzable() {
+        return !Objects.equals(this.workStatus, WorkStatus.RECEIVE);
+    }
+
+    /** 접수자의 요청인지 검증 **/
+    public boolean isReceiverRequest(String receiverId, String chargeCompanyId, String chargeDepartmentId) {
+        boolean receiverEqual = Objects.equals(workDetail.getReceiverId(), receiverId);
+        boolean chargeCompanyIdEqual = Objects.equals(this.chargeCompanyId, chargeCompanyId);
+        boolean chargeDepartmentIdEqual = Objects.equals(this.chargeDepartmentId, chargeDepartmentId);
+
+        return receiverEqual && chargeCompanyIdEqual && chargeDepartmentIdEqual;
     }
 }

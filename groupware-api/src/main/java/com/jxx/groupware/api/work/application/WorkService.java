@@ -1,9 +1,11 @@
 package com.jxx.groupware.api.work.application;
 
 import com.jxx.groupware.api.work.dto.request.WorkTickSearchCond;
+import com.jxx.groupware.api.work.dto.request.WorkTicketAnalyzeRequest;
 import com.jxx.groupware.api.work.dto.request.WorkTicketCreateRequest;
 import com.jxx.groupware.api.work.dto.request.WorkTicketReceiveRequest;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
+import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
 import com.jxx.groupware.core.work.domain.WorkDetail;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -37,12 +40,17 @@ public class WorkService {
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 작업 티켓 생성
+     **/
     @Transactional
     public WorkTicketServiceResponse createWorkTicket(WorkTicketCreateRequest request) {
         // 요청자가 다른 회사에 요청을 하려는 경우 제외
         if (!Objects.equals(request.workRequester().getCompanyId(), request.chargeCompanyId())) {
             throw new WorkClientException("다른 회사에 요청을 할 수 없습니다.");
         }
+        /** 타 도메인 Event 처리
+         * **/
         eventPublisher.publishEvent(new WorkTicketCreateEvent(request.chargeCompanyId(), request.chargeDepartmentId()));
 
         WorkTicket workTicket = WorkTicket.builder()
@@ -59,7 +67,16 @@ public class WorkService {
         WorkTicket savedWorkTicket = workTicketRepository.save(workTicket);
         log.info("success save workTicket {}", savedWorkTicket.getWorkTicketId());
 
-        WorkTicketHistory workTicketHistory = WorkTicketHistory.builder()
+        WorkTicketHistory workTicketHistory = createWorkTicketHistory(request, savedWorkTicket);
+
+        WorkTicketHistory savedWorkTicketHistory = workTicketHistRepository.save(workTicketHistory);
+        log.info("success save workTicket history {}", savedWorkTicketHistory.getWorkTicketId());
+
+        return createWorkTicketServiceResponse(savedWorkTicket);
+    }
+
+    private static WorkTicketHistory createWorkTicketHistory(WorkTicketCreateRequest request, WorkTicket savedWorkTicket) {
+        return WorkTicketHistory.builder()
                 .workTicketPk(savedWorkTicket.getWorkTicketPk())
                 .workTicketId(savedWorkTicket.getWorkTicketId())
                 .workStatus(savedWorkTicket.getWorkStatus())
@@ -71,10 +88,103 @@ public class WorkService {
                 .requestContent(savedWorkTicket.getRequestContent())
                 .workRequester(savedWorkTicket.getWorkRequester())
                 .build();
+    }
 
-        WorkTicketHistory savedWorkTicketHistory = workTicketHistRepository.save(workTicketHistory);
-        log.info("success save workTicket history {}", savedWorkTicketHistory.getWorkTicketId());
+    /**
+     * 작업 티켓 검색
+     **/
+    public List<WorkTicketServiceResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
+        return workTicketMapper.search(searchCond);
 
+    }
+
+    /**
+     * 작업 티켓 접수
+     **/
+    @Transactional
+    public WorkDetailServiceResponse receiveWorkTicketAndCreateWorkDetail(String workTicketId, WorkTicketReceiveRequest request) {
+        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
+                .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
+
+        /** 작업 티켓이 접수 가능한지 검증 **/
+        if (workTicket.isNotReceivable()) {
+            log.error("\n workTicketId:{} is already received or can't receive \n " +
+                    "now workStatus is {}", workTicket.getWorkTicketId(), workTicket.getWorkStatus());
+            throw new WorkClientException("티켓:" + workTicketId + "이미 접수되었거나 접수할 수 없는 상태입니다.");
+        }
+
+        /** 타 도메인 Event 처리
+         * 접수자가 요청 대상 부서의 소속인지 검증 **/
+        eventPublisher.publishEvent(
+                new WorkTicketReceiveEvent(
+                        request.receiverId(),
+                        request.receiverCompanyId(),
+                        request.receiverDepartmentId(),
+                        workTicket.getChargeCompanyId(),
+                        workTicket.getChargeDepartmentId()));
+
+        /** 작업 상세(작업 접수자의 작업 검토, 계획, 수행 데이터가 들어감) 엔티티 생성 **/
+        WorkDetail workDetail = WorkDetail.builder()
+                .receiverId(request.receiverId())
+                .receiverName(request.receiverName())
+                .createTime(LocalDateTime.now())
+                .build();
+        WorkDetail savedWorkDetail = workDetailRepository.save(workDetail);
+
+        /** 작업이 접수됐으면 작업 티켓 상태를 변경해야함
+         * + JPA Dirty Checking **/
+        workTicket.changeWorkStatus(WorkStatus.RECEIVE);
+        workTicket.mappingWorkDetail(savedWorkDetail);
+
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        return createWorkDetailServiceResponse(savedWorkDetail);
+    }
+
+    public WorkServiceResponse beginWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
+        /* TODO 접수자 검증 로직 */
+        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+
+        if (oWorkTicket.isEmpty()) {
+            log.error("TicketId:{} is not present", workTicketId);
+            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+        }
+
+        WorkTicket workTicket = oWorkTicket.get();
+        /** 요청자 검증 **/
+        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계로 진입하려 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        }
+
+        /** 분석 단계로 진입이 가능한 상태인지 검증 **/
+        if (workTicket.isNotAnalyzable()) {
+            log.error("TicketId:{} can't begin analysis, work-status must be receive \n now work-status is {}",
+                    workTicketId, workTicket.getWorkStatus());
+
+            throw new WorkClientException("TicketId" + workTicketId + "can't begin analysis, work-status must be receive \n" +
+                    "now work-status is " + workTicket.getWorkStatus());
+        }
+
+        /**  JPA Dirty Checking **/
+        workTicket.changeWorkStatus(WorkStatus.ANALYZE);
+
+        WorkDetail workDetail = workTicket.getWorkDetail();
+
+        // 티켓 히스토리 저장
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        // 응답 생성
+        WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
+        WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
+        return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
+    }
+
+    public WorkDetailServiceResponse completeWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
+        return null;
+    }
+
+    private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {
         return new WorkTicketServiceResponse(
                 savedWorkTicket.getWorkTicketPk(),
                 savedWorkTicket.getWorkTicketId(),
@@ -89,48 +199,11 @@ public class WorkService {
         );
     }
 
-    public List<WorkTicketServiceResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
-        return workTicketMapper.search(searchCond);
-
-    }
-
-    @Transactional
-    public WorkDetailServiceResponse receiveWorkTicket(String workTicketId, WorkTicketReceiveRequest request) {
-        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
-                .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
-
-        if (workTicket.isNotReceivable()) {
-            log.error("\n workTicketId:{} is already received or can't receive \n " +
-                    "now workStatus is {}", workTicket.getWorkTicketId(), workTicket.getWorkStatus());
-            throw new WorkClientException("티켓:" + workTicketId + "이미 접수되었거나 접수할 수 없는 상태입니다.");
-        }
-
-        WorkDetail workDetail = WorkDetail.builder()
-                .receiverId(request.receiverId())
-                .receiverName(request.receiverName())
-                .createTime(LocalDateTime.now())
-                .build();
-
-        WorkDetail savedWorkDetail = workDetailRepository.save(workDetail);
-        // Event 처리 - 접수자가 요청 대상 부서의 소속인지 검증
-        eventPublisher.publishEvent(
-                new WorkTicketReceiveEvent(
-                        request.receiverId(),
-                        request.receiverCompanyId(),
-                        request.receiverDepartmentId(),
-                        workTicket.getChargeCompanyId(),
-                        workTicket.getChargeDepartmentId()));
-
-        // Dirty Checking
-        workTicket.changeWorkStatus(WorkStatus.RECEIVE);
-        workTicket.mappingWorkDetail(savedWorkDetail);
-
-        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
-
+    private static WorkDetailServiceResponse createWorkDetailServiceResponse(WorkDetail savedWorkDetail) {
         return new WorkDetailServiceResponse(
                 savedWorkDetail.getWorkDetailPk(),
                 savedWorkDetail.getAnalyzeContent(),
-                workDetail.getAnalyzeCompletedTime(),
+                savedWorkDetail.getAnalyzeCompletedTime(),
                 savedWorkDetail.getWorkPlanContent(),
                 savedWorkDetail.getWorkPlanCompletedTime(),
                 savedWorkDetail.getExpectDeadlineDate(),

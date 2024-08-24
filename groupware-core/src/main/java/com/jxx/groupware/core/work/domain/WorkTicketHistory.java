@@ -53,6 +53,7 @@ public class WorkTicketHistory {
     @Column(name = "MODIFIED_TIME")
     @Comment("변경 시간")
     private LocalDateTime modifiedTime;
+    // TODO 히스토리 레코드가 생성된 시간을 기록해야 한다.
 
     @Builder
     public WorkTicketHistory(Long workTicketPk, String workTicketId, String requestTitle, String requestContent, WorkRequester workRequester,
