@@ -27,20 +27,32 @@ public class OrgMemberEventListener {
         String eventOccurMsg = "[WorkTicketReceiveEvent occurs]";
 
         String memberId = event.receiverId();
-        MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 memberId:" + memberId));
+
+        Optional<MemberLeave> oMemberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(memberId);
+        if (oMemberLeave.isEmpty()) {
+            log.error("\n [FAIL] {} \n memberId:{} is not present", eventOccurMsg, memberId);
+            throw new IllegalArgumentException("memberId:" + memberId + " is not present");
+        }
+
+        MemberLeave memberLeave = oMemberLeave.get();
+
+        if (!memberLeave.isActive()) {
+            log.error("\n [FAIL] {} \n memberId:{} is not active", eventOccurMsg, memberId);
+            throw new IllegalArgumentException("memberId:" + memberId + " is not active");
+        }
 
         Organization organization = memberLeave.getOrganization();
         if (organization.isSyncOrganization(event.chargeCompanyId(), event.chargeDepartmentId())) {
             log.info("\n [SUCCESS] {} \n memberId:{} is synchronized org", eventOccurMsg, memberId);
         } else {
             log.error("\n [FAIL] {}  \n memberId:{} is belong in companyId:{} departmentId:{} \n" +
-                    "charge companyId:{} departmentId:{}, this member has not qualifications", eventOccurMsg, memberId,
+                            "charge companyId:{} departmentId:{}, this member has not qualifications", eventOccurMsg, memberId,
                     event.receiverCompanyId(), event.receiverDepartmentId(), event.chargeCompanyId(), event.receiverDepartmentId());
 
             throw new MemberOrgAuthenticationException("사용자" + memberId + " 는 해당 티켓을 접수할 권한이 없습니다");
         }
     }
+
     @EventListener(value = WorkTicketCreateEvent.class)
     public void listen(WorkTicketCreateEvent event) {
         String eventOccurMsg = "[WorkTicketCreateEvent occurs]";

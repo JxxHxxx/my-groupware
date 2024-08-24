@@ -1,13 +1,10 @@
 package com.jxx.groupware.api.work.application;
 
 /**
-  workTicket(작업 요청 티켓) 을 접수하려고 할 때
- 발생하는 다른 도메인의 이벤트를 처리하기 위해 필요한 데이터를 가지고 있는 record 클래스
-
- 여기서 말하는 다른 도메인이란 쉽게 jxx/groupware/api/work 디렉터리 내에 있지 않는
- 클래스를 의존하는 경우를 말한다. 단 api/common 하위에 존재하는 클래스는 공통 클래스이기에 예외이다.
- 1.
-
+ * <pre>작업티켓 접수 타 도메인 이벤트 처리 클래스</pre>
+ * <pre>1. 사용자 존재/활성화 여부 검증</pre>
+ * <pre>2. 접수자의 실제 부서와 클라이언트에서 보내는 부서 정보가 일치하는지 여부 검증</pre>
+ * <pre>3. 접수자가 해당 티켓을 접수할 수 있는 부서에 소속되어 있는지 검증</pre>
  **/
 public record WorkTicketReceiveEvent(
         String receiverId,
