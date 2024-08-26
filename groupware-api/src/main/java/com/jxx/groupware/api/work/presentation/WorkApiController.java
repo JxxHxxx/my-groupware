@@ -47,7 +47,7 @@ public class WorkApiController {
 
     @PatchMapping("api/work-tickets/{work-ticket-id}/complete-analysis")
     public ResponseEntity<?> completeWorkDetailAnalysis(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketAnalyzeRequest request) {
-        WorkDetailServiceResponse response = workService.completeWorkDetailAnalysis(workTicketId, request);
-        return ResponseEntity.ok(new ResponseResult<>(200, "작업 분석 단계 접수", response));
+        WorkServiceResponse response = workService.completeWorkDetailAnalysis(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 분석 단계 완료", response));
     }
 }

@@ -66,4 +66,9 @@ public class WorkDetail {
         this.preReflect = preReflect;
         this.preReflectReason = preReflectReason;
     }
+
+    public void changeAnalyzeContent(String analyzeContent) {
+        this.analyzeContent = analyzeContent;
+        this.analyzeCompletedTime = LocalDateTime.now();
+    }
 }

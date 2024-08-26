@@ -180,8 +180,33 @@ public class WorkService {
         return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
-    public WorkDetailServiceResponse completeWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
-        return null;
+    public WorkServiceResponse completeWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
+        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+
+        if (oWorkTicket.isEmpty()) {
+            log.error("TicketId:{} is not present", workTicketId);
+            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+        }
+
+        WorkTicket workTicket = oWorkTicket.get();
+        /** 요청자 검증 **/
+        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계를 완료하려 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        }
+
+        if (!WorkStatus.ANALYZE.equals(workTicket.getWorkStatus())) {
+            log.error("TicketId:{} 작업 분석 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
+            throw new WorkClientException("작업 분석 단계가 아닙니다.");
+        }
+
+        WorkDetail workDetail = workTicket.getWorkDetail();
+        // dirty-checking
+        workDetail.changeAnalyzeContent(request.analyzeContent());
+
+        WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
+        WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
+        return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
     private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {

@@ -4,6 +4,7 @@ public record WorkTicketAnalyzeRequest(
         String receiverCompanyId,
         String receiverDepartmentId,
         String receiverId,
-        String receiverName
+        String receiverName,
+        String analyzeContent
 ) {
 }
