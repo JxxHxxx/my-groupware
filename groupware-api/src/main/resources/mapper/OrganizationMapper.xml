@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jxx.groupware.api.organization.query.OrganizationMapper">
+    <select id="search"
+            parameterType="com.jxx.groupware.api.organization.dto.request.OrganizationSearchCond"
+            resultType="com.jxx.groupware.api.organization.dto.response.OrganizationServiceResponse">
+        SELECT JOM.ORGANIZATION_PK,
+            JOM.IS_ACTIVE,
+            JOM.COMPANY_ID,
+            JOM.COMPANY_NAME,
+            JOM.DEPARTMENT_ID,
+            JOM.DEPARTMENT_NAME,
+            JOM.PARENT_DEPARTMENT_ID,
+            JOM.PARENT_DEPARTMENT_NAME
+        FROM JXX_ORGANIZATION_MASTER JOM
+        <where>
+            AND JOM.COMPANY_ID = #{companyId}
+            <if test="departmentName != null and departmentName !=''">
+                AND JOM.DEPARTMENT_NAME LIKE CONCAT('%', #{departmentName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

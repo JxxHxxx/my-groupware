@@ -1,9 +1,11 @@
 package com.jxx.groupware.api.organization.application;
 
 import com.jxx.groupware.api.organization.dto.request.CompanyCodeCreateForm;
+import com.jxx.groupware.api.organization.dto.request.OrganizationSearchCond;
 import com.jxx.groupware.api.organization.dto.response.CompanyCodeResponse;
 import com.jxx.groupware.api.organization.dto.response.CompanyDepartmentResponse;
 import com.jxx.groupware.api.organization.dto.response.OrganizationServiceResponse;
+import com.jxx.groupware.api.organization.query.OrganizationMapper;
 import com.jxx.groupware.core.vacation.domain.entity.CompanyCode;
 import com.jxx.groupware.core.vacation.domain.entity.Organization;
 import com.jxx.groupware.core.vacation.infra.CompanyCodeRepository;
@@ -22,6 +24,7 @@ import java.util.Objects;
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
+    private final OrganizationMapper organizationMapper;
     private final CompanyCodeRepository companyCodeRepository;
 
     public List<OrganizationServiceResponse> getCompanyOrganization(String companyId) {
@@ -111,5 +114,9 @@ public class OrganizationService {
                         org.getDepartmentId(), org.getDepartmentName()))
                 .toList();
 
+    }
+
+    public List<OrganizationServiceResponse> searchOrganization(OrganizationSearchCond searchCond) {
+        return organizationMapper.search(searchCond);
     }
 }

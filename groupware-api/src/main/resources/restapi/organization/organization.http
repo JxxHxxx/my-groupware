@@ -11,3 +11,6 @@ Content-Type: application/json
 
 ### 회사코드 조회
 GET http://localhost:8080/test/company-codes
+
+### 부서검색 API
+GET http://localhost:8080/api/organizations
