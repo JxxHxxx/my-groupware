@@ -9,7 +9,7 @@ public enum WorkStatus {
     RECEIVE("접수"),
     ANALYZE("요청 내용 분석"),
     MAKE_PLAN("계획 수립"),
-    REQUEST_RAISE("상신 요청"),
+    REQUEST_CONFIRM("결재 요청"),
     ACCEPT("승인"),
     REJECT_FROM_REQUESTER("요청 부서로부터의 반려"),
     REJECT_FROM_CHARGE("담당 부서로부터의 반려"),

@@ -74,20 +74,18 @@ public class WorkService {
 
         return createWorkTicketServiceResponse(savedWorkTicket);
     }
+    /** 작업 티켓 삭제
+     * workStatus -> DELETE **/
+    @Transactional
+    public void deleteWorkTicket() {
 
-    private static WorkTicketHistory createWorkTicketHistory(WorkTicketCreateRequest request, WorkTicket savedWorkTicket) {
-        return WorkTicketHistory.builder()
-                .workTicketPk(savedWorkTicket.getWorkTicketPk())
-                .workTicketId(savedWorkTicket.getWorkTicketId())
-                .workStatus(savedWorkTicket.getWorkStatus())
-                .createdTime(savedWorkTicket.getCreatedTime())
-                .chargeCompanyId(request.chargeCompanyId())
-                .chargeDepartmentId(savedWorkTicket.getChargeDepartmentId())
-                .modifiedTime(savedWorkTicket.getModifiedTime())
-                .requestTitle(savedWorkTicket.getRequestTitle())
-                .requestContent(savedWorkTicket.getRequestContent())
-                .workRequester(savedWorkTicket.getWorkRequester())
-                .build();
+    }
+
+    /** 작업 반려
+     * workStatus -> REJECT_FROM_CHARGE **/
+    @Transactional
+    public void rejectWorkTicket() {
+
     }
 
     /**
@@ -141,6 +139,7 @@ public class WorkService {
         return createWorkDetailServiceResponse(savedWorkDetail);
     }
 
+    @Transactional
     public WorkServiceResponse beginWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
         /* TODO 접수자 검증 로직 */
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
@@ -180,6 +179,7 @@ public class WorkService {
         return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
+    @Transactional
     public WorkServiceResponse completeWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
@@ -209,6 +209,41 @@ public class WorkService {
         return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
+    /** 계획 수립 단계 시작
+     * workStatus -> MAKE_PLAN **/
+    @Transactional
+    public void beginWorkDetailPlan() {
+
+    }
+
+    /** 계획 수립 단계 종료 **/
+    @Transactional
+    public void completeWorkDetailPlan() {
+
+    }
+
+    /** 결재 요청
+     * workStatus -> REQUEST_CONFIRM **/
+    @Transactional
+    public void requestConfirm() {
+
+    }
+
+    /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
+     * workStatus -> WORKING **/
+    @Transactional
+    public void beginWorkDetailWorking() {
+
+    }
+
+    /** 작업 단계 종료
+     * workStatus -> DONNE **/
+    @Transactional
+    public void completeWorkDetailWorking() {
+
+    }
+
+
     private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {
         return new WorkTicketServiceResponse(
                 savedWorkTicket.getWorkTicketPk(),
@@ -237,5 +272,21 @@ public class WorkService {
                 savedWorkDetail.getCreateTime(),
                 savedWorkDetail.getPreReflect(),
                 savedWorkDetail.getPreReflectReason());
+    }
+
+
+    private static WorkTicketHistory createWorkTicketHistory(WorkTicketCreateRequest request, WorkTicket savedWorkTicket) {
+        return WorkTicketHistory.builder()
+                .workTicketPk(savedWorkTicket.getWorkTicketPk())
+                .workTicketId(savedWorkTicket.getWorkTicketId())
+                .workStatus(savedWorkTicket.getWorkStatus())
+                .createdTime(savedWorkTicket.getCreatedTime())
+                .chargeCompanyId(request.chargeCompanyId())
+                .chargeDepartmentId(savedWorkTicket.getChargeDepartmentId())
+                .modifiedTime(savedWorkTicket.getModifiedTime())
+                .requestTitle(savedWorkTicket.getRequestTitle())
+                .requestContent(savedWorkTicket.getRequestContent())
+                .workRequester(savedWorkTicket.getWorkRequester())
+                .build();
     }
 }
