@@ -1,5 +1,6 @@
 package com.jxx.groupware.core.work.domain;
 
+import com.jxx.groupware.core.work.domain.exception.WorkClientException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -67,7 +68,13 @@ public class WorkDetail {
         this.preReflectReason = preReflectReason;
     }
 
-    public void changeAnalyzeContent(String analyzeContent) {
+    public void completeAnalyzeContent(String analyzeContent) {
+        if (analyzeContent == null) {
+            throw new WorkClientException("분석 내용은 null 일 수 없습니다.");
+        }
+        if (analyzeContent.isBlank()) {
+            throw new WorkClientException("분석 내용은 공백일 수 없습니다");
+        }
         this.analyzeContent = analyzeContent;
         this.analyzeCompletedTime = LocalDateTime.now();
     }

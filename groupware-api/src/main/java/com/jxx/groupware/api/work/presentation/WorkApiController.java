@@ -2,10 +2,7 @@ package com.jxx.groupware.api.work.presentation;
 
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.api.work.application.WorkService;
-import com.jxx.groupware.api.work.dto.request.WorkTicketAnalyzeRequest;
-import com.jxx.groupware.api.work.dto.request.WorkTicketCreateRequest;
-import com.jxx.groupware.api.work.dto.request.WorkTickSearchCond;
-import com.jxx.groupware.api.work.dto.request.WorkTicketReceiveRequest;
+import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
@@ -49,5 +46,11 @@ public class WorkApiController {
     public ResponseEntity<?> completeWorkDetailAnalysis(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketAnalyzeRequest request) {
         WorkServiceResponse response = workService.completeWorkDetailAnalysis(workTicketId, request);
         return ResponseEntity.ok(new ResponseResult<>(200, "작업 분석 단계 완료", response));
+    }
+
+    @PatchMapping("api/work-tickets/{work-ticket-id}/begin-plan")
+    public ResponseEntity<?> beginWorkDetailPlan(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketPlanRequest request) {
+        WorkServiceResponse response = workService.beginWorkDetailPlan(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 계획 단계 접수", response));
     }
 }

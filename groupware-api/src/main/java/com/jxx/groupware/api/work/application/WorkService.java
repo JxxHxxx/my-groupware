@@ -1,9 +1,6 @@
 package com.jxx.groupware.api.work.application;
 
-import com.jxx.groupware.api.work.dto.request.WorkTickSearchCond;
-import com.jxx.groupware.api.work.dto.request.WorkTicketAnalyzeRequest;
-import com.jxx.groupware.api.work.dto.request.WorkTicketCreateRequest;
-import com.jxx.groupware.api.work.dto.request.WorkTicketReceiveRequest;
+import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
@@ -166,7 +163,7 @@ public class WorkService {
         }
 
         /**  JPA Dirty Checking **/
-        workTicket.changeWorkStatus(WorkStatus.ANALYZE);
+        workTicket.changeWorkStatus(WorkStatus.ANALYZE_BEGIN);
 
         WorkDetail workDetail = workTicket.getWorkDetail();
 
@@ -195,14 +192,15 @@ public class WorkService {
             throw new WorkClientException("잘못된 접근입니다.");
         }
 
-        if (!WorkStatus.ANALYZE.equals(workTicket.getWorkStatus())) {
+        if (!WorkStatus.ANALYZE_BEGIN.equals(workTicket.getWorkStatus())) {
             log.error("TicketId:{} 작업 분석 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
             throw new WorkClientException("작업 분석 단계가 아닙니다.");
         }
 
         WorkDetail workDetail = workTicket.getWorkDetail();
         // dirty-checking
-        workDetail.changeAnalyzeContent(request.analyzeContent());
+        workDetail.completeAnalyzeContent(request.analyzeContent());
+        workTicket.changeWorkStatus(WorkStatus.ANALYZE_COMPLETE);
 
         WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
         WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
@@ -212,8 +210,34 @@ public class WorkService {
     /** 계획 수립 단계 시작
      * workStatus -> MAKE_PLAN **/
     @Transactional
-    public void beginWorkDetailPlan() {
+    public WorkServiceResponse beginWorkDetailPlan(String workTicketId, WorkTicketPlanRequest request) {
+        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
+        if (oWorkTicket.isEmpty()) {
+            log.error("TicketId:{} is not present", workTicketId);
+            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+        }
+
+        WorkTicket workTicket = oWorkTicket.get();
+        /** 요청자 검증 **/
+        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계를 완료하려 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        }
+
+        if (!WorkStatus.ANALYZE_COMPLETE.equals(workTicket.getWorkStatus())) {
+            log.error("TicketId:{} 작업 분석 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
+            throw new WorkClientException("작업 분석 단계가 아닙니다.");
+        }
+        //dirty-checking
+        workTicket.changeWorkStatus(WorkStatus.MAKE_PLAN_BEGIN);
+        WorkDetail workDetail = workTicket.getWorkDetail();
+
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
+        WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
+        return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
     /** 계획 수립 단계 종료 **/
