@@ -78,4 +78,16 @@ public class WorkDetail {
         this.analyzeContent = analyzeContent;
         this.analyzeCompletedTime = LocalDateTime.now();
     }
+
+    public void completeWorkPlan(String workPlanContent) {
+        if (workPlanContent == null) {
+            throw new WorkClientException("계획 내용은 null 일 수 없습니다.");
+        }
+        if (workPlanContent.isBlank()) {
+            throw new WorkClientException("계획 내용은 공백일 수 없습니다");
+        }
+
+        this.workPlanContent = workPlanContent;
+        this.workPlanCompletedTime = LocalDateTime.now();
+    }
 }

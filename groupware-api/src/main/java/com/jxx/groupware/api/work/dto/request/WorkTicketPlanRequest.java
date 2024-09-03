@@ -5,6 +5,6 @@ public record WorkTicketPlanRequest(
         String receiverDepartmentId,
         String receiverId,
         String receiverName,
-        String planContent
+        String workPlanContent
 ) {
 }

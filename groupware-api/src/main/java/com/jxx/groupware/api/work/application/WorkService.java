@@ -4,6 +4,7 @@ import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
+import com.jxx.groupware.api.work.listener.WorkTicketRequestConfirmEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
 import com.jxx.groupware.core.work.domain.WorkDetail;
 import com.jxx.groupware.core.work.domain.WorkStatus;
@@ -208,7 +209,7 @@ public class WorkService {
     }
 
     /** 계획 수립 단계 시작
-     * workStatus -> MAKE_PLAN **/
+     * workStatus -> MAKE_PLAN_BEGIN **/
     @Transactional
     public WorkServiceResponse beginWorkDetailPlan(String workTicketId, WorkTicketPlanRequest request) {
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
@@ -242,15 +243,66 @@ public class WorkService {
 
     /** 계획 수립 단계 종료 **/
     @Transactional
-    public void completeWorkDetailPlan() {
+    public WorkServiceResponse completeWorkDetailPlan(String workTicketId, WorkTicketPlanRequest request) {
+        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
+        if (oWorkTicket.isEmpty()) {
+            log.error("TicketId:{} is not present", workTicketId);
+            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+        }
+
+        WorkTicket workTicket = oWorkTicket.get();
+        /** 요청자 검증 **/
+        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 계획 단계를 완료하려 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        }
+
+        if (!WorkStatus.MAKE_PLAN_BEGIN.equals(workTicket.getWorkStatus())) {
+            log.error("TicketId:{} 작업 계획 시작 단계가 아닌 상태에서 작업 계획 단계를 완료하려고 합니다.", workTicketId);
+            throw new WorkClientException("작업 게획 시작 단계가 아닙니다.");
+        }
+
+        //dirty-checking
+        workTicket.changeWorkStatus(WorkStatus.MAKE_PLAN_COMPLETE);
+        WorkDetail workDetail = workTicket.getWorkDetail();
+        workDetail.completeWorkPlan(request.workPlanContent());
+
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
+        WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
+        return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
     /** 결재 요청
      * workStatus -> REQUEST_CONFIRM **/
     @Transactional
-    public void requestConfirm() {
+    public void requestConfirm(String workTicketId, WorkTicketPlanRequest request) {
+        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
+        if (oWorkTicket.isEmpty()) {
+            log.error("TicketId:{} is not present", workTicketId);
+            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+        }
+
+        WorkTicket workTicket = oWorkTicket.get();
+        /** 요청자 검증 **/
+        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 결재를 요청하려 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        }
+
+        if (!WorkStatus.MAKE_PLAN_COMPLETE.equals(workTicket.getWorkStatus())) {
+            log.error("TicketId:{} 작업 계획 시작 완료가 아닌 상태에서 결재를 요청하려 합니다.", workTicketId);
+            throw new WorkClientException("작업 게획 완료 단계가 아닙니다.");
+        }
+
+        // 이벤트 -> 결재 문서 생성되도록...
+        eventPublisher.publishEvent(new WorkTicketRequestConfirmEvent());
+        workTicket.changeWorkStatus(WorkStatus.REQUEST_CONFIRM);
+
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
     }
 
     /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
