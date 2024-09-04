@@ -47,11 +47,54 @@ Content-Type: application/json
 }
 
 ### 작업 분석 단계 진입 API
-PATCH http://localhost:8080/api/work-tickets/d67a2f38-0ab2-49e8-8796-c89076060eaf/begin-analysis
+PATCH http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/begin-analysis
 Content-Type: application/json
 
 {
   "receiverCompanyId": "SPY",
-  "receiverDepartmentId": "SPY00105",
-  "receiverId": "SPY00488"
+  "receiverDepartmentId": "SPY00102",
+  "receiverId": "SPY00033"
+}
+
+### 작업 분석 단계 진입 단계 완료 API
+PATCH http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/complete-analysis
+Content-Type: application/json
+
+{
+  "receiverCompanyId": "SPY",
+  "receiverDepartmentId": "SPY00102",
+  "receiverId": "SPY00033",
+  "analyzeContent" : "특이사항 없음"
+}
+
+### 작업 분석 단계 진입 단계 완료 API
+PATCH http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/begin-plan
+Content-Type: application/json
+
+{
+  "receiverCompanyId": "SPY",
+  "receiverDepartmentId": "SPY00102",
+  "receiverId": "SPY00033"
+}
+
+### 작업 분석 단계 진입 단계 완료 API
+PATCH http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/complete-plan
+Content-Type: application/json
+
+{
+  "receiverCompanyId": "SPY",
+  "receiverDepartmentId": "SPY00102",
+  "receiverId": "SPY00033",
+  "workPlanContent" : "빅쿼리 요청으로 결재 승인일 기준 +1일 업무 외 시간이 작업 진행합니다."
+}
+
+
+###
+PATCH http://localhost:8080/api/work-tickets/af5b78bf-dd34-4e3e-b8cf-021b656d4f62/request-confirm
+Content-Type: application/json
+
+{
+  "receiverCompanyId": "SPY",
+  "receiverDepartmentId": "SPY00102",
+  "receiverId": "SPY00033"
 }

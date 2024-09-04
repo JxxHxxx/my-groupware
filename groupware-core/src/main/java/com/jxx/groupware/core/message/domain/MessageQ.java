@@ -74,7 +74,6 @@ public class MessageQ {
         this.processStartTime = LocalDateTime.now();
         this.messageProcessStatus = MessageProcessStatus.PROCESS;
     }
-
     @Override
     public String toString() {
         return "MessageQ{" +

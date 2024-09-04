@@ -1,15 +1,15 @@
 package com.jxx.groupware.api.work.application;
 
+import com.jxx.groupware.core.ConfirmCreateForm;
 import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
-import com.jxx.groupware.api.work.listener.WorkTicketRequestConfirmEvent;
+import com.jxx.groupware.api.work.listener.RestApiRequestEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
-import com.jxx.groupware.core.work.domain.WorkDetail;
-import com.jxx.groupware.core.work.domain.WorkStatus;
-import com.jxx.groupware.core.work.domain.WorkTicket;
-import com.jxx.groupware.core.work.domain.WorkTicketHistory;
+import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
+import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
+import com.jxx.groupware.core.work.domain.*;
 import com.jxx.groupware.core.work.domain.exception.WorkClientException;
 import com.jxx.groupware.core.work.infra.WorkDetailRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketAttachmentRepository;
@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -37,6 +35,8 @@ public class WorkService {
     private final WorkDetailRepository workDetailRepository;
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
     private final ApplicationEventPublisher eventPublisher;
+
+    private final MemberLeaveRepository memberLeaveRepository; // 임시
 
     /**
      * 작업 티켓 생성
@@ -298,11 +298,45 @@ public class WorkService {
             throw new WorkClientException("작업 게획 완료 단계가 아닙니다.");
         }
 
-        // 이벤트 -> 결재 문서 생성되도록...
-        eventPublisher.publishEvent(new WorkTicketRequestConfirmEvent());
         workTicket.changeWorkStatus(WorkStatus.REQUEST_CONFIRM);
-
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        // 이벤트 -> 결재 문서 생성되도록...
+        WorkRequester workRequester = workTicket.getWorkRequester();
+        MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(workRequester.getId()).get();
+
+        WorkDetail workDetail = workTicket.getWorkDetail();
+        Map<String, Object> contents = new HashMap<>();
+        contents.put("confirmTitle", "업무 요청서");
+        contents.put("requesterId", workTicket.getWorkRequester().getId());
+        contents.put("requesterName", workTicket.getWorkRequester().getName());
+        contents.put("requestTitle", workTicket.getRequestTitle());
+        contents.put("requestContent", workTicket.getRequestContent());
+
+        contents.put("chargeDepartmentId", workTicket.getChargeDepartmentId());
+        contents.put("receiverId", workDetail.getReceiverId());
+        contents.put("receiverName", workDetail.getReceiverName());
+        contents.put("analyzeContent", workDetail.getAnalyzeContent());
+        contents.put("workPlanContent", workDetail.getWorkPlanContent());
+
+        ConfirmCreateForm confirmCreateForm = new ConfirmCreateForm(
+                workTicket.getWorkTicketPk(),
+                memberLeave.receiveCompanyId(),
+                memberLeave.receiveDepartmentId(),
+                memberLeave.receiveDepartmentName(),
+                "GW",
+                "WRK",
+                workRequester.getId(),
+                workRequester.getName(),
+                contents);
+
+        eventPublisher.publishEvent(new RestApiRequestEvent(
+                confirmCreateForm,
+                "POST",
+                "http://localhost:8000",
+                "/api/confirm-documents")
+        );
+
     }
 
     /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
