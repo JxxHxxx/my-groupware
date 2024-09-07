@@ -24,6 +24,12 @@ public class WorkApiController {
         return ResponseEntity.status(201).body(new ResponseResult<>(201, "작업 티켓 생성 완료", response));
     }
 
+    @GetMapping("/api/work-tickets/{work-ticket-pk}")
+    public ResponseEntity<?> getWorkTicketByPk(@PathVariable("work-ticket-pk") Long workTicketPk) {
+        WorkServiceResponse response  = workService.getWorkTicketByPk(workTicketPk);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 PK:" + workTicketPk + " + 조회", response));
+    }
+
     @GetMapping("/api/work-tickets/search")
     public ResponseEntity<?> readWorkTicket(@ModelAttribute WorkTickSearchCond workTickSearchCond) {
         List<WorkTicketServiceResponse> response = workService.searchWorkTicket(workTickSearchCond);

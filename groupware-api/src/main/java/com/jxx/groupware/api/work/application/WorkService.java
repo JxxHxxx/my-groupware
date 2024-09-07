@@ -42,7 +42,7 @@ public class WorkService {
      * 작업 티켓 생성
      **/
     @Transactional
-    public WorkTicketServiceResponse createWorkTicket(WorkTicketCreateRequest request) {
+    public WorkTicketServiceResponse createWorkTicket(final WorkTicketCreateRequest request) {
         // 요청자가 다른 회사에 요청을 하려는 경우 제외
         if (!Objects.equals(request.workRequester().getCompanyId(), request.chargeCompanyId())) {
             throw new WorkClientException("다른 회사에 요청을 할 수 없습니다.");
@@ -72,6 +72,25 @@ public class WorkService {
 
         return createWorkTicketServiceResponse(savedWorkTicket);
     }
+    /** 작업 티켓 PK 조회**/
+    public WorkServiceResponse getWorkTicketByPk(Long workTicketPk) {
+        WorkTicket workTicket = workTicketRepository.findById(workTicketPk)
+                .orElseThrow(() -> new WorkClientException(workTicketPk + "에 해당하는 WorkTicket은 존재 않습니다."));
+
+        /** 작업 티켓이 CREATE 상태일 때는 WorkDetail 이 존재하지 않기 때문에 분기 처리**/
+        if (Objects.equals(workTicket.getWorkStatus(), WorkStatus.CREATE)) {
+
+            WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
+            return new WorkServiceResponse(workTicketServiceResponse, null);
+        }
+        else  {
+            WorkDetail workDetail = workTicket.getWorkDetail();
+            WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
+            WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
+            return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
+        }
+    }
+
     /** 작업 티켓 삭제
      * workStatus -> DELETE **/
     @Transactional
@@ -95,10 +114,10 @@ public class WorkService {
     }
 
     /**
-     * 작업 티켓 접수
+     * 작업 티켓 접수 : 접수에서 WorkDetail 만들어짐
      **/
     @Transactional
-    public WorkDetailServiceResponse receiveWorkTicketAndCreateWorkDetail(String workTicketId, WorkTicketReceiveRequest request) {
+    public WorkDetailServiceResponse receiveWorkTicketAndCreateWorkDetail(final String workTicketId, WorkTicketReceiveRequest request) {
         WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
                 .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
 
@@ -138,7 +157,7 @@ public class WorkService {
     }
 
     @Transactional
-    public WorkServiceResponse beginWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
+    public WorkServiceResponse beginWorkDetailAnalysis(final String workTicketId, WorkTicketAnalyzeRequest request) {
         /* TODO 접수자 검증 로직 */
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
@@ -178,7 +197,7 @@ public class WorkService {
     }
 
     @Transactional
-    public WorkServiceResponse completeWorkDetailAnalysis(String workTicketId, WorkTicketAnalyzeRequest request) {
+    public WorkServiceResponse completeWorkDetailAnalysis(final String workTicketId, WorkTicketAnalyzeRequest request) {
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
         if (oWorkTicket.isEmpty()) {
@@ -211,7 +230,7 @@ public class WorkService {
     /** 계획 수립 단계 시작
      * workStatus -> MAKE_PLAN_BEGIN **/
     @Transactional
-    public WorkServiceResponse beginWorkDetailPlan(String workTicketId, WorkTicketPlanRequest request) {
+    public WorkServiceResponse beginWorkDetailPlan(final String workTicketId, WorkTicketPlanRequest request) {
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
         if (oWorkTicket.isEmpty()) {
