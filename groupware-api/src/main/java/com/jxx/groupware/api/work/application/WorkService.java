@@ -326,9 +326,10 @@ public class WorkService {
 
         WorkDetail workDetail = workTicket.getWorkDetail();
         Map<String, Object> contents = new HashMap<>();
-        contents.put("confirmTitle", "업무 요청서");
+        contents.put("title", "업무 요청서");
         contents.put("requesterId", workTicket.getWorkRequester().getId());
         contents.put("requesterName", workTicket.getWorkRequester().getName());
+        contents.put("requestDepartmentName", memberLeave.receiveDepartmentName());
         contents.put("requestTitle", workTicket.getRequestTitle());
         contents.put("requestContent", workTicket.getRequestContent());
 
