@@ -6,6 +6,7 @@ import com.jxx.groupware.api.messaging.dto.request.MessagePagingSearchCond;
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponseV2;
 import com.jxx.groupware.api.messaging.query.MessageQResultMapper;
+import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
@@ -29,8 +30,9 @@ public class MessageApiController {
     }
 
     @PatchMapping("/message-q-results/{message-q-result-pk}/retry")
-    public void requestRetry(@PathVariable("message-q-result-pk") Long messageResultPk) {
+    public ResponseEntity<?> requestRetry(@PathVariable("message-q-result-pk") Long messageResultPk) {
         messageService.retry(messageResultPk);
+        return ResponseEntity.ok(new ResponseResult<>(200, "재동기 요청 완료", null));
     }
 
     @GetMapping("/test/message-q-results")

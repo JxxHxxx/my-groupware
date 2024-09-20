@@ -100,6 +100,7 @@ public class SimpleMessageProducer {
     private static MessageQResult createAlreadySuccessMessageQResult(MessageQ messageQ, Long originalMessageQPk) {
         return MessageQResult.builder()
                 .messageProcessStatus(ALREADY)
+                .messageProcessType(messageQ.getMessageProcessType())
                 .processStartTime(messageQ.getProcessStartTime())
                 .processEndTime(LocalDateTime.now())
                 .messageDestination(messageQ.getMessageDestination())

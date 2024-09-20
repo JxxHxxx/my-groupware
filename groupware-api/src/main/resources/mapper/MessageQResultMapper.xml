@@ -16,7 +16,6 @@
         PROCESS_START_TIME ,
         PROCESS_END_TIME,
         MESSAGE_PROCESS_TYPE FROM JXX_MESSAGE_Q_RESULT
-
         <where>
             <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
                 <![CDATA[
@@ -29,6 +28,7 @@
                 AND MESSAGE_PROCESS_STATUS = #{messageProcessStatus}
             </if>
         </where>
+        ORDER BY MESSAGE_Q_RESULT_PK DESC
     </select>
     <parameterMap id="messageQResultSearchMap"
                   type="com.jxx.groupware.api.messaging.dto.request.MessageQResultSearchCondition">

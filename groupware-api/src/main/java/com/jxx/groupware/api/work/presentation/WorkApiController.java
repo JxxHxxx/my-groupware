@@ -71,4 +71,11 @@ public class WorkApiController {
         workService.requestConfirm(workTicketId, request);
         return ResponseEntity.ok(new ResponseResult<>(200, "결재 요청 완료", null));
     }
+
+    /** 결재 서버에서 최종 승인/반려로 인해 작업 티켓 상태를 변경하기 위해 호출하는 API **/
+    @PatchMapping("/api/work-tickets/{work-ticket-pk}/complete-confirm")
+    public ResponseEntity<?> requestConfirmWorkTicket(@PathVariable("work-ticket-pk") Long workTicketPk, @RequestBody WorkTicketCompleteConfirmRequest request) {
+        workService.processingAfterConfirmComplete(workTicketPk, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "결재 완료 후 후속 처리", null));
+    }
 }

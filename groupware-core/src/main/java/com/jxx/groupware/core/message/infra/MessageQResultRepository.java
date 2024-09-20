@@ -14,7 +14,8 @@ public interface MessageQResultRepository extends JpaRepository<MessageQResult, 
 
     @Query("select mqr from MessageQResult mqr " +
             "where mqr.processEndTime >= :startDateTime " +
-            "and mqr.processEndTime <= :endDateTime")
+            "and mqr.processEndTime <= :endDateTime " +
+            "order by mqr.pk desc ")
     List<MessageQResult> findMessageQResult(@Param("startDateTime") LocalDateTime startDateTime,
                                             @Param("endDateTime") LocalDateTime endDateTime);
 

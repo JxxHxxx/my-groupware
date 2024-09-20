@@ -3,6 +3,7 @@ package com.jxx.groupware.api.messaging.dto.response;
 import com.jxx.groupware.core.message.domain.MessageDestination;
 import com.jxx.groupware.core.message.domain.MessageProcessStatus;
 import com.jxx.groupware.core.message.domain.MessageProcessType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MessageQResultResponseV2 {
     private Long pk;
     private Long originalMessagePk;

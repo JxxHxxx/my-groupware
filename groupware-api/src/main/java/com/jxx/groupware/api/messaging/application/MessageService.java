@@ -85,7 +85,7 @@ public class MessageService {
                 .body(messageQResult.getBody())
                 .build();
 
-        messageQRepository.save(messageQ);
+        MessageQ savedMessageQ = messageQRepository.save(messageQ);
     }
 
     /** V1 **/

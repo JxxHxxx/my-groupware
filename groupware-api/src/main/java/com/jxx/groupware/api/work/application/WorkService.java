@@ -7,6 +7,7 @@ import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.listener.RestApiRequestEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
+import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.groupware.core.work.domain.*;
@@ -356,7 +357,26 @@ public class WorkService {
                 "http://localhost:8000",
                 "/api/confirm-documents")
         );
+    }
 
+    @Transactional
+    public void processingAfterConfirmComplete(Long workTicketPk, WorkTicketCompleteConfirmRequest request) {
+        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketPk);
+
+        if (oWorkTicket.isEmpty()) {
+            log.error("TicketPk:{} is not present", workTicketPk);
+            throw new WorkClientException("TicketPk:" + workTicketPk + " is not present");
+        }
+
+        WorkTicket workTicket = oWorkTicket.get();
+        String workTicketId = workTicket.getWorkTicketId();
+        if (!WorkStatus.REQUEST_CONFIRM.equals(workTicket.getWorkStatus())) {
+            log.error("TicketId:{} 결재 요청 단계가 아닌 상태에서 결재 요청 완료 후속 처리를 시도하려고 합니다.", workTicketId);
+            throw new WorkClientException("결재 요청 단계가 아닙니다.");
+        }
+        // 처리해줘야함
+        workTicket.changeWorkStatus(WorkStatus.valueOf(request.workStatus()));
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
     }
 
     /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
