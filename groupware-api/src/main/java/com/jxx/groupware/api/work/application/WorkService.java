@@ -267,15 +267,15 @@ public class WorkService {
         Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
 
         if (oWorkTicket.isEmpty()) {
-            log.error("TicketId:{} is not present", workTicketId);
+            log.info("TicketId:{} is not present", workTicketId);
             throw new WorkClientException("TicketId:" + workTicketId + " is not present");
         }
 
         WorkTicket workTicket = oWorkTicket.get();
         /** 요청자 검증 **/
         if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
-            log.error("TicketId:{} 접수자가 아닌 사용자가 계획 단계를 완료하려 합니다.", workTicketId);
-            throw new WorkClientException("잘못된 접근입니다.");
+            log.info("TicketId:{} 접수자가 아닌 사용자가 계획 단계를 완료하려 합니다.", workTicketId);
+            throw new WorkClientException(request.receiverId(), "잘못된 접근입니다.");
         }
 
         if (!WorkStatus.MAKE_PLAN_BEGIN.equals(workTicket.getWorkStatus())) {
