@@ -1,11 +1,13 @@
 package com.jxx.groupware.core.work.domain;
 
+import com.jxx.groupware.core.work.dto.TicketReceiver;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.jdbc.Work;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -120,5 +122,17 @@ public class WorkTicket {
         boolean chargeDepartmentIdEqual = Objects.equals(this.chargeDepartmentId, chargeDepartmentId);
 
         return receiverEqual && chargeCompanyIdEqual && chargeDepartmentIdEqual;
+    }
+
+    public boolean isReceiverRequest(TicketReceiver receiver) {
+        boolean receiverEqual = Objects.equals(workDetail.getReceiverId(), receiver.receiverId());
+        boolean chargeCompanyIdEqual = Objects.equals(this.chargeCompanyId, receiver.receiverCompanyId());
+        boolean chargeDepartmentIdEqual = Objects.equals(this.chargeDepartmentId, receiver.receiverDepartmentId());
+
+        return receiverEqual && chargeCompanyIdEqual && chargeDepartmentIdEqual;
+    }
+
+    public boolean isNotWorkStatus(WorkStatus workStatus) {
+        return !this.workStatus.equals(workStatus);
     }
 }

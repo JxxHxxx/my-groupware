@@ -11,6 +11,7 @@ import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.groupware.core.work.domain.*;
 import com.jxx.groupware.core.work.domain.exception.WorkClientException;
+import com.jxx.groupware.core.work.dto.TicketReceiver;
 import com.jxx.groupware.core.work.infra.WorkDetailRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketAttachmentRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketHistRepository;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.jxx.groupware.core.work.domain.WorkStatus.*;
 
 @Slf4j
 @Service
@@ -91,13 +94,15 @@ public class WorkService {
     }
 
     /** 작업 티켓 삭제
-     * workStatus -> DELETE **/
+     * workStatus -> DELETE
+     * 삭제 가능한 티켓의 workStatus : CREATE
+     * **/
     @Transactional
-    public void deleteWorkTicket() {
+    public void deleteWorkTicket(String workTicketId) {
 
     }
 
-    /** 작업 반려
+    /** 접수자의 작업 반려
      * workStatus -> REJECT_FROM_CHARGE **/
     @Transactional
     public void rejectWorkTicket() {
@@ -109,7 +114,6 @@ public class WorkService {
      **/
     public List<WorkTicketServiceResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
         return workTicketMapper.search(searchCond);
-
     }
 
     /**
@@ -117,8 +121,11 @@ public class WorkService {
      **/
     @Transactional
     public WorkDetailServiceResponse receiveWorkTicketAndCreateWorkDetail(final String workTicketId, WorkTicketReceiveRequest request) {
-        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
-                .orElseThrow(() -> new WorkClientException("workTicket workTicketId:" + workTicketId + " 는 존재하지 않습니다."));
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
         /** 작업 티켓이 접수 가능한지 검증 **/
         if (workTicket.isNotReceivable()) {
@@ -145,8 +152,7 @@ public class WorkService {
                 .build();
         WorkDetail savedWorkDetail = workDetailRepository.save(workDetail);
 
-        /** 작업이 접수됐으면 작업 티켓 상태를 변경해야함
-         * + JPA Dirty Checking **/
+        //WRITE QUERY : JPA Dirty Checking
         workTicket.changeWorkStatusTo(WorkStatus.RECEIVE);
         workTicket.mappingWorkDetail(savedWorkDetail);
 
@@ -157,15 +163,12 @@ public class WorkService {
 
     @Transactional
     public WorkServiceResponse beginWorkDetailAnalysis(final String workTicketId, WorkTicketAnalyzeRequest request) {
-        /* TODO 접수자 검증 로직 */
-        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
-        if (oWorkTicket.isEmpty()) {
-            log.error("TicketId:{} is not present", workTicketId);
-            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
-        }
-
-        WorkTicket workTicket = oWorkTicket.get();
         /** 요청자 검증 **/
         if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계로 진입하려 합니다.", workTicketId);
@@ -180,46 +183,37 @@ public class WorkService {
             throw new WorkClientException("TicketId" + workTicketId + "can't begin analysis, work-status must be receive \n" +
                     "now work-status is " + workTicket.getWorkStatus());
         }
-
-        /**  JPA Dirty Checking **/
-        workTicket.changeWorkStatusTo(WorkStatus.ANALYZE_BEGIN);
-
+        // WRITE QUERY : JPA Dirty Checking
+        workTicket.changeWorkStatusTo(ANALYZE_BEGIN);
         WorkDetail workDetail = workTicket.getWorkDetail();
-
-        // 티켓 히스토리 저장
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
 
-        // 응답 생성
-        WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
-        WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
-        return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
+        return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workDetail));
     }
 
     @Transactional
     public WorkServiceResponse completeWorkDetailAnalysis(final String workTicketId, WorkTicketAnalyzeRequest request) {
-        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
-        if (oWorkTicket.isEmpty()) {
-            log.error("TicketId:{} is not present", workTicketId);
-            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
-        }
-
-        WorkTicket workTicket = oWorkTicket.get();
         /** 요청자 검증 **/
         if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계를 완료하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
 
-        if (!WorkStatus.ANALYZE_BEGIN.equals(workTicket.getWorkStatus())) {
+        if (workTicket.isNotWorkStatus(ANALYZE_BEGIN)) {
             log.error("TicketId:{} 작업 분석 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
             throw new WorkClientException("작업 분석 단계가 아닙니다.");
         }
 
         WorkDetail workDetail = workTicket.getWorkDetail();
-        // dirty-checking
+        // WRITE QUERY : JPA dirty-checking
         workDetail.completeAnalyzeContent(request.analyzeContent());
-        workTicket.changeWorkStatusTo(WorkStatus.ANALYZE_COMPLETE);
+        workTicket.changeWorkStatusTo(ANALYZE_COMPLETE);
 
         WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
         WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
@@ -230,26 +224,25 @@ public class WorkService {
      * workStatus -> MAKE_PLAN_BEGIN **/
     @Transactional
     public WorkServiceResponse beginWorkDetailPlan(final String workTicketId, WorkTicketPlanRequest request) {
-        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
-        if (oWorkTicket.isEmpty()) {
-            log.error("TicketId:{} is not present", workTicketId);
-            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
-        }
 
-        WorkTicket workTicket = oWorkTicket.get();
         /** 요청자 검증 **/
         if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계를 완료하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
 
-        if (!WorkStatus.ANALYZE_COMPLETE.equals(workTicket.getWorkStatus())) {
+        if (workTicket.isNotWorkStatus(ANALYZE_COMPLETE)) {
             log.error("TicketId:{} 작업 분석 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
             throw new WorkClientException("작업 분석 단계가 아닙니다.");
         }
-        //dirty-checking
-        workTicket.changeWorkStatusTo(WorkStatus.MAKE_PLAN_BEGIN);
+        // WRITE QUERY : JPA dirty-checking
+        workTicket.changeWorkStatusTo(MAKE_PLAN_BEGIN);
         WorkDetail workDetail = workTicket.getWorkDetail();
 
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
@@ -261,27 +254,25 @@ public class WorkService {
 
     /** 계획 수립 단계 종료 **/
     @Transactional
-    public WorkServiceResponse completeWorkDetailPlan(String workTicketId, WorkTicketPlanRequest request) {
-        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+    public WorkServiceResponse completeWorkDetailPlan(final String workTicketId, WorkTicketPlanRequest request) {
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
-        if (oWorkTicket.isEmpty()) {
-            log.info("TicketId:{} is not present", workTicketId);
-            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
-        }
-
-        WorkTicket workTicket = oWorkTicket.get();
         /** 요청자 검증 **/
         if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.info("TicketId:{} 접수자가 아닌 사용자가 계획 단계를 완료하려 합니다.", workTicketId);
             throw new WorkClientException(request.receiverId(), "잘못된 접근입니다.");
         }
 
-        if (!WorkStatus.MAKE_PLAN_BEGIN.equals(workTicket.getWorkStatus())) {
+        if (workTicket.isNotWorkStatus(MAKE_PLAN_BEGIN)) {
             log.error("TicketId:{} 작업 계획 시작 단계가 아닌 상태에서 작업 계획 단계를 완료하려고 합니다.", workTicketId);
             throw new WorkClientException("작업 게획 시작 단계가 아닙니다.");
         }
 
-        //dirty-checking
+        // WRITE QUERY : dirty-checking
         workTicket.changeWorkStatusTo(WorkStatus.MAKE_PLAN_COMPLETE);
         WorkDetail workDetail = workTicket.getWorkDetail();
         workDetail.completeWorkPlan(request.workPlanContent());
@@ -296,22 +287,20 @@ public class WorkService {
     /** 결재 요청
      * workStatus -> REQUEST_CONFIRM **/
     @Transactional
-    public void requestConfirm(String workTicketId, WorkTicketPlanRequest request) {
-        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketId);
+    public void requestConfirmForWorkTicket(final String workTicketId, WorkTicketPlanRequest request) {
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
-        if (oWorkTicket.isEmpty()) {
-            log.error("TicketId:{} is not present", workTicketId);
-            throw new WorkClientException("TicketId:" + workTicketId + " is not present");
-        }
-
-        WorkTicket workTicket = oWorkTicket.get();
         /** 요청자 검증 **/
         if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 결재를 요청하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
 
-        if (!WorkStatus.MAKE_PLAN_COMPLETE.equals(workTicket.getWorkStatus())) {
+        if (workTicket.isNotWorkStatus(MAKE_PLAN_COMPLETE)) {
             log.error("TicketId:{} 작업 계획 시작 완료가 아닌 상태에서 결재를 요청하려 합니다.", workTicketId);
             throw new WorkClientException("작업 게획 완료 단계가 아닙니다.");
         }
@@ -358,17 +347,15 @@ public class WorkService {
     }
 
     @Transactional
-    public void processingAfterConfirmComplete(Long workTicketPk, WorkTicketCompleteConfirmRequest request) {
-        Optional<WorkTicket> oWorkTicket = workTicketRepository.fetchWithWorkDetail(workTicketPk);
+    public void processingAfterConfirmComplete(final Long workTicketPk, WorkTicketCompleteConfirmRequest request) {
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketPk)
+                .orElseThrow(() -> {
+                    log.error("TicketPk:{} is not present", workTicketPk);
+                    throw new WorkClientException("TicketPk:" + workTicketPk + " is not present");
+                });
 
-        if (oWorkTicket.isEmpty()) {
-            log.error("TicketPk:{} is not present", workTicketPk);
-            throw new WorkClientException("TicketPk:" + workTicketPk + " is not present");
-        }
-
-        WorkTicket workTicket = oWorkTicket.get();
         String workTicketId = workTicket.getWorkTicketId();
-        if (!WorkStatus.REQUEST_CONFIRM.equals(workTicket.getWorkStatus())) {
+        if (workTicket.isNotWorkStatus(WorkStatus.REQUEST_CONFIRM)) {
             log.error("TicketId:{} 결재 요청 단계가 아닌 상태에서 결재 요청 완료 후속 처리를 시도하려고 합니다.", workTicketId);
             throw new WorkClientException("결재 요청 단계가 아닙니다.");
         }
@@ -378,16 +365,62 @@ public class WorkService {
     }
 
     /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
-     * workStatus -> WORKING **/
+     * workStatus
+     * AS-IS - ACCEPT
+     * TO-BE - WORKING **/
     @Transactional
-    public void beginWorkDetailWorking() {
+    public WorkServiceResponse beginWork(final String workTicketId, WorkTicketBeginWorkRequest request) {
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
+        TicketReceiver ticketReceiver = request.ticketReceiver();
+        if (workTicket.isReceiverRequest(ticketReceiver)) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 작업을 시작하려고 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        };
+
+        if (workTicket.isNotWorkStatus(WorkStatus.ACCEPT)) {
+            log.error("TicketId:{} 작업 티켓 승인 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
+            throw new WorkClientException("작업 티켓이 승인된 상태가 아닙니다.");
+        }
+        // WRITE QUERY : JPA dirty-checking 작업 시작 단계로 변경
+        workTicket.changeWorkStatusTo(WorkStatus.WORKING);
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
     }
 
     /** 작업 단계 종료
-     * workStatus -> DONE **/
+     * workStatus
+     * AS-IS - WORKING
+     * TO-BE - DONE **/
     @Transactional
-    public void completeWorkDetailWorking() {
+    public WorkServiceResponse completeWork(final String workTicketId, WorkTicketCompleteRequest request) {
+        WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketPk:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketPk:" + workTicketId + " is not present");
+                });
+
+        TicketReceiver ticketReceiver = request.ticketReceiver();
+        if (workTicket.isReceiverRequest(ticketReceiver)) {
+            log.error("TicketId:{} 접수자가 아닌 사용자가 작업을 완료하려고 합니다.", workTicketId);
+            throw new WorkClientException("잘못된 접근입니다.");
+        };
+
+        if (workTicket.isNotWorkStatus(WorkStatus.WORKING)) {
+            log.error("TicketId:{} 작업 시작 단계가 아닌 상태에서 작업을 완료하려고 합니다.", workTicketId);
+            throw new WorkClientException("작업 티켓이 시작 단계 상태가 아닙니다.");
+        }
+
+        // WRITE QUERY : JPA dirty-checking 작업 종료 단계로 변경
+        workTicket.changeWorkStatusTo(WorkStatus.DONE);
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
 
     }
 

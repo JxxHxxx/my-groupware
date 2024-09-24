@@ -12,7 +12,7 @@ public enum WorkStatus {
     MAKE_PLAN_BEGIN("계획 수립 시작"),
     MAKE_PLAN_COMPLETE("계획 수립 완료"),
     REQUEST_CONFIRM("결재 요청"),
-    ACCEPT("승인"),
+    ACCEPT("작업 티켓 승인"),
     REJECT_FROM_REQUESTER("요청 부서로부터의 반려"),
     REJECT_FROM_CHARGE("담당 부서로부터의 반려"),
     WORKING("작업중"),
