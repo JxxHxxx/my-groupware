@@ -5,7 +5,7 @@ import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
-import com.jxx.groupware.api.work.listener.RestApiRequestEvent;
+import com.jxx.groupware.api.work.listener.CreateConfirmThroughRestApiEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
@@ -18,6 +18,7 @@ import com.jxx.groupware.core.work.infra.WorkTicketHistRepository;
 import com.jxx.groupware.core.work.infra.WorkTicketRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,13 @@ public class WorkService {
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final MemberLeaveRepository memberLeaveRepository; // 임시
+
+    @Value("${third-part.confirm.host}")
+    private String confirmServerHost;
+    @Value("${third-part.confirm.api.create.url}")
+    private String confirmCreateUrl;
+    @Value("${third-part.confirm.api.create.method}")
+    private String confirmCreateMethod;
 
     /**
      * 작업 티켓 생성
@@ -65,13 +73,7 @@ public class WorkService {
                 .build();
 
         WorkTicket savedWorkTicket = workTicketRepository.save(workTicket);
-        log.info("success save workTicket {}", savedWorkTicket.getWorkTicketId());
-
-        WorkTicketHistory workTicketHistory = createWorkTicketHistory(request, savedWorkTicket);
-
-        WorkTicketHistory savedWorkTicketHistory = workTicketHistRepository.save(workTicketHistory);
-        log.info("success save workTicket history {}", savedWorkTicketHistory.getWorkTicketId());
-
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
         return createWorkTicketServiceResponse(savedWorkTicket);
     }
     /** 작업 티켓 PK 조회**/
@@ -81,15 +83,12 @@ public class WorkService {
 
         /** 작업 티켓이 CREATE 상태일 때는 WorkDetail 이 존재하지 않기 때문에 분기 처리**/
         if (Objects.equals(workTicket.getWorkStatus(), WorkStatus.CREATE)) {
-
             WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
             return new WorkServiceResponse(workTicketServiceResponse, null);
         }
         else  {
             WorkDetail workDetail = workTicket.getWorkDetail();
-            WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
-            WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
-            return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
+            return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workDetail));
         }
     }
 
@@ -98,8 +97,30 @@ public class WorkService {
      * 삭제 가능한 티켓의 workStatus : CREATE
      * **/
     @Transactional
-    public void deleteWorkTicket(String workTicketId) {
+    public WorkTicketServiceResponse deleteWorkTicket(String workTicketId, WorkTicketDeleteRequest request) {
+        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
+        if (workTicket.isNotWorkStatus(CREATE)) {
+            log.error("");
+            throw new WorkClientException("이미 접수 단계에 진입한 작업 티켓은 삭제할 수 없습니다.");
+        };
+
+        // 삭제 가능한 사람인지 검증
+        if (workTicket.isNotRequester(request.workRequester())) {
+            log.error("티켓 요청자가 아닌 사용자가 작업 티켓을 삭제하려고 합니다. \n" +
+                    "ticket requester:{}, delete requester:{}", workTicket.getWorkRequester().getId(), request.workRequester().getId());
+            throw new WorkClientException("작업 티켓은 요청자만 삭제할 수 있습니다.");
+        };
+
+        // WRITE QUERY : JPA dirty checking
+        workTicket.changeWorkStatusTo(DELETE);
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        return createWorkTicketServiceResponse(workTicket);
     }
 
     /** 접수자의 작업 반려
@@ -338,11 +359,9 @@ public class WorkService {
                 workRequester.getName(),
                 contents);
 
-        eventPublisher.publishEvent(new RestApiRequestEvent(
-                confirmCreateForm,
-                "POST",
-                "http://localhost:8000",
-                "/api/confirm-documents")
+        // ASYNC
+        eventPublisher.publishEvent(new CreateConfirmThroughRestApiEvent(confirmCreateForm,
+                confirmCreateMethod, confirmServerHost, confirmCreateUrl)
         );
     }
 
@@ -421,7 +440,6 @@ public class WorkService {
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
 
         return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
-
     }
 
     private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {
@@ -452,21 +470,5 @@ public class WorkService {
                 savedWorkDetail.getCreateTime(),
                 savedWorkDetail.getPreReflect(),
                 savedWorkDetail.getPreReflectReason());
-    }
-
-
-    private static WorkTicketHistory createWorkTicketHistory(WorkTicketCreateRequest request, WorkTicket savedWorkTicket) {
-        return WorkTicketHistory.builder()
-                .workTicketPk(savedWorkTicket.getWorkTicketPk())
-                .workTicketId(savedWorkTicket.getWorkTicketId())
-                .workStatus(savedWorkTicket.getWorkStatus())
-                .createdTime(savedWorkTicket.getCreatedTime())
-                .chargeCompanyId(request.chargeCompanyId())
-                .chargeDepartmentId(savedWorkTicket.getChargeDepartmentId())
-                .modifiedTime(savedWorkTicket.getModifiedTime())
-                .requestTitle(savedWorkTicket.getRequestTitle())
-                .requestContent(savedWorkTicket.getRequestContent())
-                .workRequester(savedWorkTicket.getWorkRequester())
-                .build();
     }
 }

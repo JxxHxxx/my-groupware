@@ -26,8 +26,8 @@ public class WorkEventListener {
 
     @Async("${event.executor.name}")
     @Transactional
-    @EventListener(RestApiRequestEvent.class)
-    public void handleWorkEvent(RestApiRequestEvent event) {
+    @EventListener(CreateConfirmThroughRestApiEvent.class)
+    public void handleWorkEvent(CreateConfirmThroughRestApiEvent event) {
         try {
             ConfirmCreateForm confirmCreateForm = event.confirmCreateForm();
             Map<String, Object> payload = new HashMap<>();

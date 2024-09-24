@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.hibernate.jdbc.Work;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -110,6 +109,11 @@ public class WorkTicket {
      */
     public boolean isNotAnalyzable() {
         return !Objects.equals(this.workStatus, WorkStatus.RECEIVE);
+    }
+
+    /** 요청자인지 검증 **/
+    public boolean isNotRequester(WorkRequester workRequester) {
+        return !this.workRequester.equals(workRequester);
     }
 
     /** <pre>

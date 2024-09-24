@@ -48,6 +48,15 @@ public class WorkApiController {
     }
 
     /**
+     * 작업 티켓 삭제 API - soft delete
+     */
+    @DeleteMapping("/api/work-tickets/{work-ticket-id}")
+    public ResponseEntity<?> deleteWorkTicket(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketDeleteRequest request) {
+        WorkTicketServiceResponse response = workService.deleteWorkTicket(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 삭제 완료", response));
+    }
+
+    /**
      * 작업 티켓 접수 API
      * 작업 티켓 접수 성공 시, 작업 내역(WorkDetail) 엔티티 생성
      */
@@ -99,7 +108,7 @@ public class WorkApiController {
     @PatchMapping("/api/work-tickets/{work-ticket-id}/request-confirm")
     public ResponseEntity<?> requestConfirmForWorkTicket(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketPlanRequest request) {
         workService.requestConfirmForWorkTicket(workTicketId, request);
-        return ResponseEntity.ok(new ResponseResult<>(200, "결재 요청 성공", null));
+        return ResponseEntity.accepted().body(new ResponseResult<>(202, "결재 요청 성공", null));
     }
 
     /**
@@ -117,17 +126,17 @@ public class WorkApiController {
         return ResponseEntity.ok(new ResponseResult<>(200, "결재 최종 결정 후 후속 처리", null));
     }
 
-    /****/
+    /** 작업 시작 API **/
     @PatchMapping("/api/work-tickets/{work-ticket-id}/begin-work")
     public ResponseEntity<?> beginWork(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketBeginWorkRequest request) {
         WorkServiceResponse response = workService.beginWork(workTicketId, request);
-        return  ResponseEntity.ok(new ResponseResult<>(200, "작업 시작", response));
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 시작", response));
     }
 
-    /****/
-    @PatchMapping("/api/work-tickets/{work-ticket-id}/begin-work")
+    /** 작업 종료 API **/
+    @PatchMapping("/api/work-tickets/{work-ticket-id}/complete-work")
     public ResponseEntity<?> completeWork(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketCompleteRequest request) {
         WorkServiceResponse response = workService.completeWork(workTicketId, request);
-        return  ResponseEntity.ok(new ResponseResult<>(200, "작업 완료", response));
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 완료", response));
     }
 }
