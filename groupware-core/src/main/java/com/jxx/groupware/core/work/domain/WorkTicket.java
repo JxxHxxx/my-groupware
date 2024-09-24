@@ -75,25 +75,45 @@ public class WorkTicket {
         this.workStatus = workStatus;
         this.modifiedTime = modifiedTime;
     }
-    /** 연관관계 매핑 **/
+
+    /**
+     * 연관관계 매핑
+     **/
     public void mappingWorkDetail(WorkDetail workDetail) {
         this.workDetail = workDetail;
     }
 
-    public void changeWorkStatus(WorkStatus workStatus) {
+    /** <pre>
+     * WRITE QUERY : JPA dirty checking
+     * * 작업 상태 변경 메서드
+     * </pre>
+     **/
+    public void changeWorkStatusTo(WorkStatus workStatus) {
         this.workStatus = workStatus;
         this.modifiedTime = LocalDateTime.now();
     }
+
+    /** <pre>
+     * 접수 가능한 티켓인지 검증하는 메서드
+     * </pre>
+     */
 
     public boolean isNotReceivable() {
         return !Objects.equals(this.workStatus, WorkStatus.CREATE);
     }
 
+    /** <pre>
+     * 분석 단계로 진입할 수 있는 티켓인지 검증하는 메서드
+     * </pre>
+     */
     public boolean isNotAnalyzable() {
         return !Objects.equals(this.workStatus, WorkStatus.RECEIVE);
     }
 
-    /** 접수자의 요청인지 검증 **/
+    /** <pre>
+     * 작업 티켓과 관련된 요청이 접수자의 요청인지 검증하는 메서드
+     * </pre>
+     **/
     public boolean isReceiverRequest(String receiverId, String chargeCompanyId, String chargeDepartmentId) {
         boolean receiverEqual = Objects.equals(workDetail.getReceiverId(), receiverId);
         boolean chargeCompanyIdEqual = Objects.equals(this.chargeCompanyId, chargeCompanyId);

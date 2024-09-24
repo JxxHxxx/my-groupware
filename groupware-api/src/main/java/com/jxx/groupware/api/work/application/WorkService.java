@@ -7,7 +7,6 @@ import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.listener.RestApiRequestEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.groupware.core.work.domain.*;
@@ -36,7 +35,6 @@ public class WorkService {
     private final WorkDetailRepository workDetailRepository;
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
     private final ApplicationEventPublisher eventPublisher;
-
     private final MemberLeaveRepository memberLeaveRepository; // 임시
 
     /**
@@ -149,7 +147,7 @@ public class WorkService {
 
         /** 작업이 접수됐으면 작업 티켓 상태를 변경해야함
          * + JPA Dirty Checking **/
-        workTicket.changeWorkStatus(WorkStatus.RECEIVE);
+        workTicket.changeWorkStatusTo(WorkStatus.RECEIVE);
         workTicket.mappingWorkDetail(savedWorkDetail);
 
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
@@ -184,7 +182,7 @@ public class WorkService {
         }
 
         /**  JPA Dirty Checking **/
-        workTicket.changeWorkStatus(WorkStatus.ANALYZE_BEGIN);
+        workTicket.changeWorkStatusTo(WorkStatus.ANALYZE_BEGIN);
 
         WorkDetail workDetail = workTicket.getWorkDetail();
 
@@ -221,7 +219,7 @@ public class WorkService {
         WorkDetail workDetail = workTicket.getWorkDetail();
         // dirty-checking
         workDetail.completeAnalyzeContent(request.analyzeContent());
-        workTicket.changeWorkStatus(WorkStatus.ANALYZE_COMPLETE);
+        workTicket.changeWorkStatusTo(WorkStatus.ANALYZE_COMPLETE);
 
         WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
         WorkDetailServiceResponse workDetailServiceResponse = createWorkDetailServiceResponse(workDetail);
@@ -251,7 +249,7 @@ public class WorkService {
             throw new WorkClientException("작업 분석 단계가 아닙니다.");
         }
         //dirty-checking
-        workTicket.changeWorkStatus(WorkStatus.MAKE_PLAN_BEGIN);
+        workTicket.changeWorkStatusTo(WorkStatus.MAKE_PLAN_BEGIN);
         WorkDetail workDetail = workTicket.getWorkDetail();
 
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
@@ -284,7 +282,7 @@ public class WorkService {
         }
 
         //dirty-checking
-        workTicket.changeWorkStatus(WorkStatus.MAKE_PLAN_COMPLETE);
+        workTicket.changeWorkStatusTo(WorkStatus.MAKE_PLAN_COMPLETE);
         WorkDetail workDetail = workTicket.getWorkDetail();
         workDetail.completeWorkPlan(request.workPlanContent());
 
@@ -318,7 +316,7 @@ public class WorkService {
             throw new WorkClientException("작업 게획 완료 단계가 아닙니다.");
         }
 
-        workTicket.changeWorkStatus(WorkStatus.REQUEST_CONFIRM);
+        workTicket.changeWorkStatusTo(WorkStatus.REQUEST_CONFIRM);
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
 
         // 이벤트 -> 결재 문서 생성되도록...
@@ -375,7 +373,7 @@ public class WorkService {
             throw new WorkClientException("결재 요청 단계가 아닙니다.");
         }
         // 처리해줘야함
-        workTicket.changeWorkStatus(WorkStatus.valueOf(request.workStatus()));
+        workTicket.changeWorkStatusTo(WorkStatus.valueOf(request.workStatus()));
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
     }
 
@@ -387,12 +385,11 @@ public class WorkService {
     }
 
     /** 작업 단계 종료
-     * workStatus -> DONNE **/
+     * workStatus -> DONE **/
     @Transactional
     public void completeWorkDetailWorking() {
 
     }
-
 
     private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {
         return new WorkTicketServiceResponse(
