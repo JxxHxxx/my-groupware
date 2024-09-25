@@ -2,6 +2,8 @@ package com.jxx.groupware.core.work.domain;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public enum WorkStatus {
 
@@ -24,4 +26,7 @@ public enum WorkStatus {
     WorkStatus(String description){
 
     };
+
+    protected static final List<WorkStatus> REJECT_FROM_CHARGE_POSSIBLE_GROUP = List.of(RECEIVE, ANALYZE_BEGIN, ANALYZE_COMPLETE);
+
 }

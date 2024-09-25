@@ -44,7 +44,7 @@ public class WorkApiController {
     @GetMapping("/api/work-tickets/search")
     public ResponseEntity<?> searchWorkTicket(@ModelAttribute WorkTickSearchCond workTickSearchCond) {
         List<WorkTicketServiceResponse> response = workService.searchWorkTicket(workTickSearchCond);
-        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 조회 완료", response));
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 조회 성공", response));
     }
 
     /**
@@ -53,7 +53,18 @@ public class WorkApiController {
     @DeleteMapping("/api/work-tickets/{work-ticket-id}")
     public ResponseEntity<?> deleteWorkTicket(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketDeleteRequest request) {
         WorkTicketServiceResponse response = workService.deleteWorkTicket(workTicketId, request);
-        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 삭제 완료", response));
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 삭제 성공", response));
+    }
+
+    /**
+     * 작업 티켓 반려(접수자의 반려) API
+     * info) 요청자의 경우, 접수자가 접수하기 전에 삭제 가능하며
+     * 결재 진행 중에 반려를 통해 반려 가능하다.
+     */
+    @PatchMapping("/api/work-tickets/{work-ticket-id}/reject-from-receiver")
+    public ResponseEntity<?> rejectWorkTicketFromReceiver(@PathVariable("work-ticket-id") String workTicketId, @RequestBody WorkTicketRejectRequest request) {
+        WorkServiceResponse response = workService.rejectWorkTicketFromReceiver(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 반려 성공", response));
     }
 
     /**

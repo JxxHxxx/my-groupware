@@ -51,11 +51,15 @@ public class WorkDetail {
     @Column(name = "PRE_REFLECT_REASON")
     @Comment("작업 선처리 사유")
     private String preReflectReason;
+    @Column(name = "REJECT_REASON")
+    @Comment("작업 반려 이유")
+    private String rejectReason;
 
     @Builder
     public WorkDetail(String analyzeContent, LocalDateTime analyzeCompletedTime, String workPlanContent,
                       LocalDateTime workPlanCompletedTime, LocalDate expectDeadlineDate, String receiverId,
-                      String receiverName, LocalDateTime createTime, Boolean preReflect, String preReflectReason) {
+                      String receiverName, LocalDateTime createTime, Boolean preReflect, String preReflectReason,
+                      String rejectReason) {
         this.analyzeContent = analyzeContent;
         this.analyzeCompletedTime = analyzeCompletedTime;
         this.workPlanContent = workPlanContent;
@@ -66,6 +70,7 @@ public class WorkDetail {
         this.createTime = createTime;
         this.preReflect = preReflect;
         this.preReflectReason = preReflectReason;
+        this.rejectReason = rejectReason;
     }
 
     public void completeAnalyzeContent(String analyzeContent) {
@@ -89,5 +94,12 @@ public class WorkDetail {
 
         this.workPlanContent = workPlanContent;
         this.workPlanCompletedTime = LocalDateTime.now();
+    }
+
+    /** WRITE QUERY
+     *
+     */
+    protected void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
     }
 }

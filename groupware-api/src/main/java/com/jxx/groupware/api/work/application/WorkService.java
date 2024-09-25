@@ -126,8 +126,19 @@ public class WorkService {
     /** 접수자의 작업 반려
      * workStatus -> REJECT_FROM_CHARGE **/
     @Transactional
-    public void rejectWorkTicket() {
+    public WorkServiceResponse rejectWorkTicketFromReceiver(String workTicketId, WorkTicketRejectRequest request) {
+        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
+                .orElseThrow(() -> {
+                    log.error("TicketId:{} is not present", workTicketId);
+                    throw new WorkClientException("TicketId:" + workTicketId + " is not present");
+                });
 
+        WorkManager workManager = new WorkManager(workTicket);
+        workManager.rejectFromReceiver(request.rejectReason(), request.ticketReceiver());
+
+        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
+
+        return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
     }
 
     /**

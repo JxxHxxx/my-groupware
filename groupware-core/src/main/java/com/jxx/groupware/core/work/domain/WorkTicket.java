@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.jxx.groupware.core.work.domain.WorkStatus.REJECT_FROM_CHARGE_POSSIBLE_GROUP;
+
 
 @Getter
 @Entity
@@ -138,5 +140,9 @@ public class WorkTicket {
 
     public boolean isNotWorkStatus(WorkStatus workStatus) {
         return !this.workStatus.equals(workStatus);
+    }
+    public void rejectTicketFromReceiver(String rejectReason) {
+        this.workDetail.setRejectReason(rejectReason);
+        changeWorkStatusTo(WorkStatus.REJECT_FROM_CHARGE);
     }
 }
