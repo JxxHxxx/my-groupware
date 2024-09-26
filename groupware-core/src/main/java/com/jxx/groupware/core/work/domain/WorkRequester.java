@@ -2,6 +2,7 @@ package com.jxx.groupware.core.work.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -10,7 +11,7 @@ import java.util.Objects;
 
 @Getter
 @Embeddable
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkRequester {
 
     @Column(name = "REQUESTER_COMPANY_ID")
@@ -22,6 +23,12 @@ public class WorkRequester {
     @Column(name = "REQUESTER_NAME")
     @Comment("요청자 이름")
     private String name;
+
+    public WorkRequester(String companyId, String id, String name) {
+        this.companyId = companyId;
+        this.id = id;
+        this.name = name;
+    }
 
     /** companyId, id 로만 검증 **/
     @Override

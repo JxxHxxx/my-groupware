@@ -8,7 +8,7 @@ import static com.jxx.groupware.core.work.domain.WorkStatus.*;
 
 /** <pre>
  * Do not Enroll Spring Bean,
- * @Field : workTicket - 영속성 컨텍스트 내에서 관리되는 엔티티여야 한다.
+ * @Field : workTicket - 쓰기 지연을 발생시키기에 영속성 컨텍스트 내에서 관리되는 엔티티여야 한다.
  * </pre>
  */
 @Slf4j
