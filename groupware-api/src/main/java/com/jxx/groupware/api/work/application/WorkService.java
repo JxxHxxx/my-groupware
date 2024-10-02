@@ -202,7 +202,7 @@ public class WorkService {
                 });
 
         /** 요청자 검증 **/
-        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+        if (!workTicket.isNotReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계로 진입하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
@@ -232,7 +232,7 @@ public class WorkService {
                 });
 
         /** 요청자 검증 **/
-        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+        if (!workTicket.isNotReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계를 완료하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
@@ -264,7 +264,7 @@ public class WorkService {
 
 
         /** 요청자 검증 **/
-        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+        if (!workTicket.isNotReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 분석 단계를 완료하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
@@ -294,7 +294,7 @@ public class WorkService {
                 });
 
         /** 요청자 검증 **/
-        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+        if (!workTicket.isNotReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.info("TicketId:{} 접수자가 아닌 사용자가 계획 단계를 완료하려 합니다.", workTicketId);
             throw new WorkClientException(request.receiverId(), "잘못된 접근입니다.");
         }
@@ -327,7 +327,7 @@ public class WorkService {
                 });
 
         /** 요청자 검증 **/
-        if (!workTicket.isReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
+        if (!workTicket.isNotReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 결재를 요청하려 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         }
@@ -407,14 +407,14 @@ public class WorkService {
                 });
 
         TicketReceiver ticketReceiver = request.ticketReceiver();
-        if (workTicket.isReceiverRequest(ticketReceiver)) {
+        if (workTicket.isNotReceiverRequest(ticketReceiver)) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 작업을 시작하려고 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         };
 
         if (workTicket.isNotWorkStatus(WorkStatus.ACCEPT)) {
-            log.error("TicketId:{} 작업 티켓 승인 단계가 아닌 상태에서 작업 분석을 완료하려고 합니다.", workTicketId);
-            throw new WorkClientException("작업 티켓이 승인된 상태가 아닙니다.");
+            log.error("TicketId:{} 결재 요청 승인이 아닌 상태에서 작업을 시작하려고 합니다.", workTicketId);
+            throw new WorkClientException("졀재 요청 승인 상태가 아닙니다.");
         }
         // WRITE QUERY : JPA dirty-checking 작업 시작 단계로 변경
         workTicket.changeWorkStatusTo(WorkStatus.WORKING);
@@ -436,7 +436,7 @@ public class WorkService {
                 });
 
         TicketReceiver ticketReceiver = request.ticketReceiver();
-        if (workTicket.isReceiverRequest(ticketReceiver)) {
+        if (workTicket.isNotReceiverRequest(ticketReceiver)) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 작업을 완료하려고 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
         };

@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.jxx.groupware.core.work.domain.WorkStatus.REJECT_FROM_CHARGE_POSSIBLE_GROUP;
-
 
 @Getter
 @Entity
@@ -23,6 +21,7 @@ import static com.jxx.groupware.core.work.domain.WorkStatus.REJECT_FROM_CHARGE_P
 @Table(name = "JXX_WORK_TICKET_MASTER",
         indexes = {
                 @Index(name = "IDX_WORK_TICKET_ID", columnList = "WORK_TICKET_ID"),
+                @Index(name = "IDX_CREATED_TIME_IDX", columnList = "CREATED_TIME"),
                 @Index(name = "IDX_CPN_REQ_ID", columnList = "REQUESTER_COMPANY_ID, REQUESTER_ID")})
 public class WorkTicket {
 
@@ -86,7 +85,8 @@ public class WorkTicket {
         this.workDetail = workDetail;
     }
 
-    /** <pre>
+    /**
+     * <pre>
      * WRITE QUERY : JPA dirty checking
      * * 작업 상태 변경 메서드
      * </pre>
@@ -96,7 +96,8 @@ public class WorkTicket {
         this.modifiedTime = LocalDateTime.now();
     }
 
-    /** <pre>
+    /**
+     * <pre>
      * 접수 가능한 티켓인지 검증하는 메서드
      * </pre>
      */
@@ -105,7 +106,8 @@ public class WorkTicket {
         return !Objects.equals(this.workStatus, WorkStatus.CREATE);
     }
 
-    /** <pre>
+    /**
+     * <pre>
      * 분석 단계로 진입할 수 있는 티켓인지 검증하는 메서드
      * </pre>
      */
@@ -113,16 +115,19 @@ public class WorkTicket {
         return !Objects.equals(this.workStatus, WorkStatus.RECEIVE);
     }
 
-    /** 요청자인지 검증 **/
+    /**
+     * 요청자인지 검증
+     **/
     public boolean isNotRequester(WorkRequester workRequester) {
         return !this.workRequester.equals(workRequester);
     }
 
-    /** <pre>
+    /**
+     * <pre>
      * 작업 티켓과 관련된 요청이 접수자의 요청인지 검증하는 메서드
      * </pre>
      **/
-    public boolean isReceiverRequest(String receiverId, String chargeCompanyId, String chargeDepartmentId) {
+    public boolean isNotReceiverRequest(String receiverId, String chargeCompanyId, String chargeDepartmentId) {
         boolean receiverEqual = Objects.equals(workDetail.getReceiverId(), receiverId);
         boolean chargeCompanyIdEqual = Objects.equals(this.chargeCompanyId, chargeCompanyId);
         boolean chargeDepartmentIdEqual = Objects.equals(this.chargeDepartmentId, chargeDepartmentId);
@@ -130,12 +135,12 @@ public class WorkTicket {
         return receiverEqual && chargeCompanyIdEqual && chargeDepartmentIdEqual;
     }
 
-    public boolean isReceiverRequest(TicketReceiver receiver) {
+    public boolean isNotReceiverRequest(TicketReceiver receiver) {
         boolean receiverEqual = Objects.equals(workDetail.getReceiverId(), receiver.receiverId());
         boolean chargeCompanyIdEqual = Objects.equals(this.chargeCompanyId, receiver.receiverCompanyId());
         boolean chargeDepartmentIdEqual = Objects.equals(this.chargeDepartmentId, receiver.receiverDepartmentId());
 
-        return receiverEqual && chargeCompanyIdEqual && chargeDepartmentIdEqual;
+        return !(receiverEqual && chargeCompanyIdEqual && chargeDepartmentIdEqual);
     }
 
     public boolean isNotWorkStatus(WorkStatus workStatus) {

@@ -29,7 +29,7 @@ public class WorkManager {
         };
 
         // 삭제 가능한 사람인지 검증
-        if (!workTicket.isReceiverRequest(ticketReceiver)) {
+        if (!workTicket.isNotReceiverRequest(ticketReceiver)) {
             throw new WorkClientException("접수자가 아닌 사용자가 반려하려고 합니다.");
         };
 

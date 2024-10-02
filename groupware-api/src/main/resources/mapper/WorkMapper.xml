@@ -31,6 +31,7 @@
                 AND JWTM.CHARGE_DEPARTMENT_ID = #{chargeDepartmentId}
             </if>
         </where>
+        ORDER BY JWTM.CREATED_TIME DESC
     </select>
 
     <resultMap id="workTicketResponseMap" type="com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse">
