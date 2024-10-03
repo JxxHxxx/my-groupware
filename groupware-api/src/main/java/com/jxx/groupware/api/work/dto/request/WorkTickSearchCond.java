@@ -1,6 +1,9 @@
 package com.jxx.groupware.api.work.dto.request;
 
+import com.jxx.groupware.core.work.domain.WorkStatus;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record WorkTickSearchCond(
         String workTicketId,
@@ -12,7 +15,7 @@ public record WorkTickSearchCond(
         String requestTitle,
         String chargeCompanyId,
         String chargeDepartmentId,
-        String workStatus
+        List<WorkStatus> workStatus
 
 ) {
 }

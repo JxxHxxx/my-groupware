@@ -30,6 +30,13 @@
             <if test="chargeDepartmentId != null and chargeDepartmentId !=''">
                 AND JWTM.CHARGE_DEPARTMENT_ID = #{chargeDepartmentId}
             </if>
+            <if test="workStatus != null and workStatus != '' and !@org.springframework.util.CollectionUtils@isEmpty(workStatus)">
+                AND JWTM.WORK_STATUS IN
+                <foreach item="workStatus" collection="workStatus" open="(" separator="," close=")">
+                    #{workStatus}
+                </foreach>
+            </if>
+
         </where>
         ORDER BY JWTM.CREATED_TIME DESC
     </select>
