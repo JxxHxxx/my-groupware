@@ -397,7 +397,7 @@ public class WorkService {
 
     /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
      * workStatus
-     * AS-IS - ACCEPT
+     * AS-IS - ACCEPT OR REQUEST_CONFIRM + PRE_REFLECT = true
      * TO-BE - WORKING **/
     @Transactional
     public WorkServiceResponse beginWork(final String workTicketId, WorkTicketBeginWorkRequest request) {
@@ -406,6 +406,8 @@ public class WorkService {
                     log.error("TicketId:{} is not present", workTicketId);
                     throw new WorkClientException("TicketId:" + workTicketId + " is not present");
                 });
+
+        // TODO REQUEST_CONFIRM + PRE_REFLECT = true 인 경우 넘어갈 수 있도록 해야함
 
         TicketReceiver ticketReceiver = request.ticketReceiver();
         if (workTicket.isNotReceiverRequest(ticketReceiver)) {
@@ -430,6 +432,9 @@ public class WorkService {
      * TO-BE - DONE **/
     @Transactional
     public WorkServiceResponse completeWork(final String workTicketId, WorkTicketCompleteRequest request) {
+
+        // TODO 선처리인 경우, 결재가 완료됐는지 확인이 필요함, WorkTicket 새로운 컬럼 추가 필요.
+
         WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
                 .orElseThrow(() -> {
                     log.error("TicketPk:{} is not present", workTicketId);
@@ -452,6 +457,14 @@ public class WorkService {
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
 
         return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
+    }
+
+    /** 작업 선처리 -> REQUEST_CONFIRM(결재 요청) 단계에서만 가능
+     * 결재가 완료됐을 경우, 이미 결재가 완료됐다고 안내
+     * 다른 단계일 경우, 잘못된 접근으로 처리
+     * **/
+    public WorkServiceResponse preReflect(String workTicketId, Object request) {
+        return null;
     }
 
     private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {

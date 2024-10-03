@@ -21,6 +21,7 @@ public class WorkTicketSearchResponse {
     private String requestTitle;
     private String requestContent;
     private String receiverId;
+    private String receiverName;
     private WorkRequester workRequester;
 }
 

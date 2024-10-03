@@ -20,7 +20,8 @@
         JWTM.REQUESTER_COMPANY_ID,
         JWTM.REQUESTER_ID,
         JWTM.REQUESTER_NAME,
-        JWDM.RECEIVER_ID FROM JXX_WORK_TICKET_MASTER AS JWTM
+        JWDM.RECEIVER_ID,
+        JWDM.RECEIVER_NAME FROM JXX_WORK_TICKET_MASTER AS JWTM
         LEFT JOIN JXX_WORK_DETAIL_MASTER JWDM ON JWTM.WORK_DETAIL_PK = JWDM.WORK_DETAIL_PK
         <where>
             <if test="memberId != null and memberId !=''">
@@ -54,6 +55,7 @@
         <result property="requestTitle" column="REQUEST_TITLE"></result>
         <result property="requestContent" column="REQUEST_CONTENT"></result>
         <result property="receiverId" column="RECEIVER_ID"></result>
+        <result property="receiverName" column="RECEIVER_NAME"></result>
         <association property="workRequester" resultMap="workRequesterMap"></association>
 
     </resultMap>

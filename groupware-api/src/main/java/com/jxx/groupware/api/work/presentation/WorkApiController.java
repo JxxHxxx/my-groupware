@@ -151,4 +151,12 @@ public class WorkApiController {
         WorkServiceResponse response = workService.completeWork(workTicketId, request);
         return ResponseEntity.ok(new ResponseResult<>(200, "작업 완료", response));
     }
+
+    /** 작업 선처리 **/
+    @PatchMapping("/api/work-tickets/{work-ticket-id}/pre-reflect")
+    public ResponseEntity<?> preReflect(@PathVariable("work-ticket-id") String workTicketId, @RequestBody Object request) {
+        WorkServiceResponse response = workService.preReflect(workTicketId, request);
+        return ResponseEntity.ok(new ResponseResult<>(200, "선처리 시작", response));
+
+    }
 }
