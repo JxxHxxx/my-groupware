@@ -1,5 +1,6 @@
 package com.jxx.groupware.api.work.application;
 
+import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
 import com.jxx.groupware.core.ConfirmCreateForm;
 import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
@@ -144,7 +145,7 @@ public class WorkService {
     /**
      * 작업 티켓 검색
      **/
-    public List<WorkTicketServiceResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
+    public List<WorkTicketSearchResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
         return workTicketMapper.search(searchCond);
     }
 

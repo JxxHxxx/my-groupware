@@ -19,7 +19,9 @@
         JWTM.REQUEST_CONTENT,
         JWTM.REQUESTER_COMPANY_ID,
         JWTM.REQUESTER_ID,
-        JWTM.REQUESTER_NAME FROM JXX_WORK_TICKET_MASTER AS JWTM
+        JWTM.REQUESTER_NAME,
+        JWDM.RECEIVER_ID FROM JXX_WORK_TICKET_MASTER AS JWTM
+        LEFT JOIN JXX_WORK_DETAIL_MASTER JWDM ON JWTM.WORK_DETAIL_PK = JWDM.WORK_DETAIL_PK
         <where>
             <if test="memberId != null and memberId !=''">
                 AND JWTM.REQUESTER_ID = #{memberId}
@@ -41,7 +43,7 @@
         ORDER BY JWTM.CREATED_TIME DESC
     </select>
 
-    <resultMap id="workTicketResponseMap" type="com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse">
+    <resultMap id="workTicketResponseMap" type="com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse">
         <id property="workTicketPk" column="WORK_TICKET_PK"></id>
         <result property="workTicketId" column="WORK_TICKET_ID"></result>
         <result property="workStatus" column="WORK_STATUS"></result>
@@ -51,6 +53,7 @@
         <result property="modifiedTime" column="MODIFIED_TIME"></result>
         <result property="requestTitle" column="REQUEST_TITLE"></result>
         <result property="requestContent" column="REQUEST_CONTENT"></result>
+        <result property="receiverId" column="RECEIVER_ID"></result>
         <association property="workRequester" resultMap="workRequesterMap"></association>
 
     </resultMap>

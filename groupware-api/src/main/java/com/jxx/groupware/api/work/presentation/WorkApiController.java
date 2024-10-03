@@ -5,6 +5,7 @@ import com.jxx.groupware.api.work.application.WorkService;
 import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
+import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class WorkApiController {
      */
     @GetMapping("/api/work-tickets/search")
     public ResponseEntity<?> searchWorkTicket(@ModelAttribute WorkTickSearchCond workTickSearchCond) {
-        List<WorkTicketServiceResponse> response = workService.searchWorkTicket(workTickSearchCond);
+        List<WorkTicketSearchResponse> response = workService.searchWorkTicket(workTickSearchCond);
         return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 조회 성공", response));
     }
 
