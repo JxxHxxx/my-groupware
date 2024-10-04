@@ -59,9 +59,9 @@ public class AuthService {
         boolean isManipulated = !Objects.equals(authenticationRequest, userSessionBasedAuthenticationRequest);
 
         if (isManipulated) {
-            log.warn("manipulated client request session's memberId:{} request's memberId:{}",
+            log.error("manipulated client request session's memberId:{} request's memberId:{}",
                     session.getMemberId(), authenticationRequest.memberId());
-            throw new UnAuthenticationException();
+            throw new UnAuthenticationException("조작된 인증 세션입니다.");
         }
     }
 
@@ -71,8 +71,9 @@ public class AuthService {
         HttpSession oUserSession = httpRequest.getSession(false);
 
         if (Objects.isNull(oUserSession)) {
-            log.warn("유효하지 않은 세션값입니다.");
-            throw new UnAuthenticationException();
+            String errorMessage = "인증 세션은 null 일 수 없습니다.";
+            log.error(errorMessage);
+            throw new UnAuthenticationException(errorMessage);
         }
 
         Object userSession = oUserSession.getAttribute(sessionKey);

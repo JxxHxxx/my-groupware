@@ -8,6 +8,7 @@ import com.jxx.groupware.api.vacation.dto.response.CommonVacationServiceResponse
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class VacationAdminController {
 
     // 공동 연차 지정 API
     @PostMapping("/admin/vacations/set-common-vacation")
-    public ResponseEntity<?> setCommonVacation(@RequestBody CommonVacationForm vacationForm, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> setCommonVacation(@RequestBody @Valid CommonVacationForm vacationForm, HttpServletRequest httpRequest) {
         log.info("공동 연차를 등록합니다.");
         UserSession userSession = authService.getUserSession(httpRequest);
         CommonVacationServiceForm vacationServiceForm = new CommonVacationServiceForm(userSession, vacationForm);
