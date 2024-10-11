@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.jxx.groupware.core.vacation.domain.entity.LeaveDeduct.*;
@@ -83,7 +84,6 @@ public class VacationAdminService {
         // 검증 전역 관리자 혹은 사내 관리자 검증
         UserSession userSession = vacationServiceForm.userSession();
         CommonVacationForm commonVacationForm = vacationServiceForm.commonVacationForm();
-        List<LocalDate> vacationDates = commonVacationForm.vacationDates();
 
         String companyId = commonVacationForm.companyId();
         // 애플리케이션 캐시에서 긁어옮
@@ -104,16 +104,18 @@ public class VacationAdminService {
         final boolean deducted = commonVacationForm.deducted();
         LeaveDeduct leaveDeduct = decideLeaveDeduct(mustApproval, deducted);
         // Vacation, VacationDuration INSERT start -- TODO VacationManager 에서 수행하도록 변경
-        List<Vacation> vacations = new ArrayList<>();
+        List<LocalDate> vacationDates = commonVacationForm.vacationDates();
         List<VacationDuration> vacationDurations = new ArrayList<>();
+
+        Vacation commonVacation = Vacation.builder()
+                .vacationStatus(VacationStatus.CREATE)
+                .vacationType(VacationType.COMMON_VACATION)
+                .requesterId(commonVacationForm.requesterId())
+                .companyId(commonVacationForm.companyId())
+                .leaveDeduct(leaveDeduct)
+                .build();
+
         for (LocalDate vacationDate : vacationDates) {
-            Vacation commonVacation = Vacation.builder()
-                    .vacationStatus(VacationStatus.CREATE)
-                    .vacationType(VacationType.COMMON_VACATION)
-                    .requesterId(userSession.getMemberId()) // check
-                    .companyId(commonVacationForm.companyId())
-                    .leaveDeduct(leaveDeduct)
-                    .build();
 
             if (!mustApproval) {
                 commonVacation.changeVacationStatus(VacationStatus.NON_REQUIRED);
@@ -121,9 +123,8 @@ public class VacationAdminService {
 
             VacationDuration vacationDuration = VacationManager.createCommonVacationDuration(commonVacation, vacationDate);
             vacationDurations.add(vacationDuration);
-            vacations.add(commonVacation);
         }
-        List<Vacation> savedVacations = vacationRepository.saveAll(vacations);
+        Vacation savedCommonVacation = vacationRepository.save(commonVacation);
         vacationDurationRepository.saveAll(vacationDurations);
         // Vacation, VacationDuration INSERT end
 
@@ -137,14 +138,17 @@ public class VacationAdminService {
 
         // 결재 승인을 받아야 하는 경우, messageQ 생성
         if (mustApproval) {
-            publishVacationCreateEventMessageQ(savedVacations);
+            Float vacationDate = 1f;
+            CommonVacationCreateEvent commonVacationCreateEvent = new CommonVacationCreateEvent(
+                    savedCommonVacation,
+                    vacationDate,
+                    commonVacationForm.departmentId(),
+                    commonVacationForm.departmentName(),
+                    commonVacationForm.requesterName());
+            eventPublisher.publishEvent(commonVacationCreateEvent);
         }
 
-        List<VacationServiceResponse> responses = savedVacations.stream()
-                .map(savedVacation -> convertToResponse(userSession, savedVacation))
-                .toList();
-        return new CommonVacationServiceResponse(leaveDeductedUserNum, totalUseLeaveValue, mustApproval, deducted,
-                leaveDeduct, responses);
+        return null;
     }
 
     private LeaveDeduct decideLeaveDeduct(boolean mustApproval, boolean deducted) {
@@ -153,25 +157,6 @@ public class VacationAdminService {
         }
         boolean preDeduct = deducted && !mustApproval;
         return preDeduct ? PRE_DEDUCT : DEDUCT;
-    }
-
-    private void publishVacationCreateEventMessageQ(List<Vacation> savedVacations) {
-        List<Vacation> succeedVacations = savedVacations.stream()
-                .filter(vacation -> vacation.successRequest())
-                .toList();
-
-        final float vacationDate = 1f; // 공동 연차는 신청 1개에 하루라는 정책이 존재하기 때문에 해당 값 써도 안전
-        for (Vacation succeedVacation : succeedVacations) {
-            CommonVacationCreateEvent commonVacationCreateEvent = new CommonVacationCreateEvent(
-                    succeedVacation.getRequesterId(),
-                    succeedVacation.getCompanyId(),
-                    COMMON_VACATION_DEPARTMENT_CODE,
-                    vacationDate,
-                    succeedVacation.getId()
-            );
-
-            eventPublisher.publishEvent(commonVacationCreateEvent);
-        }
     }
 
     private static VacationServiceResponse convertToResponse(UserSession userSession, Vacation savedVacation) {

@@ -1,10 +1,12 @@
 package com.jxx.groupware.api.vacation.listener;
 
+import com.jxx.groupware.core.vacation.domain.entity.Vacation;
+
 public record CommonVacationCreateEvent(
-        String requesterId,
-        String companyId,
-        String departmentId,
+        Vacation vacation,
         Float vacationDate,
-        Long vacationId
+        String departmentId,
+        String departmentName,
+        String requesterName
 ) {
 }

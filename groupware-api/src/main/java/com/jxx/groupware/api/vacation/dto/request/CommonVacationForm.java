@@ -15,6 +15,11 @@ public record CommonVacationForm(
         @NotNull(message = "연차 차감 여부(deducted)는 null 일 수 없습니다.")
         Boolean deducted,
         @NotEmpty(message = "적어도 한 개의 공동 연차 일자를 추가하세요.")
-        List<LocalDate> vacationDates
+        List<LocalDate> vacationDates,
+
+        String requesterId,
+        String requesterName,
+        String departmentId,
+        String departmentName
 ) {
 }

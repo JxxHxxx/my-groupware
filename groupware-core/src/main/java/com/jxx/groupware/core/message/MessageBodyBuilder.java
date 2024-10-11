@@ -39,14 +39,17 @@ public class MessageBodyBuilder {
 
         payload.put("confirm_status", messageForm.getConfirmStatus());
         payload.put("requester_id", messageForm.getRequesterId());
+        payload.put("requester_name", messageForm.getRequesterName());
         payload.put("vacation_date", messageForm.getVacationDate());
         payload.put("create_system", messageForm.getCreateSystem());
         payload.put("document_type", messageForm.getDocumentType());
         payload.put("company_id", messageForm.getCompanyId());
         payload.put("department_id", messageForm.getDepartmentId());
+        payload.put("department_name", messageForm.getDepartmentName());
         payload.put("confirm_document_id", vacationConfirmDocumentId);
         payload.put("create_time", messageForm.getCreateTime());
         payload.put("approval_line_life_cycle", messageForm.getApprovalLineLifeCycle());
+        payload.put("vacation_durations", messageForm.getVacationDurations());
         return payload;
     }
 

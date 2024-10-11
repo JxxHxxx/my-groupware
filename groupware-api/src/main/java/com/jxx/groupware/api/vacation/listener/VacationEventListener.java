@@ -131,12 +131,19 @@ public class VacationEventListener {
     }
 
     private static MessageQ createMessage(CommonVacationCreateEvent createdEvent) {
+        Vacation vacation = createdEvent.vacation();
+        List<VacationDurationModel> vacationDurationModels = vacation.getVacationDurations().stream()
+                .map(vd -> new VacationDurationModel(String.valueOf(vd.getStartDateTime()), String.valueOf(vd.getEndDateTime())))
+                .toList();
         CommonVacationConfirmMessageForm messageForm = CommonVacationConfirmMessageForm.create(
-                createdEvent.requesterId(),
-                createdEvent.companyId(),
+                vacation.getRequesterId(),
+                vacation.getCompanyId(),
                 createdEvent.departmentId(),
                 createdEvent.vacationDate(),
-                createdEvent.vacationId());
+                vacation.getId(),
+                createdEvent.requesterName(),
+                createdEvent.departmentName(),
+                vacationDurationModels);
 
         Map<String, Object> vacationConfirmMessageBody = MessageBodyBuilder.from(messageForm);
         MessageQ messageQ = MessageQ.builder()
