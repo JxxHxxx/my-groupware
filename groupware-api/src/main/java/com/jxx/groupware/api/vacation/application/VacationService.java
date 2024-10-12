@@ -5,8 +5,10 @@ import com.jxx.groupware.api.excel.application.ExcelReader;
 import com.jxx.groupware.api.vacation.application.function.ConfirmCancelApiAdapter;
 import com.jxx.groupware.api.vacation.application.function.ConfirmRaiseApiAdapter;
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.groupware.api.vacation.dto.request.VacationRaiseRequest;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse;
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
+import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
@@ -223,11 +225,36 @@ public class VacationService {
                 )).toList();
     }
 
-    public VacationServiceResponse raiseVacationV2(Long vacationId) {
-        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter = new ConfirmRaiseApiAdapter();
-        return raiseVacationV2(vacationId, apiAdapter);
+    @Transactional
+    public VacationServiceResponse raiseVacationV2(Long vacationId, VacationRaiseRequest request) {
+        ConfirmStatus confirmStatus = request.confirmStatus();
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+        MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(vacation.getRequesterId())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+
+        // 결재 서버 API 호출
+        if (Objects.equals(confirmStatus, RAISE)) {
+            // WRITE QUERY
+            vacation.changeVacationStatus(REQUEST);
+        }
+        else {
+            throw new IllegalArgumentException("해당 요청을 처리할 수 없습니다.");
+        }
+        vacationHistRepository.save(new VacationHistory(vacation, History.update(vacation.getRequesterId())));
+
+        return new VacationServiceResponse(vacation.getId(),
+                vacation.getRequesterId(),
+                memberLeave.getName(),
+                vacation.receiveVacationDurationDto(),
+                vacation.getVacationStatus());
     }
-    protected VacationServiceResponse raiseVacationV2(Long vacationId, BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter) {
+
+    public VacationServiceResponse raiseVacation(Long vacationId) {
+        BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter = new ConfirmRaiseApiAdapter();
+        return raiseVacation(vacationId, apiAdapter);
+    }
+    protected VacationServiceResponse raiseVacation(Long vacationId, BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
         MemberLeave memberLeave = memberLeaveRepository.findMemberWithOrganizationFetch(vacation.getRequesterId())

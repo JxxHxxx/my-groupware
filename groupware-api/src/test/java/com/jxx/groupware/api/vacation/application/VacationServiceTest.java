@@ -334,7 +334,7 @@ class VacationServiceTest {
                 (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
 
         //when
-        VacationServiceResponse response = vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter);
+        VacationServiceResponse response = vacationService.raiseVacation(savedVacation.getId(), apiAdapter);
         //then
         Vacation updatedVacation = vacationRepository.findById(savedVacation.getId()).get();
         assertThat(response.vacationStatus()).isEqualTo(VacationStatus.FAIL);
@@ -367,7 +367,7 @@ class VacationServiceTest {
         BiFunction<Vacation, MemberLeave, ConfirmDocumentRaiseResponse> apiAdapter =
                 (v, m) -> new ConfirmDocumentRaiseResponse(execute(m.receiveCompanyId(), v.getId()), m.getMemberId(), "RAISE");
 
-        assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), apiAdapter))
+        assertThatThrownBy(() -> vacationService.raiseVacation(savedVacation.getId(), apiAdapter))
                 .isInstanceOf(VacationClientException.class);
     }
 
@@ -396,7 +396,7 @@ class VacationServiceTest {
          외부 API 서버는 shutdown 된 상태이기 때문에 ConnectException이 터지게 된다. **/
         ConfirmRaiseApiAdapter confirmRaiseApiAdapter = new ConfirmRaiseApiAdapter();
 
-        assertThatThrownBy(() -> vacationService.raiseVacationV2(savedVacation.getId(), confirmRaiseApiAdapter))
+        assertThatThrownBy(() -> vacationService.raiseVacation(savedVacation.getId(), confirmRaiseApiAdapter))
                 .isInstanceOf(ServerCommunicationException.class);
     }
 }

@@ -5,8 +5,9 @@ import com.jxx.groupware.api.member.application.UserSession;
 import com.jxx.groupware.api.vacation.application.VacationService;
 import com.jxx.groupware.api.vacation.dto.request.ConfirmStatusChangeRequest;
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
+import com.jxx.groupware.api.vacation.dto.request.VacationRaiseRequest;
+import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
-import com.jxx.groupware.api.vacation.dto.request.VacationTypePolicyForm;
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.api.vacation.dto.response.VacationServiceResponse;
@@ -51,7 +52,13 @@ public class VacationApiController {
 
     @PostMapping(value = "/api/vacations/{vacation-id}/raise")
     public ResponseEntity<?> raiseVacation(@PathVariable(name = "vacation-id") Long vacationId) {
-        VacationServiceResponse response = vacationService.raiseVacationV2(vacationId);
+        VacationServiceResponse response = vacationService.raiseVacation(vacationId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/api/v2/vacations/{vacation-id}/raise")
+    public ResponseEntity<?> raiseVacationV2(@PathVariable(name = "vacation-id") Long vacationId, @RequestBody VacationRaiseRequest request) {
+        VacationServiceResponse response = vacationService.raiseVacationV2(vacationId, request);
         return ResponseEntity.ok(response);
     }
 

@@ -77,6 +77,7 @@ public class Vacation {
         this.vacationStatus = vacationStatus;
         this.createTime = LocalDateTime.now();
     }
+    // WRITE QUERY
     public void changeVacationStatus(VacationStatus vacationStatus) {
         this.vacationStatus = vacationStatus;
     }

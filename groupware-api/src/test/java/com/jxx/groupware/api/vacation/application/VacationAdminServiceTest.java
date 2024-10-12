@@ -63,7 +63,7 @@ class VacationAdminServiceTest {
         //given
         UserSession userSession = new UserSession("JXX", "제이주식회사", "U00001", "이재헌", "J00001", "IT센터");
         LocalDate vacationDate = LocalDate.of(2024, 4, 17);
-        CommonVacationForm form = new CommonVacationForm("JXX", false, false, List.of(vacationDate));
+        CommonVacationForm form = new CommonVacationForm("JXX", false, false, List.of(vacationDate), "", "", "", "");
         CommonVacationServiceForm serviceForm = new CommonVacationServiceForm(userSession, form);
         //when
         CommonVacationServiceResponse firstResponse = vacationAdminService.assignCommonVacation(serviceForm);
