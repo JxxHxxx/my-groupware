@@ -9,7 +9,9 @@ import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.listener.CreateConfirmThroughRestApiEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
+import com.jxx.groupware.core.vacation.domain.entity.Organization;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
+import com.jxx.groupware.core.vacation.infra.OrganizationRepository;
 import com.jxx.groupware.core.work.domain.*;
 import com.jxx.groupware.core.work.domain.exception.WorkClientException;
 import com.jxx.groupware.core.work.dto.TicketReceiver;
@@ -41,6 +43,7 @@ public class WorkService {
     private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final MemberLeaveRepository memberLeaveRepository; // 임시
+    private final OrganizationRepository organizationRepository; // 임시
 
     @Value("${third-part.confirm.host}")
     private String confirmServerHost;
@@ -467,7 +470,11 @@ public class WorkService {
         return null;
     }
 
-    private static WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {
+    private WorkTicketServiceResponse createWorkTicketServiceResponse(WorkTicket savedWorkTicket) {
+        // TODO 임시 로직 추후에는 JOIN으로 한 번에 가져오는게 바람직하다 봄
+        Organization organization = organizationRepository.findOrganizationByCompanyIdAndDepartmentId(
+                savedWorkTicket.getChargeCompanyId(), savedWorkTicket.getChargeDepartmentId()).get();
+
         return new WorkTicketServiceResponse(
                 savedWorkTicket.getWorkTicketPk(),
                 savedWorkTicket.getWorkTicketId(),
@@ -475,6 +482,7 @@ public class WorkService {
                 savedWorkTicket.getCreatedTime(),
                 savedWorkTicket.getChargeCompanyId(),
                 savedWorkTicket.getChargeDepartmentId(),
+                organization.getDepartmentName(),
                 savedWorkTicket.getModifiedTime(),
                 savedWorkTicket.getRequestTitle(),
                 savedWorkTicket.getRequestContent(),
@@ -482,7 +490,7 @@ public class WorkService {
         );
     }
 
-    private static WorkDetailServiceResponse createWorkDetailServiceResponse(WorkDetail savedWorkDetail) {
+    private WorkDetailServiceResponse createWorkDetailServiceResponse(WorkDetail savedWorkDetail) {
         return new WorkDetailServiceResponse(
                 savedWorkDetail.getWorkDetailPk(),
                 savedWorkDetail.getAnalyzeContent(),

@@ -17,6 +17,7 @@ public class WorkTicketServiceResponse {
     private LocalDateTime createdTime;
     private String chargeCompanyId;
     private String chargeDepartmentId;
+    private String chargeDepartmentName;
     private LocalDateTime modifiedTime;
     private String requestTitle;
     private String requestContent;
