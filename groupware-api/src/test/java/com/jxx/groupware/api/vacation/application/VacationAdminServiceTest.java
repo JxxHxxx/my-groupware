@@ -42,7 +42,12 @@ class VacationAdminServiceTest {
         //given
         UserSession userSession = new UserSession("JXX", "제이주식회사", "U00001", "이재헌", "J00001", "IT센터");
         LocalDate vacationDate = LocalDate.of(2024, 4, 17);
-        CommonVacationForm form = new CommonVacationForm("JXX", false, false, List.of(vacationDate));
+        CommonVacationForm form = new CommonVacationForm(
+                "JXX",
+                false,
+                false,
+                List.of(vacationDate),
+                "U00001", "이재헌", "J00001", "IT센터");
         CommonVacationServiceForm serviceForm = new CommonVacationServiceForm(userSession, form);
         //when
         CommonVacationServiceResponse response = vacationAdminService.assignCommonVacation(serviceForm);
@@ -82,7 +87,11 @@ class VacationAdminServiceTest {
         //given
         UserSession userSession = new UserSession("JXX", "제이주식회사", "U00001", "이재헌", "J00001", "IT센터");
         LocalDate vacationDate = LocalDate.of(2024, 4, 17);
-        CommonVacationForm notExistCompanyIdContainForm = new CommonVacationForm("XXX", false, false, List.of(vacationDate));
+        CommonVacationForm notExistCompanyIdContainForm = new CommonVacationForm("XXX",
+                false,
+                false,
+                List.of(vacationDate),
+                "U00001", "이재헌", "J00001", "IT센터");
         CommonVacationServiceForm serviceForm = new CommonVacationServiceForm(userSession, notExistCompanyIdContainForm);
         //when
         assertThatThrownBy(() -> vacationAdminService.assignCommonVacation(serviceForm))

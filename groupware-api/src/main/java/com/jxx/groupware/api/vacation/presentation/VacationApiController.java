@@ -128,7 +128,7 @@ public class VacationApiController {
 
     /** 관리자 API로 변경 해야 할 듯 **/
     @PostMapping("/api/vacations/set-vacation-type-policy")
-    public ResponseEntity<?> setCompanyVacationPolicies(@RequestParam("file") MultipartFile file, HttpServletRequest httpRequest) throws IOException {
+    public ResponseEntity<?> setCompanyVacationPolicies(@ModelAttribute("file") MultipartFile file, HttpServletRequest httpRequest) throws IOException {
         UserSession userSession = authService.getUserSession(httpRequest);
         vacationService.setCompanyVacationPolicies(file.getInputStream(), userSession.getMemberId());
         return ResponseEntity.ok(200);
