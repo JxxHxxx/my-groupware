@@ -48,4 +48,9 @@ public enum VacationType {
     public static boolean isSpecialVacationType(VacationType vacationType) {
         return Objects.equals(vacationType.code, "F");
     }
+
+    /** 배치로 연차 일수를 관리하지 않는 유형 **/
+    public static boolean isNotPrivateVacation(VacationType vacationType) {
+        return !Objects.equals(vacationType.code, "P");
+    }
 }
