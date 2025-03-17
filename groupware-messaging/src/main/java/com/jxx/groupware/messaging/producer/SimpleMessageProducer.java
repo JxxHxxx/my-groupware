@@ -1,9 +1,9 @@
 package com.jxx.groupware.messaging.producer;
 
 
-import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.core.messaging.infra.MessageQRepository;
-import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQResult;
 import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.jxx.groupware.core.messaging.MessageConst.RETRY_HEADER;
-import static com.jxx.groupware.core.messaging.domain.MessageProcessStatus.ALREADY;
-import static com.jxx.groupware.core.messaging.domain.MessageProcessStatus.SUCCESS;
+import static com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus.ALREADY;
+import static com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus.SUCCESS;
 
 
 @Slf4j

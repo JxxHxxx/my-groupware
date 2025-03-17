@@ -3,10 +3,10 @@ package com.jxx.groupware.api.vacation.listener;
 
 import com.jxx.groupware.core.messaging.*;
 import com.jxx.groupware.core.messaging.body.vendor.confirm.*;
-import com.jxx.groupware.core.messaging.domain.MessageDestination;
-import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
-import com.jxx.groupware.core.messaging.domain.MessageProcessType;
-import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessType;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.domain.entity.Organization;

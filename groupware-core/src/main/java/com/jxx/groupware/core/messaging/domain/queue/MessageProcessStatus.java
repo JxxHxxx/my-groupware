@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.messaging.domain;
+package com.jxx.groupware.core.messaging.domain.queue;
 
 public enum MessageProcessStatus {
 

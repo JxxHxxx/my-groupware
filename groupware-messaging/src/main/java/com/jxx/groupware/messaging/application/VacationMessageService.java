@@ -3,9 +3,9 @@ package com.jxx.groupware.messaging.application;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmContentModel;
 import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmUpdateContentModel;
-import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
-import com.jxx.groupware.core.messaging.domain.MessageQ;
-import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQResult;
 import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import com.jxx.groupware.messaging.infra.mapper.ConfirmDocumentMapper;
@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 import java.time.LocalDateTime;
 
 import static com.jxx.groupware.core.messaging.MessageConst.RETRY_HEADER;
-import static com.jxx.groupware.core.messaging.domain.MessageProcessStatus.*;
+import static com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus.*;
 
 @Slf4j
 @Service(value = "vacationMessageService")

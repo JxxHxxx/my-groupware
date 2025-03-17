@@ -1,6 +1,6 @@
 package com.jxx.groupware.core.messaging.infra;
 
-import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

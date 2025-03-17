@@ -2,10 +2,10 @@ package com.jxx.groupware.api.work.listener;
 
 
 import com.jxx.groupware.core.ConfirmCreateForm;
-import com.jxx.groupware.core.messaging.domain.MessageDestination;
-import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
-import com.jxx.groupware.core.messaging.domain.MessageProcessType;
-import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessType;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

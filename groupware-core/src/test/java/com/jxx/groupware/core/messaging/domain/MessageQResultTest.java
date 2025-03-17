@@ -1,6 +1,8 @@
 package com.jxx.groupware.core.messaging.domain;
 
 import com.jxx.groupware.core.common.history.HistoryEntityFieldValidator;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

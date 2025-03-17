@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.messaging.domain;
+package com.jxx.groupware.core.messaging.domain.queue;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;

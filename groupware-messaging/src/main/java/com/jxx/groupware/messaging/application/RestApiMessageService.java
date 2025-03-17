@@ -1,9 +1,9 @@
 package com.jxx.groupware.messaging.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
-import com.jxx.groupware.core.messaging.domain.MessageQ;
-import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQResult;
 import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import lombok.extern.slf4j.Slf4j;

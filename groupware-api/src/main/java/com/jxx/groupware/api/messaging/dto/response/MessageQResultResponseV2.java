@@ -1,8 +1,8 @@
 package com.jxx.groupware.api.messaging.dto.response;
 
-import com.jxx.groupware.core.messaging.domain.MessageDestination;
-import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
-import com.jxx.groupware.core.messaging.domain.MessageProcessType;
+import com.jxx.groupware.core.messaging.domain.queue.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

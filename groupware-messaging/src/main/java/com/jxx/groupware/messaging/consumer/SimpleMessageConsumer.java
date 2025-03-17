@@ -1,7 +1,7 @@
 package com.jxx.groupware.messaging.consumer;
 
-import com.jxx.groupware.core.messaging.domain.MessageProcessType;
-import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessType;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.messaging.application.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
