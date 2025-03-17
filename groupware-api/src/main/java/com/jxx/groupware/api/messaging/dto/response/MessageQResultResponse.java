@@ -1,7 +1,7 @@
 package com.jxx.groupware.api.messaging.dto.response;
 
-import com.jxx.groupware.core.message.domain.MessageDestination;
-import com.jxx.groupware.core.message.domain.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
 
 import java.time.LocalDateTime;
 import java.util.Map;

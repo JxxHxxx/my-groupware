@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.jxx.groupware.messaging.infra.mapper.ConfirmDocumentMapper">
-    <update id="updateContent" parameterType="com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmUpdateContentModel">
+    <update id="updateContent" parameterType="com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmUpdateContentModel">
         UPDATE JXX_CONFIRM_DOCUMENT_CONTENT_MASTER CDCM
         <set>
             CDCM.CONTENTS = JSON_REPLACE(CDCM.CONTENTS,

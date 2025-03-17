@@ -1,6 +1,6 @@
 package com.jxx.groupware.core.vacation.domain.entity;
 
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.exeception.InactiveException;
 import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException;

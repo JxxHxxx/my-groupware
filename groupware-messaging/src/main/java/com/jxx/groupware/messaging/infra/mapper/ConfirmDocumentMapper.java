@@ -1,6 +1,6 @@
 package com.jxx.groupware.messaging.infra.mapper;
 
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmUpdateContentModel;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmUpdateContentModel;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

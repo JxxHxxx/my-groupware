@@ -8,7 +8,7 @@ import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.groupware.api.vacation.dto.request.VacationRaiseRequest;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentCancelResponse;
 import com.jxx.groupware.api.vacation.listener.VacationUpdatedEvent;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-import static com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus.*;
+import static com.jxx.groupware.core.messaging.body.vendor.confirm.ConfirmStatus.*;
 import static com.jxx.groupware.core.vacation.domain.entity.VacationStatus.*;
 
 @Slf4j

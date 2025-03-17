@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.message.body.vendor.confirm;
+package com.jxx.groupware.core.messaging.body.vendor.confirm;
 
 import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException;
 import lombok.Getter;

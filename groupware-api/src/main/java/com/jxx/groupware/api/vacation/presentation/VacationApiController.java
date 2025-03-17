@@ -6,7 +6,6 @@ import com.jxx.groupware.api.vacation.application.VacationService;
 import com.jxx.groupware.api.vacation.dto.request.ConfirmStatusChangeRequest;
 import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.groupware.api.vacation.dto.request.VacationRaiseRequest;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.VacationTypePolicyResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;

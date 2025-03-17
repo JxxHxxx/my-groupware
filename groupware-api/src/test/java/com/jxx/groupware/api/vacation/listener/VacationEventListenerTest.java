@@ -1,6 +1,6 @@
 package com.jxx.groupware.api.vacation.listener;
 
-import com.jxx.groupware.core.message.infra.MessageQRepository;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.vacation.domain.entity.*;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.groupware.core.vacation.infra.OrganizationRepository;

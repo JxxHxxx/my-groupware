@@ -7,9 +7,9 @@ import com.jxx.groupware.api.vacation.dto.request.RequestVacationForm;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.groupware.api.vacation.dto.response.VacationServiceResponse;
 import com.jxx.groupware.core.common.generator.ConfirmDocumentIdGenerator;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
-import com.jxx.groupware.core.message.domain.MessageQ;
-import com.jxx.groupware.core.message.infra.MessageQRepository;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.ConfirmStatus;
+import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.vacation.domain.dto.RequestVacationDuration;
 import com.jxx.groupware.core.vacation.domain.dto.UpdateVacationForm;
 import com.jxx.groupware.core.vacation.domain.dto.VacationDurationDto;
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
 import static com.jxx.groupware.core.common.generator.ConfirmDocumentIdGenerator.*;
-import static com.jxx.groupware.core.message.body.vendor.confirm.ApprovalLineLifecycle.BEFORE_CREATE;
+import static com.jxx.groupware.core.messaging.body.vendor.confirm.ApprovalLineLifecycle.BEFORE_CREATE;
 import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.*;
 

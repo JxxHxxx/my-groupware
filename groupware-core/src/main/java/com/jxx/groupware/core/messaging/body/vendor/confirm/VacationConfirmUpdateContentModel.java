@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.message.body.vendor.confirm;
+package com.jxx.groupware.core.messaging.body.vendor.confirm;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

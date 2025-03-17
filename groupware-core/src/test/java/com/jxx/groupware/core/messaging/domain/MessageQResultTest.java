@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.message.domain;
+package com.jxx.groupware.core.messaging.domain;
 
 import com.jxx.groupware.core.common.history.HistoryEntityFieldValidator;
 import org.junit.jupiter.api.DisplayName;

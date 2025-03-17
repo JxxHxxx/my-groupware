@@ -1,10 +1,10 @@
 package com.jxx.groupware.messaging.producer;
 
 
-import com.jxx.groupware.core.message.domain.MessageQ;
-import com.jxx.groupware.core.message.infra.MessageQRepository;
-import com.jxx.groupware.core.message.domain.MessageQResult;
-import com.jxx.groupware.core.message.infra.MessageQResultRepository;
+import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
+import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jxx.groupware.core.message.MessageConst.RETRY_HEADER;
-import static com.jxx.groupware.core.message.domain.MessageProcessStatus.ALREADY;
-import static com.jxx.groupware.core.message.domain.MessageProcessStatus.SUCCESS;
+import static com.jxx.groupware.core.messaging.MessageConst.RETRY_HEADER;
+import static com.jxx.groupware.core.messaging.domain.MessageProcessStatus.ALREADY;
+import static com.jxx.groupware.core.messaging.domain.MessageProcessStatus.SUCCESS;
 
 
 @Slf4j

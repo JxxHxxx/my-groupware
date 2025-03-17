@@ -1,15 +1,15 @@
 package com.jxx.groupware.messaging.application;
 
-import com.jxx.groupware.core.message.MessageBodyBuilder;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmMessageForm;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmModel;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationDurationModel;
-import com.jxx.groupware.core.message.domain.MessageDestination;
-import com.jxx.groupware.core.message.domain.MessageProcessStatus;
-import com.jxx.groupware.core.message.domain.MessageQ;
-import com.jxx.groupware.core.message.domain.MessageQResult;
-import com.jxx.groupware.core.message.infra.MessageQRepository;
-import com.jxx.groupware.core.message.infra.MessageQResultRepository;
+import com.jxx.groupware.core.messaging.MessageBodyBuilder;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmMessageForm;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmModel;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationDurationModel;
+import com.jxx.groupware.core.messaging.domain.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
+import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import com.jxx.groupware.messaging.infra.ConfirmDocumentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;

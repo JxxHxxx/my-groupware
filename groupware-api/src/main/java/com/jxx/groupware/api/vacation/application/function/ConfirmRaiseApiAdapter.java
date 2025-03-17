@@ -8,7 +8,7 @@ import com.jxx.groupware.api.vacation.dto.request.ConfirmRaiseOrCancelRequest;
 import com.jxx.groupware.api.vacation.dto.response.ConfirmDocumentRaiseResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.core.common.generator.ConfirmDocumentIdGenerator;
-import com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.ConfirmStatus;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.domain.entity.Vacation;
 import lombok.extern.slf4j.Slf4j;

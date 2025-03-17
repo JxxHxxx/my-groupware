@@ -1,9 +1,9 @@
-package com.jxx.groupware.core.message;
+package com.jxx.groupware.core.messaging;
 
 import com.jxx.groupware.core.common.generator.ConfirmDocumentIdGenerator;
-import com.jxx.groupware.core.message.body.vendor.confirm.CommonVacationConfirmMessageForm;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmMessageForm;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationUpdateMessageForm;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.CommonVacationConfirmMessageForm;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmMessageForm;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationUpdateMessageForm;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.message.domain;
+package com.jxx.groupware.core.messaging.domain;
 
 import java.util.List;
 import java.util.Objects;

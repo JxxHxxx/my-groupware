@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.message;
+package com.jxx.groupware.core.messaging;
 
 public class MessageConst {
 

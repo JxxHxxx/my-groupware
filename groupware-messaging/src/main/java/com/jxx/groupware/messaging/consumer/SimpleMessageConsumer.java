@@ -1,7 +1,7 @@
 package com.jxx.groupware.messaging.consumer;
 
-import com.jxx.groupware.core.message.domain.MessageProcessType;
-import com.jxx.groupware.core.message.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.MessageProcessType;
+import com.jxx.groupware.core.messaging.domain.MessageQ;
 import com.jxx.groupware.messaging.application.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,6 @@ import org.springframework.messaging.Message;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 // TODO : 예외 발생 시, 큰 문제가 생긴다.. 채널 수 만큼 입력됨
 

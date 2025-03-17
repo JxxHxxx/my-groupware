@@ -32,8 +32,8 @@
     </select>
     <parameterMap id="messageQResultSearchMap"
                   type="com.jxx.groupware.api.messaging.dto.request.MessageQResultSearchCondition">
-        <parameter property="messageProcessStatus" javaType="com.jxx.groupware.core.message.domain.MessageProcessStatus"/>
-        <parameter property="messageProcessType" javaType="com.jxx.groupware.core.message.domain.MessageProcessType"/>
+        <parameter property="messageProcessStatus" javaType="com.jxx.groupware.core.messaging.domain.MessageProcessStatus"/>
+        <parameter property="messageProcessType" javaType="com.jxx.groupware.core.messaging.domain.MessageProcessType"/>
     </parameterMap>
     <resultMap id="MessageQResultResponseMap"
                type="com.jxx.groupware.api.messaging.dto.response.MessageQResultResponseV2">

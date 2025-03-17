@@ -1,7 +1,7 @@
 package com.jxx.groupware.api.messaging.dto.request;
 
-import com.jxx.groupware.core.message.domain.MessageDestination;
-import com.jxx.groupware.core.message.domain.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
 import lombok.Getter;
 
 @Getter

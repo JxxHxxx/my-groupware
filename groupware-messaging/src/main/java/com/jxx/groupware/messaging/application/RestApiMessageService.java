@@ -1,11 +1,11 @@
 package com.jxx.groupware.messaging.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jxx.groupware.core.message.domain.MessageProcessStatus;
-import com.jxx.groupware.core.message.domain.MessageQ;
-import com.jxx.groupware.core.message.domain.MessageQResult;
-import com.jxx.groupware.core.message.infra.MessageQRepository;
-import com.jxx.groupware.core.message.infra.MessageQResultRepository;
+import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
+import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.jxx.groupware.core.message.MessageConst.RETRY_HEADER;
+import static com.jxx.groupware.core.messaging.MessageConst.RETRY_HEADER;
 
 @Slf4j
 @Service(value = "restApiMessageService")

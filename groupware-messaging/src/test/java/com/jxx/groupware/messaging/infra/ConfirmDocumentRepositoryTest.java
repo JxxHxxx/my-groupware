@@ -1,11 +1,11 @@
 package com.jxx.groupware.messaging.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.jxx.groupware.core.message.MessageBodyBuilder;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmContentModel;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmMessageForm;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationConfirmModel;
-import com.jxx.groupware.core.message.body.vendor.confirm.VacationDurationModel;
+import com.jxx.groupware.core.messaging.MessageBodyBuilder;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmContentModel;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmMessageForm;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationConfirmModel;
+import com.jxx.groupware.core.messaging.body.vendor.confirm.VacationDurationModel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

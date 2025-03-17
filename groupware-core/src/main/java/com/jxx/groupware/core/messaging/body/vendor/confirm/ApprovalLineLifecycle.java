@@ -1,4 +1,4 @@
-package com.jxx.groupware.core.message.body.vendor.confirm;
+package com.jxx.groupware.core.messaging.body.vendor.confirm;
 
 // 결재 애플리케이션 코드
 public enum ApprovalLineLifecycle {

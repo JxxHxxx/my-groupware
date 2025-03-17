@@ -5,11 +5,11 @@ import com.jxx.groupware.api.messaging.dto.request.MessageQResultSearchCondition
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponseV2;
 import com.jxx.groupware.api.messaging.query.MessageQResultMapper;
-import com.jxx.groupware.core.message.domain.MessageProcessStatus;
-import com.jxx.groupware.core.message.domain.MessageQ;
-import com.jxx.groupware.core.message.domain.MessageQResult;
-import com.jxx.groupware.core.message.infra.MessageQRepository;
-import com.jxx.groupware.core.message.infra.MessageQResultRepository;
+import com.jxx.groupware.core.messaging.domain.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.MessageQ;
+import com.jxx.groupware.core.messaging.domain.MessageQResult;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
+import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;

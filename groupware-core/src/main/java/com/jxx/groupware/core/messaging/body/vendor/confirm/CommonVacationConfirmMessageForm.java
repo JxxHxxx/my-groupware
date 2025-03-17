@@ -1,13 +1,12 @@
-package com.jxx.groupware.core.message.body.vendor.confirm;
+package com.jxx.groupware.core.messaging.body.vendor.confirm;
 
-import com.jxx.groupware.core.vacation.domain.entity.VacationDuration;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.jxx.groupware.core.message.MessageConst.CREATE_SYSTEM;
-import static com.jxx.groupware.core.message.body.vendor.confirm.ConfirmStatus.CREATE;
+import static com.jxx.groupware.core.messaging.MessageConst.CREATE_SYSTEM;
+import static com.jxx.groupware.core.messaging.body.vendor.confirm.ConfirmStatus.CREATE;
 
 /**
  * 휴가 결재(신청, 취소)에 필요한 데이터
