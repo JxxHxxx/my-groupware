@@ -80,3 +80,14 @@ Content-Type: application/json
   "memberId" : "U00001",
   "password" : "U00001"
 }
+
+### 휴가 정책 등록 Excel
+POST http://localhost:8080/api/vacations/set-vacation-type-policy
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name:"file"; fileName="휴가정책등록양식.xlsx"
+Content-Type: */*; charset=UTF-8
+
+<C:\Users\GW200014\Desktop\휴가정책등록양식.xlsx
+--boundary--

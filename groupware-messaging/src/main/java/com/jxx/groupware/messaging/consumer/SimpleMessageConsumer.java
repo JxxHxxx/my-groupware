@@ -21,11 +21,8 @@ import java.util.Objects;
 @MessageEndpoint
 @RequiredArgsConstructor
 public class SimpleMessageConsumer {
-
-//    @Qualifier("vacationMessageService")
-//    private final MessageService messageService;
-
     private final BeanFactory beanFactory;
+
     @Transactional
     @ServiceActivators({
             @ServiceActivator(inputChannel = "sentQueueChannel1")
@@ -33,6 +30,7 @@ public class SimpleMessageConsumer {
     public void consumeSentMessage1(List<Message<MessageQ>> message) {
         processes(message, "1");
     }
+
     @Transactional
     @ServiceActivators({
             @ServiceActivator(inputChannel = "sentQueueChannel2")
@@ -59,10 +57,10 @@ public class SimpleMessageConsumer {
     public void consumeRetryMessage(Message<MessageQ> message) {
         MessageService<MessageQ> messageService = adaptMessageServiceBean(message);
         messageService.retry(message);
-            log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HISTORY START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
-                    "\nChannel:retryQueueChannel" +
-                    "\nMessage:{}" +
-                    "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HISTORY  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", message);
+        log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HISTORY START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
+                "\nChannel:retryQueueChannel" +
+                "\nMessage:{}" +
+                "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HISTORY  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", message);
     }
 
     private MessageService<MessageQ> adaptMessageServiceBean(Message<MessageQ> message) {
@@ -71,11 +69,12 @@ public class SimpleMessageConsumer {
 
         if (messageProcessType.isDBProcessType()) {
             messageService = beanFactory.getBean("vacationMessageService", MessageService.class);
-        }
-        else if (Objects.equals(messageProcessType, MessageProcessType.REST)) { // REST API
+        } else if (messageProcessType.isRestProcessType()) { // REST API
             messageService = beanFactory.getBean("restApiMessageService", MessageService.class);
-        }
-        else {
+            // 구현 해야함
+        } else if (messageProcessType.isRelationalDatabaseProcessType()) {
+            messageService = null;
+        } else {
             throw new RuntimeException();
         }
         return messageService;

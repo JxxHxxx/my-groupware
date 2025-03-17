@@ -12,6 +12,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class ThirdPartyDBConfiguration {
@@ -28,6 +30,11 @@ public class ThirdPartyDBConfiguration {
     private String poolName;
     @Value("${spring.datasource.max-pool-size}")
     private int maxPoolSize;
+
+    @Bean
+    public Map<String, String> dataSourceMap() {
+        return new HashMap<String, String>();
+    }
 
     // 메시지 서버 데이터 소스 설정
     @Bean
