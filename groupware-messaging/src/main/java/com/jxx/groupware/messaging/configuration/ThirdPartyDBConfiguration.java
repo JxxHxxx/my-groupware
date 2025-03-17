@@ -47,7 +47,6 @@ public class ThirdPartyDBConfiguration {
         hikariDataSource.setPassword(password);
         hikariDataSource.setDriverClassName(driverClassName);
         hikariDataSource.setPoolName(poolName);
-
         return hikariDataSource;
     }
 
