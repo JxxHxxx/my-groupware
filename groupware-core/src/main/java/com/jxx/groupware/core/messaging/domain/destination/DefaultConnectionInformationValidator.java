@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+/** Message Destination connectionType 별 필수 값 존재 여부 검증 클래스 **/
 @Slf4j
 public class DefaultConnectionInformationValidator implements ConnectionInformationValidator {
 
@@ -15,6 +17,9 @@ public class DefaultConnectionInformationValidator implements ConnectionInformat
     @Override
     public ConnectionInformationRequiredResponse required(ConnectionType conType, Map<String, Object> conInfo) {
         // conInfo 에 필수 키가 존재하는지 검증
+        if (Objects.isNull(conType)) {
+            throw new RuntimeException("conType is null");
+        }
         switch (conType) {
             case RDB -> {
                 log.debug("RDB connectionType required key list : {}", REQUIRED_RDB_KEYS);

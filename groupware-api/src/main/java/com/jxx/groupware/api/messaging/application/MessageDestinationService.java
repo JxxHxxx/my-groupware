@@ -1,6 +1,9 @@
 package com.jxx.groupware.api.messaging.application;
 
 import com.jxx.groupware.api.messaging.dto.request.MessageQDestinationRequest;
+import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
+import com.jxx.groupware.core.messaging.domain.MessageClientException;
+import com.jxx.groupware.core.messaging.domain.MessageResponseCode;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInformationValidator;
@@ -15,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import static com.jxx.groupware.core.messaging.domain.MessageResponseCode.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,17 +28,17 @@ public class MessageDestinationService {
     private final MessageQDestinationRepository messageQDestinationRepository;
 
     @Transactional
-    public void createDestination(MessageQDestinationRequest request) {
-        final ConnectionType connectionType = request.getConnectionType();
+    public MessageQDestinationResponse createDestination(MessageQDestinationRequest request) {
+        final ConnectionType connectionType = ConnectionType.valueOf(request.getConnectionType());
         final Map<String, Object> connectionInformation = request.getConnectionInformation();
 
-        // 검증
+        // 필수 값 존재 검증
         ConnectionInformationValidator validator = new DefaultConnectionInformationValidator();
         ConnectionInformationRequiredResponse requiredResponse = validator.required(connectionType, connectionInformation);
 
         if (!requiredResponse.meet()) {
             log.error("connectionType:{} must have {} keys", connectionType, requiredResponse.notMatchedKeys());
-            throw new MessageClientException();
+            throw new MessageClientException(MSQF001.getCode(), MSQF001.getDescription());
         }
 
         MessageQDestination messageQDestination = MessageQDestination.builder()
@@ -46,15 +51,23 @@ public class MessageDestinationService {
                 .offDateTime(null)
                 .build();
 
-        messageQDestinationRepository.save(messageQDestination);
+        MessageQDestination savedMessageQDestination = messageQDestinationRepository.save(messageQDestination);
+
+        return new MessageQDestinationResponse(
+                savedMessageQDestination.getConnectionType().name(),
+                savedMessageQDestination.getConnectionInformation(),
+                savedMessageQDestination.getDestinationId(),
+                savedMessageQDestination.getDestinationName(),
+                savedMessageQDestination.getUsed(),
+                savedMessageQDestination.getOffDateTime(),
+                savedMessageQDestination.getCreateDateTime());
     }
 
     public void selectByDestinationId() {
 
     }
 
-    public void changeDestinationUsed() {
-
+    public void changeDestinationUsed(String destinationId) {
     }
 
     public void search() {

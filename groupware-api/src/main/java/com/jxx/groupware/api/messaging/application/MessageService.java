@@ -5,6 +5,7 @@ import com.jxx.groupware.api.messaging.dto.request.MessageQResultSearchCondition
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponseV2;
 import com.jxx.groupware.api.messaging.query.MessageQResultMapper;
+import com.jxx.groupware.core.messaging.domain.MessageClientException;
 import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
 import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.core.messaging.domain.queue.MessageQResult;
