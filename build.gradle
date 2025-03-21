@@ -89,9 +89,13 @@ project(':groupware-core') {
         implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.7.0'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.0'
+        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
         // json 타입 컬럼을 사용하기 위한 프로젝트 START END
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.2'
+        testImplementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.0'
+        testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     }
 }
 
@@ -125,7 +129,6 @@ project(':groupware-api') {
         // 타 시스템 PATCH, PUT API 호출
         // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
         implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
-
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'com.h2database:h2'
         testImplementation 'org.awaitility:awaitility:4.2.0'
