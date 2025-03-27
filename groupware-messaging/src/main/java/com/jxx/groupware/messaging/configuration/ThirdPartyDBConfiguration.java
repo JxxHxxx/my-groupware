@@ -31,11 +31,6 @@ public class ThirdPartyDBConfiguration {
     @Value("${spring.datasource.max-pool-size}")
     private int maxPoolSize;
 
-    @Bean
-    public Map<String, String> dataSourceMap() {
-        return new HashMap<String, String>();
-    }
-
     // 메시지 서버 데이터 소스 설정
     @Bean
     @Primary
@@ -67,6 +62,11 @@ public class ThirdPartyDBConfiguration {
     private String approvalPoolName;
     @Value("${3rd-party.datasource.approval.max-pool-size}")
     private int approvalMaxPoolSize;
+
+    @Bean(name = "destinationDataSourceMap")
+    public Map<String, DataSource> destinationDataSourceMap() {
+        return new HashMap<>();
+    }
 
     @Bean(name = "transactionTemplate")
     public TransactionTemplate transactionTemplate() {
