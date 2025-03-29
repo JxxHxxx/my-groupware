@@ -2,8 +2,8 @@ package com.jxx.groupware.api.messaging.application;
 
 import com.jxx.groupware.api.messaging.dto.request.MessageQDestinationRequest;
 import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
+import com.jxx.groupware.core.common.pagination.PageService;
 import com.jxx.groupware.core.messaging.domain.MessageClientException;
-import com.jxx.groupware.core.messaging.domain.MessageResponseCode;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInformationValidator;
@@ -12,10 +12,12 @@ import com.jxx.groupware.core.messaging.domain.destination.dto.ConnectionInforma
 import com.jxx.groupware.core.messaging.infra.MessageQDestinationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static com.jxx.groupware.core.messaging.domain.MessageResponseCode.*;
@@ -70,8 +72,21 @@ public class MessageDestinationService {
     public void changeDestinationUsed(String destinationId) {
     }
 
-    public void search() {
+    public PageImpl<MessageQDestinationResponse> search(int page, int size) {
+        List<MessageQDestinationResponse> responses = messageQDestinationRepository.findAll().stream()
+                .map(mqd -> new MessageQDestinationResponse(
+                        mqd.getConnectionType().name(),
+                        mqd.getConnectionInformation(),
+                        mqd.getDestinationId(),
+                        mqd.getDestinationName(),
+                        mqd.getUsed(),
+                        mqd.getOffDateTime(),
+                        mqd.getCreateDateTime()))
+                .toList();
 
+
+        PageService pageService = new PageService(page, size);
+        return pageService.convertToPage(responses);
     }
 
     public void deleteDestination() {
