@@ -1,6 +1,8 @@
 package com.jxx.groupware.api.messaging.application;
 
+import com.jxx.groupware.api.messaging.dto.request.DataSourceConnectionRequest;
 import com.jxx.groupware.api.messaging.dto.request.MessageQDestinationRequest;
+import com.jxx.groupware.api.messaging.dto.response.DataSourceConnectionResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
 import com.jxx.groupware.core.common.pagination.PageService;
 import com.jxx.groupware.core.messaging.domain.MessageClientException;
@@ -10,12 +12,17 @@ import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInfo
 import com.jxx.groupware.core.messaging.domain.destination.MessageQDestination;
 import com.jxx.groupware.core.messaging.domain.destination.dto.ConnectionInformationRequiredResponse;
 import com.jxx.groupware.core.messaging.infra.MessageQDestinationRepository;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +70,33 @@ public class MessageDestinationService {
                 savedMessageQDestination.getUsed(),
                 savedMessageQDestination.getOffDateTime(),
                 savedMessageQDestination.getCreateDateTime());
+    }
+
+    public DataSourceConnectionResponse isConnectionActivation(DataSourceConnectionRequest request) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(request.getDriverClassName());
+        dataSource.setJdbcUrl(request.getJdbcUrl());
+        dataSource.setUsername(request.getUserName());
+        dataSource.setPassword(request.getPassword());
+
+        // DB 연결 여부
+        boolean isActive;
+        try {
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT 1");
+
+            isActive = rs.next();
+            connection.close();
+        } catch (SQLException e) {
+            log.error("connection fail", e);
+            isActive = false;
+        } finally {
+            dataSource.close();
+        }
+        LocalDateTime responseTime = LocalDateTime.now();
+        return isActive ? new DataSourceConnectionResponse(isActive, "정상 연결 확인되었습니다", responseTime) :
+                new DataSourceConnectionResponse(isActive,"연결 실패하였습니다. 서비스 상태 및 연결 정보를 확인해주세요." , responseTime);
     }
 
     public void selectByDestinationId() {
