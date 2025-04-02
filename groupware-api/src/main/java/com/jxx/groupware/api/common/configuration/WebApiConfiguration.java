@@ -1,13 +1,19 @@
 package com.jxx.groupware.api.common.configuration;
 
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.jxx.groupware.api.common.interceptor.ApiAccessLogInterceptor;
 import com.jxx.groupware.api.common.web.AdminApiAuthenticationInterceptor;
 import com.jxx.groupware.api.member.application.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.time.format.DateTimeFormatter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -33,5 +39,19 @@ public class WebApiConfiguration implements WebMvcConfigurer {
 
         registry.addInterceptor(new ApiAccessLogInterceptor())
                 .order(2);
+    }
+
+
+    // LocalDate, LocalDateTime serialize format Global Setting
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+        return builder -> {
+            builder.simpleDateFormat(DATE_TIME_FORMAT);
+            builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE_FORMAT)));
+            builder.serializers(new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+        };
     }
 }
