@@ -8,10 +8,9 @@ import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,8 +42,10 @@ public class WorkApiController {
      * @param workTickSearchCond : 검색 조건
      */
     @GetMapping("/api/work-tickets/search")
-    public ResponseEntity<?> searchWorkTicket(@ModelAttribute WorkTickSearchCond workTickSearchCond) {
-        List<WorkTicketSearchResponse> response = workService.searchWorkTicket(workTickSearchCond);
+    public ResponseEntity<?> searchWorkTicket(@ModelAttribute WorkTickSearchCond workTickSearchCond,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "30") int size) {
+        PageImpl<WorkTicketSearchResponse> response = workService.searchWorkTicket(workTickSearchCond, page, size);
         return ResponseEntity.ok(new ResponseResult<>(200, "작업 티켓 조회 성공", response));
     }
 

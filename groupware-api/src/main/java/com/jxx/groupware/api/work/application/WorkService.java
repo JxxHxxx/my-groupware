@@ -8,6 +8,7 @@ import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.listener.CreateConfirmThroughRestApiEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
+import com.jxx.groupware.core.common.pagination.PageService;
 import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.domain.entity.Organization;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -148,8 +150,10 @@ public class WorkService {
     /**
      * 작업 티켓 검색
      **/
-    public List<WorkTicketSearchResponse> searchWorkTicket(WorkTickSearchCond searchCond) {
-        return workTicketMapper.search(searchCond);
+    public PageImpl<WorkTicketSearchResponse> searchWorkTicket(WorkTickSearchCond searchCond, int page, int size) {
+        PageService pageService = new PageService(page, size);
+        List<WorkTicketSearchResponse> response = workTicketMapper.search(searchCond);
+        return pageService.convertToPage(response);
     }
 
     /**

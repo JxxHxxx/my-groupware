@@ -27,6 +27,9 @@
             <if test="memberId != null and memberId !=''">
                 AND JWTM.REQUESTER_ID = #{memberId}
             </if>
+            <if test="companyId != null and companyId != ''">
+                AND JWTM.REQUESTER_COMPANY_ID = #{companyId}
+            </if>
             <if test="chargeCompanyId != null and chargeCompanyId !=''">
                 AND JWTM.CHARGE_COMPANY_ID = #{chargeCompanyId}
             </if>
