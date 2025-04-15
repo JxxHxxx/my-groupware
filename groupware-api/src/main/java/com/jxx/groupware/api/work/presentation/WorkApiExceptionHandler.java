@@ -18,6 +18,6 @@ public class WorkApiExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(new ResponseResult<>(400, exception.getMessage(), exception.getClientId()));
+                .body(new ResponseResult<>(400, exception.getMessage(), exception.getErrCode()));
     }
 }
