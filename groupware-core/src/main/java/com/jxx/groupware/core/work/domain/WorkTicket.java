@@ -65,9 +65,9 @@ public class WorkTicket {
     private List<WorkTicketAttachment> workTicketAttachment = new ArrayList<>();
 
     @Builder
-    public WorkTicket(String requestTitle, String requestContent, WorkRequester workRequester, String chargeCompanyId,
+    public WorkTicket(String requestUUID, String requestTitle, String requestContent, WorkRequester workRequester, String chargeCompanyId,
                       String chargeDepartmentId, LocalDateTime createdTime, WorkStatus workStatus, LocalDateTime modifiedTime) {
-        this.workTicketId = UUID.randomUUID().toString();
+        this.workTicketId = requestUUID;
         this.requestTitle = requestTitle;
         this.requestContent = requestContent;
         this.workRequester = workRequester;
@@ -77,6 +77,7 @@ public class WorkTicket {
         this.workStatus = workStatus;
         this.modifiedTime = modifiedTime;
     }
+
 
     /**
      * 연관관계 매핑

@@ -42,6 +42,12 @@
                     #{workStatus}
                 </foreach>
             </if>
+            <if test="notWorkStatus != null and notWorkStatus != '' and !@org.springframework.util.CollectionUtils@isEmpty(notWorkStatus)">
+                AND JWTM.WORK_STATUS NOT IN
+                <foreach item="notWorkStatus" collection="notWorkStatus" open="(" separator="," close=")">
+                    #{notWorkStatus}
+                </foreach>
+            </if>
 
         </where>
         ORDER BY JWTM.CREATED_TIME DESC

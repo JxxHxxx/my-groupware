@@ -7,6 +7,7 @@ public record WorkTicketCreateRequest(
         String chargeDepartmentId,
         String requestTitle,
         String requestContent,
+        String requestUUID,
         WorkRequester workRequester
 ) {
 }

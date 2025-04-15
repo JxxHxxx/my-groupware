@@ -15,7 +15,8 @@ public record WorkTickSearchCond(
         String requestTitle,
         String chargeCompanyId,
         String chargeDepartmentId,
-        List<WorkStatus> workStatus
+        List<WorkStatus> workStatus,
+        List<WorkStatus> notWorkStatus
 
 ) {
 }

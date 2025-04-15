@@ -13,6 +13,7 @@ import com.jxx.groupware.core.vacation.domain.entity.MemberLeave;
 import com.jxx.groupware.core.vacation.domain.entity.Organization;
 import com.jxx.groupware.core.vacation.infra.MemberLeaveRepository;
 import com.jxx.groupware.core.vacation.infra.OrganizationRepository;
+import com.jxx.groupware.core.work.WorkResponseCode;
 import com.jxx.groupware.core.work.domain.*;
 import com.jxx.groupware.core.work.domain.exception.WorkClientException;
 import com.jxx.groupware.core.work.dto.TicketReceiver;
@@ -27,10 +28,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
+import static com.jxx.groupware.core.work.WorkResponseCode.WORK_F_002;
+import static com.jxx.groupware.core.work.WorkResponseCode.WORK_F_003;
 import static com.jxx.groupware.core.work.domain.WorkStatus.*;
 
 @Slf4j
@@ -66,23 +71,49 @@ public class WorkService {
         /** 타 도메인 Event 처리
          * **/
         eventPublisher.publishEvent(new WorkTicketCreateEvent(request.chargeCompanyId(), request.chargeDepartmentId()));
+        // UUID를 통해 동시 요청을 백엔드에서 차단하기 위한 파라미터
+        String requestUUID = request.requestUUID();
 
-        WorkTicket workTicket = WorkTicket.builder()
-                .workStatus(WorkStatus.CREATE)
+        WorkTicket workTicket;
+        WorkTicket.WorkTicketBuilder workTicketBuilder = WorkTicket.builder()
+                .requestUUID(requestUUID)
+                .workStatus(CREATE)
                 .createdTime(LocalDateTime.now())
                 .chargeCompanyId(request.chargeCompanyId())
                 .chargeDepartmentId(request.chargeDepartmentId())
                 .modifiedTime(LocalDateTime.now())
                 .requestTitle(request.requestTitle())
                 .requestContent(request.requestContent())
-                .workRequester(request.workRequester())
-                .build();
+                .workRequester(request.workRequester());
+
+        if (StringUtils.hasText(requestUUID)) {
+            try {
+                // UUID 인지 검증
+                UUID.fromString(requestUUID);
+                workTicket = workTicketBuilder.requestUUID(requestUUID)
+                        .build();
+
+                // 이미 해당 workTicketId 가 존재할 경우 -> 즉 중복 요청일 경우
+                if (workTicketRepository.findByWorkTicketId(requestUUID).isPresent()) {
+                    throw new WorkClientException(WORK_F_002);
+                };
+
+            } catch (IllegalArgumentException e) {
+                log.error("it is incorrect UUID format requestUUID:{}", requestUUID);
+                throw new WorkClientException(WORK_F_003);
+            }
+        } else {
+            workTicket = workTicketBuilder.build();
+        }
 
         WorkTicket savedWorkTicket = workTicketRepository.save(workTicket);
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
         return createWorkTicketServiceResponse(savedWorkTicket);
     }
-    /** 작업 티켓 PK 조회**/
+
+    /**
+     * 작업 티켓 PK 조회
+     **/
     public WorkServiceResponse getWorkTicketByPk(Long workTicketPk) {
         WorkTicket workTicket = workTicketRepository.findById(workTicketPk)
                 .orElseThrow(() -> new WorkClientException(workTicketPk + "에 해당하는 WorkTicket은 존재 않습니다."));
@@ -91,17 +122,17 @@ public class WorkService {
         if (Objects.equals(workTicket.getWorkStatus(), WorkStatus.CREATE)) {
             WorkTicketServiceResponse workTicketServiceResponse = createWorkTicketServiceResponse(workTicket);
             return new WorkServiceResponse(workTicketServiceResponse, null);
-        }
-        else  {
+        } else {
             WorkDetail workDetail = workTicket.getWorkDetail();
             return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workDetail));
         }
     }
 
-    /** 작업 티켓 삭제
+    /**
+     * 작업 티켓 삭제
      * workStatus -> DELETE
      * 삭제 가능한 티켓의 workStatus : CREATE
-     * **/
+     **/
     @Transactional
     public WorkTicketServiceResponse deleteWorkTicket(String workTicketId, WorkTicketDeleteRequest request) {
         WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
@@ -113,14 +144,16 @@ public class WorkService {
         if (workTicket.isNotWorkStatus(CREATE)) {
             log.error("");
             throw new WorkClientException("이미 접수 단계에 진입한 작업 티켓은 삭제할 수 없습니다.");
-        };
+        }
+        ;
 
         // 삭제 가능한 사람인지 검증
         if (workTicket.isNotRequester(request.workRequester())) {
             log.error("티켓 요청자가 아닌 사용자가 작업 티켓을 삭제하려고 합니다. \n" +
                     "ticket requester:{}, delete requester:{}", workTicket.getWorkRequester().getId(), request.workRequester().getId());
             throw new WorkClientException("작업 티켓은 요청자만 삭제할 수 있습니다.");
-        };
+        }
+        ;
 
         // WRITE QUERY : JPA dirty checking
         workTicket.changeWorkStatusTo(DELETE);
@@ -129,8 +162,10 @@ public class WorkService {
         return createWorkTicketServiceResponse(workTicket);
     }
 
-    /** 접수자의 작업 반려
-     * workStatus -> REJECT_FROM_CHARGE **/
+    /**
+     * 접수자의 작업 반려
+     * workStatus -> REJECT_FROM_CHARGE
+     **/
     @Transactional
     public WorkServiceResponse rejectWorkTicketFromReceiver(String workTicketId, WorkTicketRejectRequest request) {
         WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
@@ -260,8 +295,10 @@ public class WorkService {
         return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
-    /** 계획 수립 단계 시작
-     * workStatus -> MAKE_PLAN_BEGIN **/
+    /**
+     * 계획 수립 단계 시작
+     * workStatus -> MAKE_PLAN_BEGIN
+     **/
     @Transactional
     public WorkServiceResponse beginWorkDetailPlan(final String workTicketId, WorkTicketPlanRequest request) {
         WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
@@ -292,7 +329,9 @@ public class WorkService {
         return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
-    /** 계획 수립 단계 종료 **/
+    /**
+     * 계획 수립 단계 종료
+     **/
     @Transactional
     public WorkServiceResponse completeWorkDetailPlan(final String workTicketId, WorkTicketPlanRequest request) {
         WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
@@ -303,8 +342,8 @@ public class WorkService {
 
         /** 요청자 검증 **/
         if (!workTicket.isNotReceiverRequest(request.receiverId(), request.receiverCompanyId(), request.receiverDepartmentId())) {
-            log.info("TicketId:{} 접수자가 아닌 사용자가 계획 단계를 완료하려 합니다.", workTicketId);
-            throw new WorkClientException(request.receiverId(), "잘못된 접근입니다.");
+            log.info("TicketId:{} 접수자가 아닌 사용자{}가 계획 단계를 완료하려 합니다.", workTicketId, request.receiverId());
+            throw new WorkClientException(WorkResponseCode.WORK_F_001);
         }
 
         if (workTicket.isNotWorkStatus(MAKE_PLAN_BEGIN)) {
@@ -324,8 +363,10 @@ public class WorkService {
         return new WorkServiceResponse(workTicketServiceResponse, workDetailServiceResponse);
     }
 
-    /** 결재 요청
-     * workStatus -> REQUEST_CONFIRM **/
+    /**
+     * 결재 요청
+     * workStatus -> REQUEST_CONFIRM
+     **/
     @Transactional
     public void requestConfirmForWorkTicket(final String workTicketId, WorkTicketPlanRequest request) {
         WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
@@ -402,10 +443,12 @@ public class WorkService {
         workTicketHistRepository.save(new WorkTicketHistory(workTicket));
     }
 
-    /** 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
+    /**
+     * 작업 단계 시작  workStatus 가 ACCEPT 일때만 진입 가능
      * workStatus
      * AS-IS - ACCEPT OR REQUEST_CONFIRM + PRE_REFLECT = true
-     * TO-BE - WORKING **/
+     * TO-BE - WORKING
+     **/
     @Transactional
     public WorkServiceResponse beginWork(final String workTicketId, WorkTicketBeginWorkRequest request) {
         WorkTicket workTicket = workTicketRepository.fetchWithWorkDetail(workTicketId)
@@ -420,7 +463,8 @@ public class WorkService {
         if (workTicket.isNotReceiverRequest(ticketReceiver)) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 작업을 시작하려고 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
-        };
+        }
+        ;
 
         if (workTicket.isNotWorkStatus(WorkStatus.ACCEPT)) {
             log.error("TicketId:{} 결재 요청 승인이 아닌 상태에서 작업을 시작하려고 합니다.", workTicketId);
@@ -433,10 +477,12 @@ public class WorkService {
         return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
     }
 
-    /** 작업 단계 종료
+    /**
+     * 작업 단계 종료
      * workStatus
      * AS-IS - WORKING
-     * TO-BE - DONE **/
+     * TO-BE - DONE
+     **/
     @Transactional
     public WorkServiceResponse completeWork(final String workTicketId, WorkTicketCompleteRequest request) {
 
@@ -452,7 +498,8 @@ public class WorkService {
         if (workTicket.isNotReceiverRequest(ticketReceiver)) {
             log.error("TicketId:{} 접수자가 아닌 사용자가 작업을 완료하려고 합니다.", workTicketId);
             throw new WorkClientException("잘못된 접근입니다.");
-        };
+        }
+        ;
 
         if (workTicket.isNotWorkStatus(WorkStatus.WORKING)) {
             log.error("TicketId:{} 작업 시작 단계가 아닌 상태에서 작업을 완료하려고 합니다.", workTicketId);
@@ -466,10 +513,11 @@ public class WorkService {
         return new WorkServiceResponse(createWorkTicketServiceResponse(workTicket), createWorkDetailServiceResponse(workTicket.getWorkDetail()));
     }
 
-    /** 작업 선처리 -> REQUEST_CONFIRM(결재 요청) 단계에서만 가능
+    /**
+     * 작업 선처리 -> REQUEST_CONFIRM(결재 요청) 단계에서만 가능
      * 결재가 완료됐을 경우, 이미 결재가 완료됐다고 안내
      * 다른 단계일 경우, 잘못된 접근으로 처리
-     * **/
+     **/
     public WorkServiceResponse preReflect(String workTicketId, Object request) {
         return null;
     }
