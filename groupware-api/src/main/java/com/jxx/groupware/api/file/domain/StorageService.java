@@ -7,8 +7,16 @@ import java.nio.file.Path;
 
 public interface StorageService {
 
-    void init();
-    void store(MultipartFile file) throws IOException;
-    Path load(String filename);
+    /**
+     * @return 파일이 저장된 위치
+     **/
+    String store(MultipartFile file) throws IOException;
+
+    /**
+     *
+     */
+
+    Path load(String encodeUrl) throws IOException;
+
     void delete();
 }

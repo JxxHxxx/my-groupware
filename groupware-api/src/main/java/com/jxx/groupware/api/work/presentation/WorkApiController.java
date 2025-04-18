@@ -1,5 +1,6 @@
 package com.jxx.groupware.api.work.presentation;
 
+import com.jxx.groupware.api.file.domain.StorageService;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.api.work.application.WorkService;
 import com.jxx.groupware.api.work.dto.request.*;
@@ -7,16 +8,21 @@ import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
 import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
+import com.jxx.groupware.core.work.domain.WorkTicketAttachment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
 public class WorkApiController {
 
     private final WorkService workService;
+    private final StorageService storageService;
 
     /**
      * 작업 티켓 생성 API
@@ -25,6 +31,13 @@ public class WorkApiController {
     public ResponseEntity<?> createWorkTicket(@RequestBody WorkTicketCreateRequest WorkTicketCreateRequest) {
         WorkTicketServiceResponse response = workService.createWorkTicket(WorkTicketCreateRequest);
         return ResponseEntity.status(201).body(new ResponseResult<>(201, "작업 티켓 생성 완료", response));
+    }
+
+    @PostMapping("/api/work-ticket-attachments")
+    public ResponseEntity<?> createWorkTicket(@RequestParam("file") MultipartFile file, @RequestParam String workTicketId) throws IOException {
+        String encodeUrl = storageService.store(file);
+        workService.saveAttachment(workTicketId, encodeUrl);
+        return ResponseEntity.status(201).body(new ResponseResult<>(201, "작업 티켓 첨부 파일 저장 완료", null));
     }
 
     /**

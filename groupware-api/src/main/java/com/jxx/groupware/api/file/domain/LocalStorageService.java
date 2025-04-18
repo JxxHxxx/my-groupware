@@ -1,15 +1,15 @@
 package com.jxx.groupware.api.file.domain;
 
-import com.jxx.groupware.core.work.domain.WorkTicketAttachment;
-import com.jxx.groupware.core.work.infra.WorkTicketAttachmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,19 +20,14 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class LocalStorageService implements StorageService {
 
-    // TODO 추후 yml 설정 값으로 이동
-    private static final String STORE_ROOT_DIR = "D:\\file\\";
-
-    private final WorkTicketAttachmentRepository workTicketAttachmentRepository;
-
-    @Override
-    public void init() {
-
-    }
+    @Value("${file.store.root.work-ticket}")
+    private String STORE_ROOT_DIR;
+    @Value("${file.download.root}")
+    private String DOWNLOAD_ROOT_DIR;
 
     @Override
     @Transactional
-    public void store(MultipartFile file) throws IOException {
+    public String store(MultipartFile file) throws IOException {
         final String originalFilename = file.getOriginalFilename(); // 클라이언트로부터 업로드된 파일의 본래명
 
         final String extension = FilenameUtils.getExtension(originalFilename); // 확장자
@@ -51,17 +46,17 @@ public class LocalStorageService implements StorageService {
         file.transferTo(Path.of(absoluteStorePath));
 
         String url = Base64.getEncoder().encodeToString((absoluteStorePath).getBytes(StandardCharsets.UTF_8));
-        WorkTicketAttachment workTicketAttachment = WorkTicketAttachment.builder()
-                .attachmentUrl(url)
-                .workTicket(null)
-                .build();
 
-        workTicketAttachmentRepository.save(workTicketAttachment);
+        return url;
     }
 
     @Override
-    public Path load(String filename) {
-        return null;
+    public Path load(String encodeUrl) throws IOException {
+        String filename = new String(Base64.getDecoder().decode(encodeUrl));
+        String baseName = FilenameUtils.getBaseName(filename);
+        String extension = FilenameUtils.getExtension(filename);
+        final String savedFilename = baseName + "." + extension;
+       return Files.copy(Path.of(filename), Path.of(DOWNLOAD_ROOT_DIR + savedFilename));
     }
 
     @Override

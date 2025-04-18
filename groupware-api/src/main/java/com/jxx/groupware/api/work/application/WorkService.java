@@ -1,5 +1,6 @@
 package com.jxx.groupware.api.work.application;
 
+import com.jxx.groupware.api.file.domain.StorageService;
 import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
 import com.jxx.groupware.core.ConfirmCreateForm;
 import com.jxx.groupware.api.work.dto.request.*;
@@ -107,8 +108,19 @@ public class WorkService {
         }
 
         WorkTicket savedWorkTicket = workTicketRepository.save(workTicket);
-        workTicketHistRepository.save(new WorkTicketHistory(workTicket));
         return createWorkTicketServiceResponse(savedWorkTicket);
+    }
+
+    // 파일 저장 후, 실행 해야함
+    @Transactional
+    public void saveAttachment(String workTicketId, String encodeUrl) {
+        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId).get();
+        WorkTicketAttachment workTicketAttachment = WorkTicketAttachment.builder()
+                .attachmentUrl(encodeUrl)
+                .workTicket(workTicket)
+                .build();
+
+        workTicketAttachmentRepository.save(workTicketAttachment);
     }
 
     /**
