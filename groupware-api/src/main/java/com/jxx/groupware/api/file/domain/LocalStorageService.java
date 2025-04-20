@@ -20,14 +20,14 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class LocalStorageService implements StorageService {
 
-    @Value("${file.store.root.work-ticket}")
-    private String STORE_ROOT_DIR;
-    @Value("${file.download.root}")
-    private String DOWNLOAD_ROOT_DIR;
+    @Value("${file.store.root}")
+    private String FILE_STORE_ROOT;
+
+    private final FileResolver fileResolver;
 
     @Override
     @Transactional
-    public String store(MultipartFile file) throws IOException {
+    public UploadFile store(MultipartFile file) throws IOException {
         final String originalFilename = file.getOriginalFilename(); // 클라이언트로부터 업로드된 파일의 본래명
 
         final String extension = FilenameUtils.getExtension(originalFilename); // 확장자
@@ -35,28 +35,23 @@ public class LocalStorageService implements StorageService {
         String tmpFileName = originalFilename;
         // 파일 명이 존재할 때 까지 루프
         int fileNameUpdateRetryCount = 1;
-        while (Files.exists(Path.of(STORE_ROOT_DIR + tmpFileName))) {
-            log.info("{} is already exist, add suffix _copy, retryCount : {}", STORE_ROOT_DIR + tmpFileName, fileNameUpdateRetryCount);
+        while (Files.exists(Path.of(FILE_STORE_ROOT + tmpFileName))) {
+            log.info("{} is already exist, add suffix _copy, retryCount : {}", FILE_STORE_ROOT + tmpFileName, fileNameUpdateRetryCount);
             tmpFileName = FilenameUtils.getBaseName(tmpFileName) + "_copy." + extension;
             fileNameUpdateRetryCount++;
         }
 
-        final String absoluteStorePath = STORE_ROOT_DIR + tmpFileName;
+        final String absoluteStorePath = FILE_STORE_ROOT + tmpFileName;
         log.info("to be saved file path : {}", absoluteStorePath);
         file.transferTo(Path.of(absoluteStorePath));
 
         String url = Base64.getEncoder().encodeToString((absoluteStorePath).getBytes(StandardCharsets.UTF_8));
-
-        return url;
+        return new UploadFile(originalFilename,url);
     }
 
     @Override
-    public Path load(String encodeUrl) throws IOException {
-        String filename = new String(Base64.getDecoder().decode(encodeUrl));
-        String baseName = FilenameUtils.getBaseName(filename);
-        String extension = FilenameUtils.getExtension(filename);
-        final String savedFilename = baseName + "." + extension;
-       return Files.copy(Path.of(filename), Path.of(DOWNLOAD_ROOT_DIR + savedFilename));
+    public Path load(String encodeUrl)  {
+        return fileResolver.download(encodeUrl);
     }
 
     @Override

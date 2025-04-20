@@ -5,9 +5,31 @@ PATCH http://localhost:8080/message-q-results/2/retry
 ### 처리 실패한 메시지 이력
 GET http://localhost:8080/message-q-results/fail?page=0&size=10&std=2024-06-14&edd=2024-06-14
 
+### 로그인
+POST localhost:8080/api/auth/login
+Content-Type: application/json
 
+{
+  "memberId": "manager",
+  "password": "manager"
+}
 
+### 메시지 목적지 등록
+POST http://localhost:8080/admin/message-destination
+Content-Type: application/json
 
+{
+  "destinationId" : "GW_CONFIRM_DB",
+  "destinationName" : "그룹웨어 결재 서버 DB",
+  "connectionInformation": {
+    "url" :  "jdbc:log4jdbc:mysql://localhost:3306/JXX_APPROVAL?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8",
+    "username": "root",
+    "password" : "0000abA@",
+    "driverClassName" : "net.sf.log4jdbc.sql.jdbcapi.DriverSpy"
+  },
+  "connectionType": "RDB"
+}
 
-
+### 메시지 목적지 조회
+GET http://localhost:8080/admin/message-destination
 

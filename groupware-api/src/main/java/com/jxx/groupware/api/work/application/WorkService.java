@@ -1,12 +1,10 @@
 package com.jxx.groupware.api.work.application;
 
 import com.jxx.groupware.api.file.domain.StorageService;
-import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
+import com.jxx.groupware.api.file.domain.UploadFile;
+import com.jxx.groupware.api.work.dto.response.*;
 import com.jxx.groupware.core.ConfirmCreateForm;
 import com.jxx.groupware.api.work.dto.request.*;
-import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
-import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
-import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
 import com.jxx.groupware.api.work.listener.CreateConfirmThroughRestApiEvent;
 import com.jxx.groupware.api.work.query.WorkTicketMapper;
 import com.jxx.groupware.core.common.pagination.PageService;
@@ -35,8 +33,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.jxx.groupware.core.work.WorkResponseCode.WORK_F_002;
-import static com.jxx.groupware.core.work.WorkResponseCode.WORK_F_003;
+import static com.jxx.groupware.core.work.WorkResponseCode.*;
 import static com.jxx.groupware.core.work.domain.WorkStatus.*;
 
 @Slf4j
@@ -113,14 +110,22 @@ public class WorkService {
 
     // 파일 저장 후, 실행 해야함
     @Transactional
-    public void saveAttachment(String workTicketId, String encodeUrl) {
-        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId).get();
+    public void saveAttachment(String workTicketId, UploadFile uploadFile) {
+        WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
+                .orElseThrow(() -> new WorkClientException(WORK_F_004));
+
         WorkTicketAttachment workTicketAttachment = WorkTicketAttachment.builder()
-                .attachmentUrl(encodeUrl)
+                .attachmentUrl(uploadFile.getStoreFilename())
+                .uploadFilename(uploadFile.getUploadFilename())
                 .workTicket(workTicket)
                 .build();
 
         workTicketAttachmentRepository.save(workTicketAttachment);
+    }
+
+    public WorkTicketAttachmentResponse getWorkTicketAttachment(Long attachmentId) {
+        WorkTicketAttachment attachment = workTicketAttachmentRepository.findById(attachmentId).get();
+        return new WorkTicketAttachmentResponse(attachment.getUploadFilename(), attachment.getAttachmentUrl());
     }
 
     /**

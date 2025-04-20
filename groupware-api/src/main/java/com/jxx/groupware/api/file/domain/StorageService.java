@@ -10,7 +10,7 @@ public interface StorageService {
     /**
      * @return 파일이 저장된 위치
      **/
-    String store(MultipartFile file) throws IOException;
+    UploadFile store(MultipartFile file) throws IOException;
 
     /**
      *

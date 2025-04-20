@@ -1,7 +1,7 @@
 package com.jxx.groupware.api.file.presentation;
 
 import com.jxx.groupware.api.file.domain.StorageService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +14,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 @RestController
-@RequiredArgsConstructor
 public class FileApiController {
 
     private final StorageService storageService;
+
+    public FileApiController(@Qualifier("UUIDStorageService") StorageService storageService) {
+        this.storageService = storageService;
+    }
 
     @PostMapping("/api/upload")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) throws IOException {
@@ -29,7 +32,8 @@ public class FileApiController {
     public ResponseEntity<?> download(@RequestParam("path") String encodeUrl) throws IOException {
         Path load = storageService.load(encodeUrl);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + load.getFileName() + "\"").body(load.toFile());
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + load.getFileName() + "\"").body(load.toFile());
     }
 
 }

@@ -1,28 +1,35 @@
 package com.jxx.groupware.api.work.presentation;
 
 import com.jxx.groupware.api.file.domain.StorageService;
+import com.jxx.groupware.api.file.domain.UploadFile;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.api.work.application.WorkService;
 import com.jxx.groupware.api.work.dto.request.*;
-import com.jxx.groupware.api.work.dto.response.WorkDetailServiceResponse;
-import com.jxx.groupware.api.work.dto.response.WorkServiceResponse;
-import com.jxx.groupware.api.work.dto.response.WorkTicketSearchResponse;
-import com.jxx.groupware.api.work.dto.response.WorkTicketServiceResponse;
+import com.jxx.groupware.api.work.dto.response.*;
 import com.jxx.groupware.core.work.domain.WorkTicketAttachment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 @RestController
-@RequiredArgsConstructor
 public class WorkApiController {
 
     private final WorkService workService;
     private final StorageService storageService;
+
+    public WorkApiController(WorkService workService, @Qualifier("UUIDStorageService") StorageService storageService) {
+        this.workService = workService;
+        this.storageService = storageService;
+    }
 
     /**
      * 작업 티켓 생성 API
@@ -34,10 +41,20 @@ public class WorkApiController {
     }
 
     @PostMapping("/api/work-ticket-attachments")
-    public ResponseEntity<?> createWorkTicket(@RequestParam("file") MultipartFile file, @RequestParam String workTicketId) throws IOException {
-        String encodeUrl = storageService.store(file);
-        workService.saveAttachment(workTicketId, encodeUrl);
+    public ResponseEntity<?> uploadWorkTicketAttachment(@RequestParam("file") MultipartFile file, @RequestParam String workTicketId) throws IOException {
+        UploadFile uploadFile = storageService.store(file);
+        workService.saveAttachment(workTicketId, uploadFile);
         return ResponseEntity.status(201).body(new ResponseResult<>(201, "작업 티켓 첨부 파일 저장 완료", null));
+    }
+
+    @GetMapping("/api/work-ticket-attachments/download")
+    public ResponseEntity<?> downLoadWorkTicketAttachment(@RequestParam("attachmentId") Long attachmentId) throws IOException {
+        WorkTicketAttachmentResponse response = workService.getWorkTicketAttachment(attachmentId);
+        Path load = storageService.load(response.getStoreFilename());
+        String encodeUploadFilename = UriUtils.encode(response.getUploadFilename(), StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + encodeUploadFilename + "\"").body(load.toFile());
     }
 
     /**
