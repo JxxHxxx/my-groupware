@@ -56,21 +56,16 @@ public class DestinationDataSourceInitializer {
         Map<String, DataSource> destinationDataSourceMap = (HashMap<String, DataSource>) context.getBean("destinationDataSourceMap");
 
         StringBuilder sb = new StringBuilder("\n=========================================");
+
         for (String destinationId : destinationDataSourceMap.keySet()) {
             DataSource dataSource = destinationDataSourceMap.get(destinationId);
-            try {
-                Connection conn = dataSource.getConnection();
-                Statement statement = conn.createStatement();
-                ResultSet rs = statement.executeQuery("SELECT 1");
-                boolean valid = rs.next();
-                if (valid) {
-                    log.info("{} db connect test success", destinationId);
-                    sb.append("\n destionation id :" + destinationId + " connected!!");
-                } else {
-                    log.error("{} db connect test fail", destinationId);
-                }
+
+            // DB 연결 확인 및 리소스 해제
+            try (Connection conn = dataSource.getConnection()) {
+                sb.append("\ndestionation id :" + destinationId + " connected!!");
             } catch (SQLException e) {
-                log.error("error occur");
+                log.error("destinationId : fail {}", destinationId, e);
+                sb.append("\ndestionation id :" + destinationId + " fail!!");
             }
         }
         sb.append("\n=========================================");

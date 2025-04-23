@@ -88,7 +88,8 @@ public class WorkService {
             try {
                 // UUID 인지 검증
                 UUID.fromString(requestUUID);
-                workTicket = workTicketBuilder.requestUUID(requestUUID)
+                workTicket = workTicketBuilder
+                        .requestUUID(requestUUID)
                         .build();
 
                 // 이미 해당 workTicketId 가 존재할 경우 -> 즉 중복 요청일 경우
@@ -101,7 +102,9 @@ public class WorkService {
                 throw new WorkClientException(WORK_F_003);
             }
         } else {
-            workTicket = workTicketBuilder.build();
+            workTicket = workTicketBuilder
+                    .requestUUID(UUID.randomUUID().toString())
+                    .build();
         }
 
         WorkTicket savedWorkTicket = workTicketRepository.save(workTicket);
@@ -112,7 +115,10 @@ public class WorkService {
     @Transactional
     public void saveAttachment(String workTicketId, UploadFile uploadFile) {
         WorkTicket workTicket = workTicketRepository.findByWorkTicketId(workTicketId)
-                .orElseThrow(() -> new WorkClientException(WORK_F_004));
+                .orElseThrow(() -> {
+                    log.error("workTicketId : {} is not present", workTicketId);
+                    return new WorkClientException(WORK_F_004);
+                });
 
         WorkTicketAttachment workTicketAttachment = WorkTicketAttachment.builder()
                 .attachmentUrl(uploadFile.getStoreFilename())

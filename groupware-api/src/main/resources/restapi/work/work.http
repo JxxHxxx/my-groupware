@@ -1,3 +1,15 @@
+### 티켓 삭제
+DELETE http://localhost:8080/api/work-tickets/9a959968-b411-48e1-8ce0-b165c5267c38
+Content-Type: application/json
+
+{
+  "workRequester": {
+    "companyId" : "SPY",
+    "id" : "SPY00071",
+    "name" : "김지현"
+  }
+}
+
 
 ### 작업 티켓 생성 API 1
 POST http://localhost:8080/api/work-tickets

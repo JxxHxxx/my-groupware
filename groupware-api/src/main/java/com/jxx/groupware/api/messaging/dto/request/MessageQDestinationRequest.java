@@ -1,6 +1,5 @@
 package com.jxx.groupware.api.messaging.dto.request;
 
-import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;

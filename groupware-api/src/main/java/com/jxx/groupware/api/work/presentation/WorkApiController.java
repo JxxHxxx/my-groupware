@@ -6,8 +6,6 @@ import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
 import com.jxx.groupware.api.work.application.WorkService;
 import com.jxx.groupware.api.work.dto.request.*;
 import com.jxx.groupware.api.work.dto.response.*;
-import com.jxx.groupware.core.work.domain.WorkTicketAttachment;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +17,7 @@ import org.springframework.web.util.UriUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 
 @RestController
 public class WorkApiController {

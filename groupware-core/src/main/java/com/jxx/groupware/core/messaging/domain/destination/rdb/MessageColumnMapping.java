@@ -1,0 +1,47 @@
+package com.jxx.groupware.core.messaging.domain.destination.rdb;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "JXX_MESSAGE_COLUMN_MAPPING")
+public class MessageColumnMapping {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MESSAGE_COLUMN_MAPPING_PK")
+    private Long messageColumnMappingPk;
+    @JoinColumn(name = "DESTINATION_ID", referencedColumnName = "DESTINATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(fetch = FetchType.LAZY)
+    private MessageTableMapping messageTableMapping;
+
+    @Column(name = "COLUMN_TYPE")
+    private String columnType;
+    @Column(name = "COLUMN_NAME")
+    private String columnName;
+    // I , U , SD , HD
+    @Column(name = "MESSAGE_PROCESS_TYPE")
+    private String messageProcessType;
+
+    @Column(name = "USED", columnDefinition = "TINYINT(1)")
+    private boolean used;
+    @Column(name = "LAST_MODIFIED_TIME")
+    private LocalDateTime lastModifiedTime;
+
+    @Builder
+    public MessageColumnMapping(MessageTableMapping messageTableMapping, String columnType, String columnName,
+                                String messageProcessType, boolean used, LocalDateTime lastModifiedTime) {
+        this.messageTableMapping = messageTableMapping;
+        this.columnType = columnType;
+        this.columnName = columnName;
+        this.messageProcessType = messageProcessType;
+        this.used = used;
+        this.lastModifiedTime = lastModifiedTime;
+    }
+}
