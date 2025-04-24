@@ -14,7 +14,7 @@ public class MessageExceptionHandler {
 
     @ExceptionHandler(MessageAdminException.class)
     public ResponseEntity<?> handleMessageClientException(MessageAdminException exception) {
-        log.info("exception {}", exception.toString());
+        log.info("exception {}", exception.getErrorMessage(), exception);
         return ResponseEntity.badRequest().body(new ExceptionResponseResult<ExceptionCommonResponse>(400, exception.toExceptionCommonResponse()));
     }
 }

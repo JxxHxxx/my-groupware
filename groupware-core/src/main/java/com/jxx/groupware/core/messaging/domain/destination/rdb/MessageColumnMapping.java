@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MESSAGE_COLUMN_MAPPING")
+@Table(name = "JXX_MESSAGE_COLUMN_MAPPING", indexes = @Index(name = "SID_CNM_MPT_IDX", columnList = "SERVICE_ID, COLUMN_NAME, MESSAGE_PROCESS_TYPE", unique = true))
 public class MessageColumnMapping {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MESSAGE_COLUMN_MAPPING_PK")
     private Long messageColumnMappingPk;
-    @JoinColumn(name = "DESTINATION_ID", referencedColumnName = "DESTINATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "SERVICE_ID", referencedColumnName = "SERVICE_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     @ManyToOne(fetch = FetchType.LAZY)
     private MessageTableMapping messageTableMapping;
 
@@ -43,5 +43,9 @@ public class MessageColumnMapping {
         this.messageProcessType = messageProcessType;
         this.used = used;
         this.lastModifiedTime = lastModifiedTime;
+    }
+
+    public String receiveDestinationId() {
+        return this.messageTableMapping.getDestinationId();
     }
 }

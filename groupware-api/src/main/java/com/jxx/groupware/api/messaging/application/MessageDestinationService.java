@@ -5,18 +5,26 @@ import com.jxx.groupware.api.messaging.dto.request.DataSourceConnectionRequest;
 import com.jxx.groupware.api.messaging.dto.request.MessageQDestinationRequest;
 import com.jxx.groupware.api.messaging.dto.request.MessageTableMappingCreateRequest;
 import com.jxx.groupware.api.messaging.dto.response.DataSourceConnectionResponse;
+import com.jxx.groupware.api.messaging.dto.response.MessageColumnMappingResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageTableMappingResponse;
 import com.jxx.groupware.core.common.pagination.PageService;
+import com.jxx.groupware.core.messaging.MessageBodyBuilder;
 import com.jxx.groupware.core.messaging.domain.MessageClientException;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.MessageQDestination;
 import com.jxx.groupware.core.messaging.domain.destination.dto.ConnectionInformationRequiredResponse;
+import com.jxx.groupware.core.messaging.domain.destination.rdb.MessageColumnMapping;
 import com.jxx.groupware.core.messaging.domain.destination.rdb.MessageTableMapping;
+import com.jxx.groupware.core.messaging.domain.queue.MessageDestination;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
+import com.jxx.groupware.core.messaging.domain.queue.MessageProcessType;
+import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.core.messaging.infra.MessageColumnMappingRepository;
 import com.jxx.groupware.core.messaging.infra.MessageQDestinationRepository;
+import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.messaging.infra.MessageTableMappingRepository;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +38,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.jxx.groupware.api.common.exception.ErrorCode.*;
 import static com.jxx.groupware.core.messaging.domain.MessageResponseCode.*;
@@ -105,7 +115,7 @@ public class MessageDestinationService {
         }
         LocalDateTime responseTime = LocalDateTime.now();
         return isActive ? new DataSourceConnectionResponse(isActive, "정상 연결 확인되었습니다", responseTime) :
-                new DataSourceConnectionResponse(isActive,"연결 실패하였습니다. 서비스 상태 및 연결 정보를 확인해주세요." , responseTime);
+                new DataSourceConnectionResponse(isActive, "연결 실패하였습니다. 서비스 상태 및 연결 정보를 확인해주세요.", responseTime);
     }
 
     public void selectByDestinationId() {
@@ -167,7 +177,90 @@ public class MessageDestinationService {
                 savedTableMapping.getLastModifiedTime());
     }
 
-    public void createMessageColumnMapping(MessageColumnMappingCreateRequest request) {
+    @Transactional
+    public MessageColumnMappingResponse createMessageColumnMapping(String destinationId, String serviceId,
+                                                                   MessageColumnMappingCreateRequest request) {
 
+        MessageTableMapping tableMapping = tableMappingRepository.findByServiceId(serviceId)
+                .orElseThrow(() -> {
+                    log.info(ADM_MSG_F_003.getErrorMessage());
+                    return new MessageAdminException(ADM_MSG_F_003);
+                });
+
+        if (!Objects.equals(destinationId, tableMapping.getDestinationId())) {
+            log.info(ADM_MSG_F_004.getErrorMessage());
+            throw new MessageAdminException(ADM_MSG_F_004);
+        }
+
+        String columnName = request.getColumnName();
+        String messageProcessType = request.getMessageProcessType();
+
+        if (columnMappingRepository.findByServiceIdAndColumnNameAndMessageProcessType(serviceId, columnName, messageProcessType).isPresent()) {
+            log.info(ADM_MSG_F_005.getErrorMessage());
+            throw new MessageAdminException(ADM_MSG_F_005);
+        }
+
+        MessageColumnMapping columnMapping = MessageColumnMapping.builder()
+                .messageTableMapping(tableMapping)
+                .columnName(columnName)
+                .columnType(request.getColumnType())
+                .messageProcessType(messageProcessType)
+                .lastModifiedTime(LocalDateTime.now())
+                .used(true)
+                .build();
+
+        MessageColumnMapping savedMessageColumnMapping = columnMappingRepository.save(columnMapping);
+
+        return new MessageColumnMappingResponse(
+                savedMessageColumnMapping.getMessageColumnMappingPk(),
+                savedMessageColumnMapping.receiveDestinationId(),
+                savedMessageColumnMapping.getColumnName(),
+                savedMessageColumnMapping.getColumnType(),
+                savedMessageColumnMapping.getLastModifiedTime(),
+                savedMessageColumnMapping.getMessageProcessType(),
+                savedMessageColumnMapping.isUsed());
+    }
+
+    private final MessageQRepository messageQRepository;
+
+    @Transactional
+    public void test() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("SERVICEID", "CREATE_NOTIFICATION");
+        Map<String, Object> values = new HashMap<>();
+        values.put("MEMBER_ID", "jxxHxxx");
+        values.put("CONTENT", "테스트");
+
+        body.put("contentMap", values);
+
+        MessageQ messageQ = MessageQ.builder()
+                .messageDestination(MessageDestination.GW_NOTIFICATION_DB)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.RDB)
+                .body(body)
+                .build();
+
+        messageQRepository.save(messageQ);
+    }
+
+    @Transactional
+    public void testV2() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("SERVICEID", "CREATE_NOTIFICATION");
+        Map<String, Object> values = new HashMap<>();
+        values.put("2", "jxxHxxx");
+        values.put("4", "테스트");
+        values.put("7", "1테스트");
+
+        body.put("contentMap", values);
+
+        MessageQ messageQ = MessageQ.builder()
+                .messageDestination(MessageDestination.GW_NOTIFICATION_DB)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.RDB)
+                .body(body)
+                .build();
+
+        messageQRepository.save(messageQ);
     }
 }

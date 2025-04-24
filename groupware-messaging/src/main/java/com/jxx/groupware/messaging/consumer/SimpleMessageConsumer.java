@@ -72,7 +72,7 @@ public class SimpleMessageConsumer {
             messageService = beanFactory.getBean("restApiMessageService", MessageService.class);
             // 구현 해야함
         } else if (messageProcessType.isRelationalDatabaseProcessType()) {
-            messageService = null;
+            messageService = beanFactory.getBean("rdbMessageService", MessageService.class);
         } else {
             throw new RuntimeException();
         }

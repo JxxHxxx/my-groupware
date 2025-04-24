@@ -2,9 +2,11 @@ package com.jxx.groupware.api.messaging.presentation;
 
 import com.jxx.groupware.api.messaging.application.MessageDestinationService;
 import com.jxx.groupware.api.messaging.dto.request.DataSourceConnectionRequest;
+import com.jxx.groupware.api.messaging.dto.request.MessageColumnMappingCreateRequest;
 import com.jxx.groupware.api.messaging.dto.request.MessageQDestinationRequest;
 import com.jxx.groupware.api.messaging.dto.request.MessageTableMappingCreateRequest;
 import com.jxx.groupware.api.messaging.dto.response.DataSourceConnectionResponse;
+import com.jxx.groupware.api.messaging.dto.response.MessageColumnMappingResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageTableMappingResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
@@ -50,12 +52,28 @@ public class MessageDestinationAdminApiController {
     public ResponseEntity<?> createTableMapping(@PathVariable(name = "destination-id") String destinationId, @RequestBody @Valid MessageTableMappingCreateRequest request) {
         MessageTableMappingResponse response = messageDestinationService.createMessageTableMapping(destinationId, request);
 
-        return ResponseEntity.status(201).body(new ResponseResult<>(201, "메시지Q 목적지 DB 타입 테이블 매핑 정보 등록", response));
+        return ResponseEntity.status(201)
+                .body(new ResponseResult<>(201, "메시지Q 목적지 DB 타입 테이블 매핑 정보 등록", response));
     }
 
     @PostMapping("/admin/message-destination/{destination-id}/table-mappings/{service-id}/column-mappings")
-    public ResponseEntity<?> createColumnMapping() {
-        return ResponseEntity.status(201).body(new ResponseResult<>(201, "메시지Q 목적지 DB 타입 컬럼 매핑 정보 등록", null));
+    public ResponseEntity<?> createColumnMapping(@PathVariable(name = "destination-id") String destinationId,
+                                                 @PathVariable(name = "service-id") String serviceId,
+                                                 @RequestBody @Valid MessageColumnMappingCreateRequest request) {
+        MessageColumnMappingResponse response = messageDestinationService.createMessageColumnMapping(destinationId, serviceId, request);
+        return ResponseEntity.status(201)
+                .body(new ResponseResult<>(201, "메시지Q 목적지 DB 타입 컬럼 매핑 정보 등록", response));
+    }
 
+    @PostMapping("/tmp/rdb")
+    public ResponseEntity<?> test() {
+        messageDestinationService.test();
+        return ResponseEntity.status(201).body("SUCCESS");
+    }
+
+    @PostMapping("/tmp/rdb/v2")
+    public ResponseEntity<?> testV2() {
+        messageDestinationService.testV2();
+        return ResponseEntity.status(201).body("SUCCESS");
     }
 }
