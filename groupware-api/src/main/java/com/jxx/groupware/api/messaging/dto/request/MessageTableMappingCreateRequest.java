@@ -1,12 +1,15 @@
 package com.jxx.groupware.api.messaging.dto.request;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class MessageTableMappingCreateRequest {
-    private String tableName;
+
+    @NotBlank
+    private final String serviceId;
+    @NotBlank
+    private final String tableName;
 }

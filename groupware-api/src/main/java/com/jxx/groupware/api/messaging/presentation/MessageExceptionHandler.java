@@ -1,6 +1,7 @@
 package com.jxx.groupware.api.messaging.presentation;
 
-import com.jxx.groupware.api.common.ExceptionResponseResult;
+import com.jxx.groupware.api.common.exception.ExceptionCommonResponse;
+import com.jxx.groupware.api.common.exception.ExceptionResponseResult;
 import com.jxx.groupware.api.messaging.application.MessageAdminException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,6 @@ public class MessageExceptionHandler {
     @ExceptionHandler(MessageAdminException.class)
     public ResponseEntity<?> handleMessageClientException(MessageAdminException exception) {
         log.info("exception {}", exception.toString());
-        return ResponseEntity.badRequest().body(new ExceptionResponseResult(400, exception.toExceptionCommonResponse()));
+        return ResponseEntity.badRequest().body(new ExceptionResponseResult<ExceptionCommonResponse>(400, exception.toExceptionCommonResponse()));
     }
 }

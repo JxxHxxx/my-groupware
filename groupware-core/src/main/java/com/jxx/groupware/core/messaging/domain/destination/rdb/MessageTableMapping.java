@@ -5,19 +5,25 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MESSAGE_TABLE_MAPPING", indexes = @Index(name = "IDX_DESTINATION_ID_TABLE_NAME", columnList = "DESTINATION_ID, TABLE_NAME", unique = true))
+@Table(name = "JXX_MESSAGE_TABLE_MAPPING", indexes = @Index(name = "IDX_SERVICE_ID", columnList = "SERVICE_ID", unique = true))
 public class MessageTableMapping {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MESSAGE_TABLE_MAPPING")
+    @Column(name = "MESSAGE_TABLE_MAPPING_PK")
     private Long messageTableMapping;
+
+    @Column(name = "SERVICE_ID", nullable = false)
+    private String serviceId;
+
+    @Comment("MESSAGE DESTINATION 연결 간접키")
     @Column(name = "DESTINATION_ID")
     private String destinationId;
 
@@ -32,7 +38,8 @@ public class MessageTableMapping {
     private LocalDateTime lastModifiedTime;
 
     @Builder
-    public MessageTableMapping(String destinationId, String tableName, boolean used, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
+    public MessageTableMapping(String serviceId, String destinationId, String tableName, boolean used, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
+        this.serviceId = serviceId;
         this.destinationId = destinationId;
         this.tableName = tableName;
         this.used = used;

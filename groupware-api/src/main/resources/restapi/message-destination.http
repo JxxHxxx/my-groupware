@@ -4,8 +4,8 @@ POST localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "memberId": "manager",
-  "password": "manager"
+  "memberId": "SPY00033",
+  "password": "SPY00033"
 }
 
 ### 테이블 매핑 정보 추가

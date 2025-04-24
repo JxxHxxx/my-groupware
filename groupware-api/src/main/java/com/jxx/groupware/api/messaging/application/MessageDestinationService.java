@@ -1,6 +1,5 @@
 package com.jxx.groupware.api.messaging.application;
 
-import com.jxx.groupware.api.common.AdminResponseCode;
 import com.jxx.groupware.api.messaging.dto.request.MessageColumnMappingCreateRequest;
 import com.jxx.groupware.api.messaging.dto.request.DataSourceConnectionRequest;
 import com.jxx.groupware.api.messaging.dto.request.MessageQDestinationRequest;
@@ -15,7 +14,6 @@ import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.MessageQDestination;
 import com.jxx.groupware.core.messaging.domain.destination.dto.ConnectionInformationRequiredResponse;
-import com.jxx.groupware.core.messaging.domain.destination.rdb.MessageColumnMapping;
 import com.jxx.groupware.core.messaging.domain.destination.rdb.MessageTableMapping;
 import com.jxx.groupware.core.messaging.infra.MessageColumnMappingRepository;
 import com.jxx.groupware.core.messaging.infra.MessageQDestinationRepository;
@@ -35,7 +33,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static com.jxx.groupware.api.common.AdminResponseCode.*;
+import static com.jxx.groupware.api.common.exception.ErrorCode.*;
 import static com.jxx.groupware.core.messaging.domain.MessageResponseCode.*;
 
 @Slf4j
@@ -143,14 +141,15 @@ public class MessageDestinationService {
         // 목적지 엔티티에 destinationId 가 존재하지 않을 경우 오류, 왜냐하면 TableMapping 과 목적지 엔티티를 이어주는 간접키가 destinationId 임
         messageQDestinationRepository.findByDestinationId(destinationId)
                 .orElseThrow(() -> new MessageAdminException(ADM_MSG_F_001));
-        String tableName = request.getTableName();
-
-        // 동일한 destinationId, tableName 레코드 있을 때 예외, 이 부분 처리하지 않아도 유니크 제약에 의해 오류 발생 500 에러를 400 에러로 변경하기 위함
-        if (tableMappingRepository.findByDestinationIdAndTableName(destinationId, tableName).isPresent()) {
+        final String tableName = request.getTableName();
+        final String serviceId = request.getServiceId();
+        // 동일한 serviceId 레코드 있을 때 예외, 이 부분 처리하지 않아도 유니크 제약에 의해 오류 발생 500 에러를 400 에러로 변경하기 위함
+        if (tableMappingRepository.findByServiceId(serviceId).isPresent()) {
             throw new MessageAdminException(ADM_MSG_F_002);
         }
 
         MessageTableMapping tableMapping = MessageTableMapping.builder()
+                .serviceId(serviceId)
                 .destinationId(destinationId)
                 .tableName(tableName)
                 .createdTime(LocalDateTime.now())
@@ -160,6 +159,7 @@ public class MessageDestinationService {
 
         MessageTableMapping savedTableMapping = tableMappingRepository.save(tableMapping);
         return new MessageTableMappingResponse(
+                savedTableMapping.getServiceId(),
                 savedTableMapping.getDestinationId(),
                 savedTableMapping.getTableName(),
                 savedTableMapping.isUsed(),

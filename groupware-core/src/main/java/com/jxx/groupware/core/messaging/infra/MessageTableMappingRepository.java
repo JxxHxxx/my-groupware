@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface MessageTableMappingRepository extends JpaRepository<MessageTableMapping, Long> {
 
-    Optional<MessageTableMapping> findByDestinationIdAndTableName(String destinationId, String tableName);
+
+    Optional<MessageTableMapping> findByServiceId(String serviceId);
 }

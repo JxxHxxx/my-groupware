@@ -8,6 +8,7 @@ import com.jxx.groupware.api.messaging.dto.response.DataSourceConnectionResponse
 import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageTableMappingResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
@@ -46,9 +47,15 @@ public class MessageDestinationAdminApiController {
     }
 
     @PostMapping("/admin/message-destination/{destination-id}/table-mappings")
-    public ResponseEntity<?> createTableMapping(@PathVariable(name = "destination-id") String destinationId, @RequestBody MessageTableMappingCreateRequest request) {
+    public ResponseEntity<?> createTableMapping(@PathVariable(name = "destination-id") String destinationId, @RequestBody @Valid MessageTableMappingCreateRequest request) {
         MessageTableMappingResponse response = messageDestinationService.createMessageTableMapping(destinationId, request);
 
         return ResponseEntity.status(201).body(new ResponseResult<>(201, "메시지Q 목적지 DB 타입 테이블 매핑 정보 등록", response));
+    }
+
+    @PostMapping("/admin/message-destination/{destination-id}/table-mappings/{service-id}/column-mappings")
+    public ResponseEntity<?> createColumnMapping() {
+        return ResponseEntity.status(201).body(new ResponseResult<>(201, "메시지Q 목적지 DB 타입 컬럼 매핑 정보 등록", null));
+
     }
 }

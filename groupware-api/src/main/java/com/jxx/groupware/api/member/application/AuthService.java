@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static com.jxx.groupware.api.common.exception.ErrorCode.COM_AUTH_F_001;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -61,7 +63,7 @@ public class AuthService {
         if (isManipulated) {
             log.error("manipulated client request session's memberId:{} request's memberId:{}",
                     session.getMemberId(), authenticationRequest.memberId());
-            throw new UnAuthenticationException("조작된 인증 세션입니다.");
+            throw new UnAuthenticationException();
         }
     }
 
@@ -71,9 +73,8 @@ public class AuthService {
         HttpSession oUserSession = httpRequest.getSession(false);
 
         if (Objects.isNull(oUserSession)) {
-            String errorMessage = "인증 세션은 null 일 수 없습니다.";
-            log.error(errorMessage);
-            throw new UnAuthenticationException(errorMessage);
+            log.error("인증 세션은 null 일 수 없습니다.");
+            throw new UnAuthenticationException();
         }
 
         Object userSession = oUserSession.getAttribute(sessionKey);

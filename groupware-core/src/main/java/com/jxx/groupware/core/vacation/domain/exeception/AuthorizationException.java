@@ -2,7 +2,7 @@ package com.jxx.groupware.core.vacation.domain.exeception;
 
 import lombok.Getter;
 
-/** 인가 관련 예외 처리 **/
+/** 인가 관련 예외 처리(해당 예외는 403 상태코드를 응답해야 합니다) **/
 
 @Getter
 public class AuthorizationException extends RuntimeException {
