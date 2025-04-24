@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MessageTableMappingCreateRequest {
 
-    @NotBlank
+    @NotBlank(message = "serviceId는 공백일 수 없습니다")
     private final String serviceId;
-    @NotBlank
+    @NotBlank(message = "tableName은 공백일 수 없습니다")
     private final String tableName;
 }

@@ -5,7 +5,7 @@ import com.jxx.groupware.api.excel.ExcelFileReadException;
 import com.jxx.groupware.api.member.presentation.UnAuthenticationException;
 import com.jxx.groupware.api.vacation.dto.response.ClientExceptionResponse;
 import com.jxx.groupware.api.vacation.dto.response.ResponseResult;
-import com.jxx.groupware.core.vacation.domain.exeception.AuthorizationException;
+import com.jxx.groupware.api.member.presentation.AuthorizationException;
 import com.jxx.groupware.core.vacation.domain.exeception.VacationAdminException;
 import com.jxx.groupware.core.vacation.domain.exeception.VacationClientException;
 import lombok.extern.slf4j.Slf4j;
@@ -80,11 +80,11 @@ public class VacationApiExceptionHandler {
 
     }
 
-    @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<?> handleAuthorizationException(AuthorizationException exception) {
-        String requesterId = exception.getRequesterId();
-        return ResponseEntity.status(403)
-                .body(new ResponseResult<>(403, exception.getMessage(), requesterId));
-
-    }
+//    @ExceptionHandler(AuthorizationException.class)
+//    public ResponseEntity<?> handleAuthorizationException(AuthorizationException exception) {
+//        String requesterId = exception.getRequesterId();
+//        return ResponseEntity.status(403)
+//                .body(new ResponseResult<>(403, exception.getMessage(), requesterId));
+//
+//    }
 }

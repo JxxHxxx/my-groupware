@@ -2,12 +2,11 @@ package com.jxx.groupware.api.common.web;
 
 import com.jxx.groupware.api.member.application.AuthService;
 import com.jxx.groupware.api.member.application.UserSession;
-import com.jxx.groupware.core.vacation.domain.exeception.AuthorizationException;
+import com.jxx.groupware.api.member.presentation.AuthorizationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -19,9 +18,6 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class AdminApiAuthenticationInterceptor implements HandlerInterceptor {
-
-    @Value("${admin.id}")
-    private String adminId;
     private final AuthService authService;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -35,9 +31,9 @@ public class AdminApiAuthenticationInterceptor implements HandlerInterceptor {
             log.info("관리자 API 호출 : 사용자 {} 관리자 권한을 검증합니다.", userSession.getMemberId());
 
             // 임시 관리자 ID
-            if (!Objects.equals(userSession.getMemberId(), adminId)) {
+            if (!Objects.equals(userSession.getMemberId(), "manager")) {
                 log.warn("관리자가 아닌 사용자가 관리자 API에 접근을 시도했습니다. 접근 시도자 ID:{}", userSession.getMemberId());
-                throw new AuthorizationException("요청에 대한 권한이 존재하지 않습니다");
+                throw new AuthorizationException();
             }
             return true;
         } catch (Exception e) {
