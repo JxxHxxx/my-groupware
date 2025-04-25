@@ -1,11 +1,11 @@
 package com.jxx.groupware.api.messaging.application;
 
+import com.jxx.groupware.api.common.exception.ErrorCode;
 import com.jxx.groupware.core.common.pagination.PageService;
 import com.jxx.groupware.api.messaging.dto.request.MessageQResultSearchCondition;
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageQResultResponseV2;
 import com.jxx.groupware.api.messaging.query.MessageQResultMapper;
-import com.jxx.groupware.core.messaging.domain.MessageClientException;
 import com.jxx.groupware.core.messaging.domain.queue.MessageProcessStatus;
 import com.jxx.groupware.core.messaging.domain.queue.MessageQ;
 import com.jxx.groupware.core.messaging.domain.queue.MessageQResult;
@@ -78,6 +78,11 @@ public class MessageService {
         MessageQResult messageQResult = messageQResultRepository.findById(messageQResultPk)
                 .orElseThrow(() -> new IllegalArgumentException());
 
+        MessageProcessStatus messageProcessStatus = messageQResult.getMessageProcessStatus();
+        if (messageProcessStatus.isUnProcessable()) {
+            throw new MessageAdminException(ErrorCode.ADM_MSG_F_006);
+        }
+
         MessageQ messageQ = MessageQ.builder()
                 .retryId(messageQResult.getOriginalMessagePk())
                 .messageProcessStatus(MessageProcessStatus.RETRY)
@@ -104,7 +109,7 @@ public class MessageService {
             result = new PageImpl<>(response.subList(start, end), pageRequest, total);
         } catch (IllegalArgumentException e) {
             // TODO ExceptionHandler 처리
-            throw new MessageClientException(e);
+            throw e;
         }
 
         return result;

@@ -70,7 +70,6 @@ public class SimpleMessageConsumer {
             messageService = beanFactory.getBean("vacationMessageService", MessageService.class);
         } else if (messageProcessType.isRestProcessType()) { // REST API
             messageService = beanFactory.getBean("restApiMessageService", MessageService.class);
-            // 구현 해야함
         } else if (messageProcessType.isRelationalDatabaseProcessType()) {
             messageService = beanFactory.getBean("rdbMessageService", MessageService.class);
         } else {

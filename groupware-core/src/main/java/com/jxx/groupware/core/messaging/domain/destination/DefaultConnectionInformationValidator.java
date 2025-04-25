@@ -26,6 +26,7 @@ public class DefaultConnectionInformationValidator implements ConnectionInformat
                 List<String> notMatchedKeys = REQUIRED_RDB_KEYS.stream()
                         .filter(key -> !conInfo.containsKey(key))
                         .toList();
+                // notMatchedKeys.isEmpty() : 매치되지 않은 키 리스트가 비어있을 경우, 정상 케이스기 때문에 meet 필드에 true 를 넣어준다.
                 return new ConnectionInformationRequiredResponse(notMatchedKeys.isEmpty(), conType, notMatchedKeys);
             }
             case REST -> {

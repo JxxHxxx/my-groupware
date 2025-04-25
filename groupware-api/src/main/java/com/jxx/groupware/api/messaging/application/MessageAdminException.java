@@ -10,7 +10,9 @@ import lombok.ToString;
 @Getter
 public class MessageAdminException extends BaseException {
 
+    private final int httpStatus;
     public MessageAdminException(ErrorCode errorCode) {
         super(errorCode);
+        this.httpStatus = errorCode.getStatusCode();
     }
 }

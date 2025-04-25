@@ -1,5 +1,6 @@
 package com.jxx.groupware.messaging.application.sql.builder;
 
+import com.jxx.groupware.core.messaging.domain.UnProcessableException;
 import com.jxx.groupware.messaging.application.sql.validate.SqlQueryValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ public class SimpleSqlQueryBuilder implements SqlQueryBuilder {
     @Override
     public String insert(QueryBuilderParameter parameter) {
         if (sqlQueryValidator.notValid(parameter)) {
-            throw new RuntimeException("메시지를 처리할 수 없습니다");
+            throw new UnProcessableException("처리할 수 없습니다.");
         };
 
         String tableName = parameter.tableName();

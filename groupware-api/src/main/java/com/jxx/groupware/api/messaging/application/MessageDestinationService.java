@@ -9,8 +9,6 @@ import com.jxx.groupware.api.messaging.dto.response.MessageColumnMappingResponse
 import com.jxx.groupware.api.messaging.dto.response.MessageQDestinationResponse;
 import com.jxx.groupware.api.messaging.dto.response.MessageTableMappingResponse;
 import com.jxx.groupware.core.common.pagination.PageService;
-import com.jxx.groupware.core.messaging.MessageBodyBuilder;
-import com.jxx.groupware.core.messaging.domain.MessageClientException;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInformationValidator;
@@ -44,7 +42,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.jxx.groupware.api.common.exception.ErrorCode.*;
-import static com.jxx.groupware.core.messaging.domain.MessageResponseCode.*;
 
 @Slf4j
 @Service
@@ -66,7 +63,7 @@ public class MessageDestinationService {
 
         if (!requiredResponse.meet()) {
             log.error("connectionType:{} must have {} keys", connectionType, requiredResponse.notMatchedKeys());
-            throw new MessageClientException(MSQF001.getCode(), MSQF001.getDescription());
+            throw new MessageAdminException(ADM_MSG_F_007);
         }
 
         MessageQDestination messageQDestination = MessageQDestination.builder()

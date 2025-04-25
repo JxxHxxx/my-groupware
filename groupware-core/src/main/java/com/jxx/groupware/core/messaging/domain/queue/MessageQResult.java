@@ -31,8 +31,15 @@ public class MessageQResult {
     @Comment(value = "메시지Q 결과 PK")
     private Long pk;
 
+    /**
+     * 예를 들어 MessageQ PK = 1 은 한 번에 처리될 수도 있지만 특정 상황에서 실패하여 추후에 재시도 될 수 있다.
+     * 재시도는 MessageQ 를 다시 생산하는데 이 경우, MessageQ PK != 1 이게 된다. MessageQ 를 그대로 History 테이블에 저장하게 되면
+     * 최초 실패했던 MessageQ PK = 1 가 아닌 MessageQ PK != 1 이 저장된다.
+     * 때문에 MessageService 구현체에서는 생산, 재시도에 따라 적절하게 originalMessagePk 를 관리해야 한다.
+     * 이 경우 원할한 히스토리 관리를 위해 최초의 MessageQ PK 를 기록해두는 용도이다.
+     */
     @Column(name = "ORIGINAL_MESSAGE_PK", nullable = false)
-    @Comment(value = "메시지Q PK")
+    @Comment(value = "최초의 메시지Q PK")
     private Long originalMessagePk;
 
     @Column(name = "MESSAGE_DESTINATION")
