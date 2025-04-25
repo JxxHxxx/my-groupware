@@ -10,6 +10,7 @@ import com.jxx.groupware.core.messaging.infra.MessageQRepository;
 import com.jxx.groupware.core.messaging.infra.MessageQResultRepository;
 import com.jxx.groupware.core.messaging.infra.MessageTableMappingRepository;
 import com.jxx.groupware.messaging.application.sql.builder.InsertBuilderParameter;
+import com.jxx.groupware.messaging.application.sql.builder.RdbMessagePolicyException;
 import com.jxx.groupware.messaging.application.sql.builder.SqlQueryBuilder;
 import com.jxx.groupware.messaging.application.sql.builder.UpdateBuilderParameter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +40,10 @@ public class RdbMessageService extends AbstractMessageService {
     private final SqlQueryBuilder sqlQueryBuilder;
 
     public RdbMessageService(MessageQRepository messageQRepository, MessageQResultRepository messageQResultRepository,
-                               @Qualifier("destinationDataSourceMap") Map<String, DataSource> destinationDataSourceMap,
-                               MessageTableMappingRepository tableMappingRepository,
-                               MessageColumnMappingRepository columnMappingRepository,
-                               SqlQueryBuilder sqlQueryBuilder) {
+                             @Qualifier("destinationDataSourceMap") Map<String, DataSource> destinationDataSourceMap,
+                             MessageTableMappingRepository tableMappingRepository,
+                             MessageColumnMappingRepository columnMappingRepository,
+                             SqlQueryBuilder sqlQueryBuilder) {
         super(messageQRepository, messageQResultRepository);
         this.destinationDataSourceMap = destinationDataSourceMap;
         this.tableMappingRepository = tableMappingRepository;
@@ -79,16 +80,27 @@ public class RdbMessageService extends AbstractMessageService {
             }
             case UPDATE -> {
                 Map<String, String> whereParam = (Map<String, String>) messageBody.get("whereMap");
-                String sql = sqlQueryBuilder.update(new UpdateBuilderParameter(tableName, columnNames, requestParam, whereParam));
-                int update = template.update(sql, Map.of());
-                if (update > 1) {
-                    txStatus.setRollbackOnly();
-                    throw new NonUniqueWriteException(update + "개의 레코드에 변경이 일어나게 됩니다. RDB 정책에 위배되어 롤백합니다.");
-                }
+                String sql = null;
+                try {
+                    sql = sqlQueryBuilder.update(new UpdateBuilderParameter(tableName, columnNames, requestParam, whereParam));
+                    int update = template.update(sql, Map.of());
 
+                    if (update > 1) {
+                        txStatus.setRollbackOnly();
+                        throw new NonUniqueWriteException(update + "개의 레코드에 변경이 일어나게 됩니다. RDB 정책에 위배되어 롤백합니다.");
+                    }
+                } catch (RdbMessagePolicyException exception) {
+                    log.error("{}", exception.getMessage(), exception);
+                    txStatus.setRollbackOnly();
+                } catch (Exception e) {
+                    log.error("예외 발생 롤백합니다.", e);
+                    txStatus.setRollbackOnly();
+                }
             }
-            case DELETE -> {}
-            default -> {}
+            case DELETE -> {
+            }
+            default -> {
+            }
         }
 
         txManager.commit(txStatus);

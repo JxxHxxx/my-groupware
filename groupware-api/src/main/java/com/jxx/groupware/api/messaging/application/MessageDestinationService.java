@@ -271,9 +271,31 @@ public class MessageDestinationService {
         body.put("contentMap", contentMap);
 
         Map<String, Object> whereMap = new HashMap<>();
-        whereMap.put("MEMBER_ID", "jxxHxxx");
+        whereMap.put("MEMBER_ID", "U00003");
 
         body.put("whereMap", whereMap);
+
+        MessageQ messageQ = MessageQ.builder()
+                .messageDestination(MessageDestination.GW_NOTIFICATION_DB)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.RDB)
+                .body(body)
+                .build();
+
+        messageQRepository.save(messageQ);
+    }
+
+    @Transactional
+    public void updateV2() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("SERVICEID", "UPDATE_NOTIFICATION");
+        Map<String, Object> contentMap = new HashMap<>();
+        contentMap.put("CONTENT", "내용을 변경한다!");
+
+        body.put("contentMap", contentMap);
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put("MEMBER_ID", "U00003");
 
         MessageQ messageQ = MessageQ.builder()
                 .messageDestination(MessageDestination.GW_NOTIFICATION_DB)

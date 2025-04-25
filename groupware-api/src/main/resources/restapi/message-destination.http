@@ -1,5 +1,14 @@
 
-### 로그인
+### 로그인 - 관리자
+POST localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "memberId": "manager",
+  "password": "manager"
+}
+
+### 로그인 - 일반사용자
 POST localhost:8080/api/auth/login
 Content-Type: application/json
 
@@ -8,12 +17,42 @@ Content-Type: application/json
   "password": "SPY00033"
 }
 
+
 ### 테이블 매핑 정보 추가
 POST http://localhost:8080/admin/message-destination/GW_NOTIFICATION_DB/table-mappings
 Content-Type: application/json
 
 {
-  "tableName" : "NOTIFICATION_TEST"
+  "tableName": "NOTIFICATION_TEST",
+  "serviceId" : "UPDATE_NOTIFICATION",
+  "dmlType" : "UPDATE"
+}
+
+### 컬럼 매핑 정보 추가1
+POST http://localhost:8080/admin/message-destination/GW_NOTIFICATION_DB/table-mappings/CREATE_NOTIFICATION/column-mappings
+Content-Type: application/json
+
+{
+  "columnName": "MEMBER_ID",
+  "columnType" : "varchar"
+}
+
+### 컬럼 매핑 정보 추가2
+POST http://localhost:8080/admin/message-destination/GW_NOTIFICATION_DB/table-mappings/CREATE_NOTIFICATION/column-mappings
+Content-Type: application/json
+
+{
+  "columnName": "CONTENT",
+  "columnType" : "varchar"
+}
+
+### 컬럼 매핑 정보 추가3
+POST http://localhost:8080/admin/message-destination/GW_NOTIFICATION_DB/table-mappings/UPDATE_NOTIFICATION/column-mappings
+Content-Type: application/json
+
+{
+  "columnName": "CONTENT",
+  "columnType" : "varchar"
 }
 
 ### 테스트

@@ -38,7 +38,6 @@ public abstract class AbstractMessageService implements MessageService<MessageQ>
         MessageQ payload = message.getPayload();
         MessageProcessStatus messageProcessStatus = payload.getMessageProcessStatus();
         MessageProcessStatus sentMessageProcessStatus = messageProcessStatus;
-
         try {
             processMessage(payload);
             sentMessageProcessStatus = SUCCESS;
@@ -47,6 +46,9 @@ public abstract class AbstractMessageService implements MessageService<MessageQ>
             log.error("해당 메시지는 처리가 불가능합니다. 롤백 및 메시지 상태를 UNPROCESSABLE으로 변경합니다.", exception);
         } catch (NonUniqueWriteException exception) {
             log.error("레코드 2개 이상에 쓰기 작업이 이루어졌습니다. RDB 메시징 서비스 정책에 위배됩니다. 롤백합니다.", exception);
+            sentMessageProcessStatus = FAIL;
+        } catch (RuntimeException exception) {
+            log.error("메시지 변환 중 에러가 발생했습니다. 롤백 및 메시지 상태를 FAIL로 변경합니다.", exception);
             sentMessageProcessStatus = FAIL;
         } catch (Exception exception) {
             log.error("메시지 변환 중 에러가 발생했습니다. 롤백 및 메시지 상태를 FAIL로 변경합니다.", exception);
@@ -71,6 +73,12 @@ public abstract class AbstractMessageService implements MessageService<MessageQ>
         } catch (UnProcessableException exception) {
             sentMessageProcessStatus = UNPROCESSABLE;
             log.error("해당 메시지는 처리가 불가능합니다. 롤백 및 메시지 상태를 UNPROCESSABLE으로 변경합니다.", exception);
+        } catch (NonUniqueWriteException exception) {
+            log.error("레코드 2개 이상에 쓰기 작업이 이루어졌습니다. RDB 메시징 서비스 정책에 위배됩니다. 롤백합니다.", exception);
+            sentMessageProcessStatus = FAIL;
+        } catch (RuntimeException exception) {
+            log.error("메시지 변환 중 에러가 발생했습니다. 롤백 및 메시지 상태를 FAIL로 변경합니다.", exception);
+            sentMessageProcessStatus = FAIL;
         } catch (Exception exception) {
             sentMessageProcessStatus = FAIL;
             log.error("메시지 변환 중 에러가 발생했습니다. 롤백 및 메시지 상태를 FAIL로 변경합니다.", exception);

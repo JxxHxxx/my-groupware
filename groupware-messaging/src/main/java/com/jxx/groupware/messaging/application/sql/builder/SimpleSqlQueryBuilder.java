@@ -89,10 +89,21 @@ public class SimpleSqlQueryBuilder implements SqlQueryBuilder {
         // where 절 처리
         Map<String, String> whereClauseParams = parameter.whereClauseParams();
 
-        Iterator<Map.Entry<String, String>> whereClauseIterator = whereClauseParams.entrySet().iterator();
-        int whereSize = whereClauseParams.size();
+        Iterator<Map.Entry<String, String>> whereClauseIterator = null;
+        try {
+            whereClauseIterator = whereClauseParams.entrySet().iterator();
+        } catch (NullPointerException e) {
+            log.error("MessageQ - Content에 whereClause 이 없는 것으로 보입니다.", e);
+            throw new RdbMessagePolicyException("WHERE 절 조건이 존재하지 않습니다. 롤백합니다");
+        }
+
+        // whereClause 를 가져오긴 했는데 비어 있을 경우
+        if (whereClauseParams.size() == 0) {
+            throw new RdbMessagePolicyException("WHERE 절 조건이 존재하지 않습니다. 롤백합니다");
+        }
+
         int whereRoofCnt = 0;
-        while (whereSize > whereRoofCnt) {
+        while (whereClauseParams.size() > whereRoofCnt) {
             Map.Entry<String, String> whereCaluseEntry = whereClauseIterator.next();
 
             whereBuilder.append(whereCaluseEntry.getKey() + "=" + formatValue(whereCaluseEntry.getValue()));
