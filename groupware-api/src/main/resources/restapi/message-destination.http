@@ -24,8 +24,8 @@ Content-Type: application/json
 
 {
   "tableName": "NOTIFICATION_TEST",
-  "serviceId" : "UPDATE_NOTIFICATION",
-  "dmlType" : "UPDATE"
+  "serviceId" : "CREATE_NOTIFICATION",
+  "dmlType" : "INSERT"
 }
 
 ### 컬럼 매핑 정보 추가1
@@ -53,47 +53,4 @@ Content-Type: application/json
 {
   "columnName": "CONTENT",
   "columnType" : "varchar"
-}
-
-### 테스트
-POST http://localhost:8080/admin/message-destination/check-connection
-Content-Type: application/json
-
-{
- "driverClassName": "com.mysql.cj.jdbc.Driver",
- "jdbcUrl":"jdbc:mysql://localhost:3306/JXX_CONFIRM?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8",
- "userName": "root",
- "password":"fkxhs123!@#A442"
-}
-
-###
-POST http://localhost:8080/admin/message-destination
-Content-Type: application/json
-
-{
-  "destinationId" : "GW_CONFIRM_DB",
-  "destinationName" : "그룹웨어 전자결재 DB",
-  "connectionType" : "RDB",
-  "connectionInformation" : {
-    "url" : "jdbc:mysql://localhost:3306/JXX_CONFIRM?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8",
-    "username" : "root",
-    "password" : "fkxhs123!@#A",
-    "driverClassName" : "com.mysql.cj.jdbc.Driver"
-  }
-}
-
-###
-POST http://localhost:8080/admin/message-destination
-Content-Type: application/json
-
-{
-  "destinationId" : "GW_NOTIFICATION_DB",
-  "destinationName" : "알림 서버 DB",
-  "connectionType" : "RDB",
-  "connectionInformation" : {
-    "url" : "jdbc:mysql://localhost:3306/JXX_CONFIRM?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8",
-    "username" : "root",
-    "password" : "fkxhs123!@#A",
-    "driverClassName" : "com.mysql.cj.jdbc.Driver"
-  }
 }

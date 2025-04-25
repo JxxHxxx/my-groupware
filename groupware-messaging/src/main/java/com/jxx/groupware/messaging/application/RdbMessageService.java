@@ -81,10 +81,10 @@ public class RdbMessageService extends AbstractMessageService {
             case UPDATE -> {
                 Map<String, String> whereParam = (Map<String, String>) messageBody.get("whereMap");
                 String sql = null;
+
                 try {
                     sql = sqlQueryBuilder.update(new UpdateBuilderParameter(tableName, columnNames, requestParam, whereParam));
                     int update = template.update(sql, Map.of());
-
                     if (update > 1) {
                         txStatus.setRollbackOnly();
                         throw new NonUniqueWriteException(update + "개의 레코드에 변경이 일어나게 됩니다. RDB 정책에 위배되어 롤백합니다.");
@@ -92,9 +92,7 @@ public class RdbMessageService extends AbstractMessageService {
                 } catch (RdbMessagePolicyException exception) {
                     log.error("{}", exception.getMessage(), exception);
                     txStatus.setRollbackOnly();
-                } catch (Exception e) {
-                    log.error("예외 발생 롤백합니다.", e);
-                    txStatus.setRollbackOnly();
+                    throw exception;
                 }
             }
             case DELETE -> {
