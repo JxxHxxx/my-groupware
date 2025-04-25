@@ -12,7 +12,4 @@ public class MessageColumnMappingCreateRequest {
     private final String columnName;
     @NotBlank(message = "columnType은 공백일 수 없습니다")
     private final String columnType;
-    @NotBlank(message = "messageProcessType은 공백일 수 없습니다")
-    private final String messageProcessType;
-
 }

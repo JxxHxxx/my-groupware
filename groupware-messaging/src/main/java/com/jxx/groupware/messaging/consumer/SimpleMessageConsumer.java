@@ -42,10 +42,12 @@ public class SimpleMessageConsumer {
         for (Message<MessageQ> message : messages) {
             MessageService<MessageQ> messageService = adaptMessageServiceBean(message);
             messageService.process(message);
-            log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HISTORY START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
+            String messageServiceImplClassName = messageService.getClass().getSimpleName();
+            log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CONSUME START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
                     "\nChannel:sentQueueChannel{}" +
+                    "\nMessageService implementation : {}" +
                     "\nMessage:{}" +
-                    "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HISTORY  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", channelNum, message);
+                    "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< CONSUME  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", channelNum, messageServiceImplClassName, message);
 
         }
     }
@@ -56,10 +58,12 @@ public class SimpleMessageConsumer {
     public void consumeRetryMessage(Message<MessageQ> message) {
         MessageService<MessageQ> messageService = adaptMessageServiceBean(message);
         messageService.retry(message);
-        log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HISTORY START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
+        String messageServiceImplClassName = messageService.getClass().getSimpleName();
+        log.info("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CONSUME START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
                 "\nChannel:retryQueueChannel" +
+                "\nMessageService implementation : {}" +
                 "\nMessage:{}" +
-                "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HISTORY  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", message);
+                "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< CONSUME  END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", messageServiceImplClassName, message);
     }
 
     private MessageService<MessageQ> adaptMessageServiceBean(Message<MessageQ> message) {

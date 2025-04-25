@@ -14,6 +14,7 @@ import com.jxx.groupware.core.messaging.domain.destination.ConnectionType;
 import com.jxx.groupware.core.messaging.domain.destination.DefaultConnectionInformationValidator;
 import com.jxx.groupware.core.messaging.domain.destination.MessageQDestination;
 import com.jxx.groupware.core.messaging.domain.destination.dto.ConnectionInformationRequiredResponse;
+import com.jxx.groupware.core.messaging.domain.destination.rdb.DmlType;
 import com.jxx.groupware.core.messaging.domain.destination.rdb.MessageColumnMapping;
 import com.jxx.groupware.core.messaging.domain.destination.rdb.MessageTableMapping;
 import com.jxx.groupware.core.messaging.domain.queue.MessageDestination;
@@ -148,17 +149,18 @@ public class MessageDestinationService {
         // 목적지 엔티티에 destinationId 가 존재하지 않을 경우 오류, 왜냐하면 TableMapping 과 목적지 엔티티를 이어주는 간접키가 destinationId 임
         messageQDestinationRepository.findByDestinationId(destinationId)
                 .orElseThrow(() -> new MessageAdminException(ADM_MSG_F_001));
-        final String tableName = request.getTableName();
         final String serviceId = request.getServiceId();
         // 동일한 serviceId 레코드 있을 때 예외, 이 부분 처리하지 않아도 유니크 제약에 의해 오류 발생 500 에러를 400 에러로 변경하기 위함
         if (tableMappingRepository.findByServiceId(serviceId).isPresent()) {
             throw new MessageAdminException(ADM_MSG_F_002);
         }
 
+        DmlType dmlType = DmlType.valueOf(request.getDmlType());
         MessageTableMapping tableMapping = MessageTableMapping.builder()
                 .serviceId(serviceId)
                 .destinationId(destinationId)
-                .tableName(tableName)
+                .tableName(request.getTableName())
+                .dmlType(dmlType)
                 .createdTime(LocalDateTime.now())
                 .lastModifiedTime(LocalDateTime.now())
                 .used(true)
@@ -169,6 +171,7 @@ public class MessageDestinationService {
                 savedTableMapping.getServiceId(),
                 savedTableMapping.getDestinationId(),
                 savedTableMapping.getTableName(),
+                savedTableMapping.getDmlType().name(),
                 savedTableMapping.isUsed(),
                 savedTableMapping.getCreatedTime(),
                 savedTableMapping.getLastModifiedTime());
@@ -190,9 +193,8 @@ public class MessageDestinationService {
         }
 
         String columnName = request.getColumnName();
-        String messageProcessType = request.getMessageProcessType();
 
-        if (columnMappingRepository.findByServiceIdAndColumnNameAndMessageProcessType(serviceId, columnName, messageProcessType).isPresent()) {
+        if (columnMappingRepository.findByServiceIdAndColumnName(serviceId, columnName).isPresent()) {
             log.info(ADM_MSG_F_005.getErrorMessage());
             throw new MessageAdminException(ADM_MSG_F_005);
         }
@@ -201,7 +203,6 @@ public class MessageDestinationService {
                 .messageTableMapping(tableMapping)
                 .columnName(columnName)
                 .columnType(request.getColumnType())
-                .messageProcessType(messageProcessType)
                 .lastModifiedTime(LocalDateTime.now())
                 .used(true)
                 .build();
@@ -214,7 +215,6 @@ public class MessageDestinationService {
                 savedMessageColumnMapping.getColumnName(),
                 savedMessageColumnMapping.getColumnType(),
                 savedMessageColumnMapping.getLastModifiedTime(),
-                savedMessageColumnMapping.getMessageProcessType(),
                 savedMessageColumnMapping.isUsed());
     }
 
@@ -250,6 +250,30 @@ public class MessageDestinationService {
         values.put("7", "1테스트");
 
         body.put("contentMap", values);
+
+        MessageQ messageQ = MessageQ.builder()
+                .messageDestination(MessageDestination.GW_NOTIFICATION_DB)
+                .messageProcessStatus(MessageProcessStatus.SENT)
+                .messageProcessType(MessageProcessType.RDB)
+                .body(body)
+                .build();
+
+        messageQRepository.save(messageQ);
+    }
+
+    @Transactional
+    public void update() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("SERVICEID", "UPDATE_NOTIFICATION");
+        Map<String, Object> contentMap = new HashMap<>();
+        contentMap.put("CONTENT", "내용을 변경한다!");
+
+        body.put("contentMap", contentMap);
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put("MEMBER_ID", "jxxHxxx");
+
+        body.put("whereMap", whereMap);
 
         MessageQ messageQ = MessageQ.builder()
                 .messageDestination(MessageDestination.GW_NOTIFICATION_DB)

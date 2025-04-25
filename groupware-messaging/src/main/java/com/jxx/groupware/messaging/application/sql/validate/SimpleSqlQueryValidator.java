@@ -1,11 +1,10 @@
 package com.jxx.groupware.messaging.application.sql.validate;
 
-import com.jxx.groupware.messaging.application.sql.builder.QueryBuilderParameter;
+import com.jxx.groupware.messaging.application.sql.builder.InsertBuilderParameter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,7 +13,7 @@ import java.util.Set;
 public class SimpleSqlQueryValidator implements SqlQueryValidator {
 
     @Override
-    public boolean notValid(QueryBuilderParameter parameter) {
+    public boolean notValid(InsertBuilderParameter parameter) {
         List<String> columnNames = parameter.columnNames();
         Set<String> requestParamKeySet = parameter.requestParamKeySet();
 

@@ -6,6 +6,7 @@ public record MessageTableMappingResponse(
         String serviceId,
         String destinationId,
         String tableName,
+        String dmlType,
         boolean used,
         LocalDateTime createdTime,
         LocalDateTime lastModifiedTime

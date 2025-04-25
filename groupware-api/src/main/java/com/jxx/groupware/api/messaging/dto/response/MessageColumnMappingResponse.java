@@ -8,7 +8,6 @@ public record MessageColumnMappingResponse(
     String columnName,
     String columnType,
     LocalDateTime lastModifiedTime,
-    String messageProcessType,
     boolean used
 
 ) {

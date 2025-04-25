@@ -12,4 +12,7 @@ public class MessageTableMappingCreateRequest {
     private final String serviceId;
     @NotBlank(message = "tableName은 공백일 수 없습니다")
     private final String tableName;
+    @NotBlank(message = "dmlType은 공백일 수 없습니다")
+
+    private final String dmlType;
 }

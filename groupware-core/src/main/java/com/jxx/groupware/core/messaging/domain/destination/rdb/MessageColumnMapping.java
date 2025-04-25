@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "JXX_MESSAGE_COLUMN_MAPPING", indexes = @Index(name = "SID_CNM_MPT_IDX", columnList = "SERVICE_ID, COLUMN_NAME, MESSAGE_PROCESS_TYPE", unique = true))
+@Table(name = "JXX_MESSAGE_COLUMN_MAPPING", indexes = @Index(name = "SID_CNM_MPT_IDX", columnList = "SERVICE_ID, COLUMN_NAME", unique = true))
 public class MessageColumnMapping {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +25,6 @@ public class MessageColumnMapping {
     private String columnType;
     @Column(name = "COLUMN_NAME")
     private String columnName;
-    // I , U , SD , HD
-    @Column(name = "MESSAGE_PROCESS_TYPE")
-    private String messageProcessType;
 
     @Column(name = "USED", columnDefinition = "TINYINT(1)")
     private boolean used;
@@ -36,11 +33,10 @@ public class MessageColumnMapping {
 
     @Builder
     public MessageColumnMapping(MessageTableMapping messageTableMapping, String columnType, String columnName,
-                                String messageProcessType, boolean used, LocalDateTime lastModifiedTime) {
+                                boolean used, LocalDateTime lastModifiedTime) {
         this.messageTableMapping = messageTableMapping;
         this.columnType = columnType;
         this.columnName = columnName;
-        this.messageProcessType = messageProcessType;
         this.used = used;
         this.lastModifiedTime = lastModifiedTime;
     }

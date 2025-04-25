@@ -22,11 +22,13 @@ public class MessageTableMapping {
 
     @Column(name = "SERVICE_ID", nullable = false)
     private String serviceId;
-
     @Comment("MESSAGE DESTINATION 연결 간접키")
     @Column(name = "DESTINATION_ID")
     private String destinationId;
-
+    @Comment("DML 유형")
+    @Column(name = "DML_TYPE")
+    @Enumerated(value = EnumType.STRING)
+    private DmlType dmlType;
     @Column(name = "TABLE_NAME")
     private String tableName;
     @Column(name = "USED" , columnDefinition = "TINYINT(1)")
@@ -38,9 +40,11 @@ public class MessageTableMapping {
     private LocalDateTime lastModifiedTime;
 
     @Builder
-    public MessageTableMapping(String serviceId, String destinationId, String tableName, boolean used, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
+    public MessageTableMapping(String serviceId, String destinationId, DmlType dmlType, String tableName, boolean used,
+                               LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
         this.serviceId = serviceId;
         this.destinationId = destinationId;
+        this.dmlType = dmlType;
         this.tableName = tableName;
         this.used = used;
         this.createdTime = createdTime;

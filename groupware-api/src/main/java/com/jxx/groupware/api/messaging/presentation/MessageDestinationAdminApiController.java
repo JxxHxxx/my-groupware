@@ -76,4 +76,10 @@ public class MessageDestinationAdminApiController {
         messageDestinationService.testV2();
         return ResponseEntity.status(201).body("SUCCESS");
     }
+
+    @PostMapping("/tmp/rdb/ud")
+    public ResponseEntity<?> update() {
+        messageDestinationService.update();
+        return ResponseEntity.status(201).body("SUCCESS");
+    }
 }

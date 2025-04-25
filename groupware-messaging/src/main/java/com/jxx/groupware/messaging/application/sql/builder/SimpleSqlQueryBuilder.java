@@ -16,10 +16,11 @@ public class SimpleSqlQueryBuilder implements SqlQueryBuilder {
     private final SqlQueryValidator sqlQueryValidator;
 
     @Override
-    public String insert(QueryBuilderParameter parameter) {
+    public String insert(InsertBuilderParameter parameter) {
         if (sqlQueryValidator.notValid(parameter)) {
             throw new UnProcessableException("처리할 수 없습니다.");
-        };
+        }
+        ;
 
         String tableName = parameter.tableName();
 
@@ -31,7 +32,7 @@ public class SimpleSqlQueryBuilder implements SqlQueryBuilder {
         List<String> columnNames = parameter.columnNames();
         Iterator<String> columnNamesIter = columnNames.iterator();
 
-        int columnSize = columnNames.size(); // 3
+        int columnSize = columnNames.size();
         int roofCnt = 0;
         while (columnSize > roofCnt) {
             String column = columnNamesIter.next();
@@ -49,19 +50,70 @@ public class SimpleSqlQueryBuilder implements SqlQueryBuilder {
         }
 
 
-        String columnsAssembleResult = columnsBuilder.toString();
-        String valuesAssembleResult = valuesBuilder.toString();
+        String columnClause = columnsBuilder.toString();
+        String valueClause = valuesBuilder.toString();
 
-        return String.format("INSERT INTO %s ( %s ) VALUES (%s)", tableName, columnsAssembleResult, valuesAssembleResult);
+        return String.format("INSERT INTO %s ( %s ) VALUES (%s)", tableName, columnClause, valueClause);
     }
 
     @Override
-    public String update(QueryBuilderParameter parameter) {
-        return null;
+    public String update(UpdateBuilderParameter parameter) {
+        // 검증 방식 구상해야함
+
+        String tableName = parameter.tableName();
+
+        StringBuilder setBuilder = new StringBuilder();
+        StringBuilder whereBuilder = new StringBuilder();
+
+        Map<String, String> requestParams = parameter.requestParams();
+        List<String> columnNames = parameter.columnNames();
+        Iterator<String> columnNamesIter = columnNames.iterator();
+
+
+        // set 절 처리
+        int columnSize = columnNames.size();
+        int setRoofCnt = 0;
+        while (columnSize > setRoofCnt) {
+            String column = columnNamesIter.next();
+            String value = requestParams.get(column);
+
+            setBuilder.append(column + "=" + formatValue(value));
+
+            // 구분자 처리
+            if (columnNamesIter.hasNext()) {
+                setBuilder.append(", ");
+            }
+            setRoofCnt++;
+        }
+
+        // where 절 처리
+        Map<String, String> whereClauseParams = parameter.whereClauseParams();
+
+        Iterator<Map.Entry<String, String>> whereClauseIterator = whereClauseParams.entrySet().iterator();
+        int whereSize = whereClauseParams.size();
+        int whereRoofCnt = 0;
+        while (whereSize > whereRoofCnt) {
+            Map.Entry<String, String> whereCaluseEntry = whereClauseIterator.next();
+
+            whereBuilder.append(whereCaluseEntry.getKey() + "=" + formatValue(whereCaluseEntry.getValue()));
+
+            if (whereClauseIterator.hasNext()) {
+                whereBuilder.append(" AND ");
+            }
+
+            whereRoofCnt++;
+        }
+
+        String setClause = setBuilder.toString();
+        String whereClause = whereBuilder.toString();
+
+        return String.format("UPDATE %s SET %s WHERE %s", tableName, setClause, whereClause);
     }
 
     @Override
-    public String delete(QueryBuilderParameter parameter) {
+    public String delete(DeleteBuilderParameter parameter) {
+        // 검증 방식 구상해야함
+
         return null;
     }
 
@@ -78,6 +130,7 @@ public class SimpleSqlQueryBuilder implements SqlQueryBuilder {
             return false;
         }
     }
+
     // 쿼리 생성 전 검증 로직
     private boolean valid() {
         return true;
