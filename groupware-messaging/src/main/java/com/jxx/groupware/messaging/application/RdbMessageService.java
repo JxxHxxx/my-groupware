@@ -18,12 +18,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -90,7 +86,6 @@ public class RdbMessageService extends AbstractMessageService {
                         throw new NonUniqueWriteException(update + "개의 레코드에 변경이 일어나게 됩니다. RDB 정책에 위배되어 롤백합니다.");
                     }
                 } catch (RdbMessagePolicyException exception) {
-                    log.error("{}", exception.getMessage(), exception);
                     txStatus.setRollbackOnly();
                     throw exception;
                 }
